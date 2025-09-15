@@ -1,0 +1,235 @@
+/* ===== OPTIMIZACIONES PARA PDF VIEWER - VERSIÓN 2.0 ===== */
+/* ÚLTIMA ACTUALIZACIÓN: $(date) */
+
+/* Contenedor del modal optimizado */
+.fi-modal[data-modal-id*="preview_pdf"] .fi-modal-content {
+    height: 90vh !important;
+    max-height: 90vh !important;
+    width: 90vw !important;
+    max-width: 90vw !important;
+}
+
+/* Contenedor principal del PDF */
+.fi-modal[data-modal-id*="preview_pdf"] .pdf-viewer-container {
+    height: 100% !important;
+    min-height: 75vh !important;
+}
+
+/* Contenedor del media optimizado */
+.fi-modal[data-modal-id*="preview_pdf"] .mediaContainer {
+    height: 100% !important;
+    min-height: 75vh !important;
+    flex: 1 !important;
+}
+
+/* ===== IFRAME DEL PDF OPTIMIZADO ===== */
+.fi-modal[data-modal-id*="preview_pdf"] iframe {
+    width: 100% !important;
+    height: 80vh !important;
+    min-height: 80vh !important;
+    max-height: 80vh !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Específico para PDF iframe */
+.fi-modal[data-modal-id*="preview_pdf"] .pdf-iframe {
+    width: 100% !important;
+    height: 80vh !important;
+    min-height: 80vh !important;
+    max-height: 80vh !important;
+    border: none !important;
+    border-radius: 0 !important;
+}
+
+/* Contenedor del iframe optimizado */
+.fi-modal[data-modal-id*="preview_pdf"] .fi-modal-body {
+    padding: 0 !important;
+    margin: 0 !important;
+    height: 75vh !important;
+    min-height: 70vh !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Asegurar que el contenedor del media ocupe todo el espacio */
+.fi-modal[data-modal-id*="preview_pdf"] [data-media-container] {
+    width: 100% !important;
+    height: 100% !important;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Selectores adicionales para MediaAction */
+.fi-modal[data-modal-id*="preview_pdf"] .fi-media-action-content,
+.fi-modal[data-modal-id*="preview_pdf"] .media-action-wrapper,
+.fi-modal[data-modal-id*="preview_pdf"] .pdf-viewer-container {
+    width: 100% !important;
+    height: 100% !important;
+    flex: 1 !important;
+}
+
+/* Forzar ancho completo en todos los elementos contenedores */
+.fi-modal[data-modal-id*="preview_pdf"] * {
+    box-sizing: border-box !important;
+}
+
+.fi-modal[data-modal-id*="preview_pdf"] embed,
+.fi-modal[data-modal-id*="preview_pdf"] object {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 70vh !important;
+}
+
+/* Header del modal optimizado */
+.fi-modal[data-modal-id*="preview_pdf"] .fi-modal-header {
+    padding: 1rem 1.5rem !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    background-color: #f9fafb !important;
+}
+
+/* Footer del modal optimizado */
+.fi-modal[data-modal-id*="preview_pdf"] .fi-modal-footer {
+    padding: 1rem 1.5rem !important;
+    border-top: 1px solid #e5e7eb !important;
+    background-color: #f9fafb !important;
+    justify-content: flex-end !important;
+}
+
+/* Botón de cerrar optimizado */
+.fi-modal[data-modal-id*="preview_pdf"] .fi-btn-close {
+    background-color: #6b7280 !important;
+    color: white !important;
+    border: none !important;
+    padding: 0.5rem 1rem !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    transition: background-color 0.2s ease !important;
+}
+
+.fi-modal[data-modal-id*="preview_pdf"] .fi-btn-close:hover {
+    background-color: #4b5563 !important;
+}
+
+/* Responsive para tablets */
+@media (max-width: 1024px) {
+    .fi-modal[data-modal-id*="preview_pdf"] {
+        max-width: 98vw !important;
+        max-height: 98vh !important;
+    }
+    
+    .fi-modal[data-modal-id*="preview_pdf"] .fi-modal-content {
+        height: 95vh !important;
+    }
+    
+    .fi-modal[data-modal-id*="preview_pdf"] iframe {
+        height: 80vh !important;
+        min-height: 500px !important;
+    }
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    .fi-modal[data-modal-id*="preview_pdf"] {
+        max-width: 100vw !important;
+        max-height: 100vh !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+    }
+    
+    .fi-modal[data-modal-id*="preview_pdf"] .fi-modal-content {
+        height: 100vh !important;
+        border-radius: 0 !important;
+    }
+    
+    .fi-modal[data-modal-id*="preview_pdf"] iframe {
+        height: 85vh !important;
+        min-height: 400px !important;
+        border-radius: 0 !important;
+    }
+    
+    .fi-modal[data-modal-id*="preview_pdf"] .fi-modal-header,
+    .fi-modal[data-modal-id*="preview_pdf"] .fi-modal-footer {
+        padding: 0.75rem 1rem !important;
+    }
+}
+
+/* Loading state para el PDF */
+.fi-modal[data-modal-id*="preview_pdf"] iframe[src=""] {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Mejoras para el contenido del modal */
+.fi-modal[data-modal-id*="preview_pdf"] .fi-modal-body {
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Título del modal más prominente */
+.fi-modal[data-modal-id*="preview_pdf"] .fi-modal-heading {
+    font-size: 1.125rem !important;
+    font-weight: 600 !important;
+    color: #1f2937 !important;
+}
+
+/* Descripción del modal */
+.fi-modal[data-modal-id*="preview_pdf"] .fi-modal-description {
+    font-size: 0.875rem !important;
+    color: #6b7280 !important;
+    margin-top: 0.25rem !important;
+}
+
+/* Overlay del modal más suave */
+.fi-modal[data-modal-id*="preview_pdf"] + .fi-modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(4px) !important;
+}
+
+/* Animación de entrada del modal */
+.fi-modal[data-modal-id*="preview_pdf"] {
+    animation: modalFadeIn 0.3s ease-out !important;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Scroll suave en el modal */
+.fi-modal[data-modal-id*="preview_pdf"] {
+    scroll-behavior: smooth !important;
+}
+
+/* Mejoras para el contraste y legibilidad */
+.fi-modal[data-modal-id*="preview_pdf"] {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+    border: 1px solid #e5e7eb !important;
+}
+
+/* Estado de focus para accesibilidad */
+.fi-modal[data-modal-id*="preview_pdf"] .fi-btn-close:focus {
+    outline: 2px solid #3b82f6 !important;
+    outline-offset: 2px !important;
+}

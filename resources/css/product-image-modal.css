@@ -1,0 +1,17 @@
+/* SIMPLE MODAL - KISS APPROACH */
+.fi-modal .fi-modal-content {
+    padding: 8px !important;
+}
+
+.fi-modal .fi-modal-header {
+    padding: 8px 12px !important;
+    text-align: center !important;
+}
+
+.fi-modal .fi-modal-body {
+    padding: 4px !important;
+}
+
+.fi-modal .fi-modal-footer {
+    padding: 8px 12px !important;
+}

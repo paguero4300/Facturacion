@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Checkout UI</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Left Sidebar -->
+        <div class="sidebar">
+            <div class="product-section">
+                <div class="product-header">
+                    <span class="product-label">PRODUCT</span>
+                    <span class="qty-label">QTY</span>
+                    <span class="price-label">PRICE</span>
+                    <span class="subtotal-label">SUB TOTAL</span>
+                </div>
+                
+                <div class="product-item">
+                    <div class="product-info">
+                        <span class="product-name">Potato</span>
+                        <span class="product-tag">VEGETABLES</span>
+                    </div>
+                    <div class="quantity-controls">
+                        <button class="qty-btn minus">-</button>
+                        <span class="qty-value">5</span>
+                        <button class="qty-btn plus">+</button>
+                    </div>
+                    <div class="price">₹ 53.73</div>
+                    <div class="subtotal">₹ 268.65</div>
+                    <button class="remove-btn">×</button>
+                </div>
+            </div>
+
+            <div class="tax-section">
+                <div class="tax-row">
+                    <span>Tax</span>
+                    <span>%</span>
+                </div>
+                <div class="discount-section">
+                    <div class="discount-type">
+                        <label><input type="radio" name="discount" checked> Fixed</label>
+                        <label><input type="radio" name="discount"> Percentage</label>
+                    </div>
+                    <div class="discount-input">
+                        <input type="text" placeholder="Discount" value="₹">
+                    </div>
+                    <div class="shipping-input">
+                        <input type="text" placeholder="Shipping" value="₹">
+                    </div>
+                </div>
+            </div>
+
+            <div class="totals-section">
+                <div class="total-row">
+                    <span>Total QTY : 5.00</span>
+                </div>
+                <div class="total-row">
+                    <span>Sub Total : ₹ 268.65</span>
+                </div>
+                <div class="total-row final">
+                    <span>Total : ₹ 268.65</span>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn hold">Hold 🔒</button>
+                <button class="btn reset">Reset 🔄</button>
+                <button class="btn pay">Pay Now 💳</button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="category-tabs">
+                <button class="tab active">All Categories</button>
+                <button class="tab">FRUITS & VEGETABLES</button>
+            </div>
+
+            <div class="brand-filters">
+                <button class="filter">All Brands</button>
+                <button class="filter">Nature's Best</button>
+                <button class="filter active">sweet farms</button>
+            </div>
+
+            <div class="products-grid">
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="/placeholder.svg?height=120&width=120" alt="Potato">
+                        <div class="price-tag">₹ 53.73</div>
+                        <div class="weight-tag">92.5 kilogram</div>
+                    </div>
+                    <div class="product-details">
+                        <h3>Potato</h3>
+                        <p>VCO76VFR</p>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="/placeholder.svg?height=120&width=120" alt="Tomato">
+                        <div class="price-tag">₹ 46.30</div>
+                        <div class="weight-tag">583.5 kilogram</div>
+                    </div>
+                    <div class="product-details">
+                        <h3>Tomato</h3>
+                        <p>HE8GACN44P</p>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="/placeholder.svg?height=120&width=120" alt="Onion">
+                        <div class="price-tag">₹ 18.34</div>
+                        <div class="weight-tag">54 kilogram</div>
+                    </div>
+                    <div class="product-details">
+                        <h3>Onion</h3>
+                        <p>2JO5JWU7A</p>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="/placeholder.svg?height=120&width=120" alt="Cabbage">
+                        <div class="price-tag">₹ 107.24</div>
+                        <div class="weight-tag">37 kilogram</div>
+                    </div>
+                    <div class="product-details">
+                        <h3>Cabbage</h3>
+                        <p>CBRMJ2PH</p>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="/placeholder.svg?height=120&width=120" alt="Cauliflower">
+                        <div class="price-tag">₹ 72.15</div>
+                        <div class="weight-tag">275 kilogram</div>
+                    </div>
+                    <div class="product-details">
+                        <h3>Cauliflower</h3>
+                        <p>OCIMCF8BDMF</p>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="/placeholder.svg?height=120&width=120" alt="Spinach">
+                        <div class="price-tag">₹ 64.44</div>
+                        <div class="weight-tag">353 kilogram</div>
+                    </div>
+                    <div class="product-details">
+                        <h3>Spinach</h3>
+                        <p>Q3B84XCQ0IG</p>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="/placeholder.svg?height=120&width=120" alt="Broccoli">
+                        <div class="price-tag">₹ 17.12</div>
+                        <div class="weight-tag">350 kilogram</div>
+                    </div>
+                    <div class="product-details">
+                        <h3>Broccoli</h3>
+                        <p>RRGBGJ28YY</p>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="/placeholder.svg?height=120&width=120" alt="Capsicum">
+                        <div class="price-tag">₹ 74.58</div>
+                        <div class="weight-tag">20 kilogram</div>
+                    </div>
+                    <div class="product-details">
+                        <h3>Capsicum</h3>
+                        <p>BUPJLP28LS</p>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="/placeholder.svg?height=120&width=120" alt="Pumpkin">
+                        <div class="price-tag">₹ 42.28</div>
+                        <div class="weight-tag">198 kilogram</div>
+                    </div>
+                    <div class="product-details">
+                        <h3>Pumpkin</h3>
+                        <p>000209</p>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="/placeholder.svg?height=120&width=120" alt="Radish">
+                        <div class="price-tag">₹ 91.46</div>
+                        <div class="weight-tag">384 kilogram</div>
+                    </div>
+                    <div class="product-details">
+                        <h3>Radish</h3>
+                        <p>BUSLQOAA83T</p>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="/placeholder.svg?height=120&width=120" alt="Turnip">
+                        <div class="price-tag">₹ 54.42</div>
+                        <div class="weight-tag">205 kilogram</div>
+                    </div>
+                    <div class="product-details">
+                        <h3>Turnip</h3>
+                        <p>2IWSUHBBLD3</p>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="/placeholder.svg?height=120&width=120" alt="Beetroot">
+                        <div class="price-tag">₹ 120.77</div>
+                        <div class="weight-tag">119 kilogram</div>
+                    </div>
+                    <div class="product-details">
+                        <h3>Beetroot</h3>
+                        <p>I6XORSAAMFD</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
