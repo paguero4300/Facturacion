@@ -1,61 +1,103 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 💼 QPOS - Sistema de Facturación Electrónica
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> Sistema completo de Point of Sale (POS) con facturación electrónica para SUNAT, desarrollado con Laravel y Filament.
 
-## About Laravel
+## ✨ Características Principales
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- 🧾 **Facturación Electrónica**: Integración completa con SUNAT mediante QPSE y Greenter
+- 💰 **Punto de Venta**: Interface moderna para ventas rápidas
+- 📊 **Gestión de Inventario**: Control de productos, categorías y marcas
+- 👥 **Gestión de Clientes**: Administración completa de clientes
+- 💱 **Tipos de Cambio**: Actualización automática desde APIs oficiales
+- 🎨 **Interface Moderna**: Desarrollado con Filament Admin Panel
+- 📄 **Múltiples Formatos**: Facturas A4, Boletas, Tickets 80mm
+- 🔌 **Integraciones**: Factiliza, APIs de tipo de cambio, y más
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Instalación Rápida
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```bash
+# Clonar el repositorio
+git clone https://github.com/paguero4300/Facturacion.git
+cd Facturacion
 
-## Learning Laravel
+# Instalar dependencias
+composer install
+npm install
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+# Configurar ambiente
+cp .env.example .env
+php artisan key:generate
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+# Configurar base de datos y migrar
+php artisan migrate --seed
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# Compilar assets
+npm run build
 
-## Laravel Sponsors
+# Iniciar servidor
+php artisan serve
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 📚 Documentación
 
-### Premium Partners
+Toda la documentación del proyecto se encuentra organizada en la carpeta [`docs/`](./docs/):
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- **[📖 Índice Completo](./docs/INDEX.md)** - Navegación por toda la documentación
+- **[⚙️ Configuración QPSE](./docs/QPSE_SETUP.md)** - Configuración inicial del sistema
+- **[🔧 Solución de Problemas](./docs/QPSE_CONNECTION_TROUBLESHOOTING.md)** - Troubleshooting
+- **[💰 Sistema de Facturación](./docs/INVOICE_PDF_DOCUMENTATION.md)** - Documentación de facturas
+- **[🔌 Integraciones](./docs/FACTILIZA_API.md)** - APIs y servicios externos
 
-## Contributing
+### Documentación por Categorías:
+- 🏗️ **Arquitectura y Configuración**
+- 💰 **Sistema de Facturación** 
+- 💱 **Tipos de Cambio y APIs**
+- 🔌 **Integraciones y APIs**
+- 🎨 **Interface y Componentes**
+- 🤖 **Desarrollo y AI**
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 🛠️ Stack Tecnológico
 
-## Code of Conduct
+### Backend
+- **Laravel 11** - Framework PHP
+- **Filament 3** - Panel de administración
+- **MySQL** - Base de datos
+- **Greenter** - Facturación electrónica
+- **QPSE** - Integración SUNAT
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Frontend  
+- **Tailwind CSS** - Estilos
+- **Alpine.js** - Interactividad
+- **Iconoir** - Iconografía
+- **Flatpickr** - Selectores de fecha
 
-## Security Vulnerabilities
+### Integraciones
+- **Factiliza API** - Gestión de clientes
+- **APIs Tipo de Cambio** - Actualizaciones automáticas
+- **SUNAT** - Facturación electrónica oficial
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 🤝 Contribuciones
 
-## License
+Las contribuciones son bienvenidas. Por favor:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+## 📝 Licencia
+
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para detalles.
+
+## 📞 Soporte
+
+Si tienes preguntas o necesitas ayuda:
+
+- 📖 Consulta la [documentación completa](./docs/INDEX.md)
+- 🐛 Reporta bugs en [Issues](https://github.com/paguero4300/Facturacion/issues)
+- 💬 Discusiones en [Discussions](https://github.com/paguero4300/Facturacion/discussions)
+
+---
+
+**Desarrollado con ❤️ para facilitar la facturación electrónica en Perú**
