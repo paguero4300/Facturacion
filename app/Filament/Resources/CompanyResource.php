@@ -179,17 +179,20 @@ class CompanyResource extends Resource
                                         Grid::make(4)
                                             ->schema([
                                                 TextInput::make('district')
+                                                    ->required()
                                                     ->maxLength(100)
                                                     ->label(__('Distrito')),
-                                                    
+
                                                 TextInput::make('province')
+                                                    ->required()
                                                     ->maxLength(100)
                                                     ->label(__('Provincia')),
-                                                    
+
                                                 TextInput::make('department')
+                                                    ->required()
                                                     ->maxLength(100)
                                                     ->label(__('Departamento')),
-                                                    
+
                                                 TextInput::make('ubigeo')
                                                     ->maxLength(10)
                                                     ->label(__('Ubigeo'))
@@ -271,6 +274,15 @@ class CompanyResource extends Resource
                                                 ->color('primary')
                                                 ->size('lg')
                                                 ->action(function ($record) {
+                                                    if (!$record) {
+                                                        \Filament\Notifications\Notification::make()
+                                                            ->title(__('Registro no encontrado'))
+                                                            ->body(__('Guarde la empresa primero antes de obtener el token'))
+                                                            ->danger()
+                                                            ->send();
+                                                        return;
+                                                    }
+
                                                     // Mostrar notificación de progreso
                                                     \Filament\Notifications\Notification::make()
                                                         ->title(__('Obteniendo token...'))
@@ -278,7 +290,7 @@ class CompanyResource extends Resource
                                                         ->info()
                                                         ->duration(3000)
                                                         ->send();
-                                                    
+
                                                     $tokenService = app(\App\Services\QpseTokenService::class);
                                                     // Obtener token sin prueba de conexión para evitar errores de endpoints
                                                     $result = $tokenService->obtenerTokenConCredencialesExistentes($record, false);
@@ -321,6 +333,15 @@ class CompanyResource extends Resource
                                                 ->icon('heroicon-o-chart-bar-square')
                                                 ->color('info')
                                                 ->action(function ($record) {
+                                                    if (!$record) {
+                                                        \Filament\Notifications\Notification::make()
+                                                            ->title(__('Registro no encontrado'))
+                                                            ->body(__('Guarde la empresa primero para ver el estado'))
+                                                            ->danger()
+                                                            ->send();
+                                                        return;
+                                                    }
+
                                                     $tokenService = app(\App\Services\QpseTokenService::class);
                                                     $status = $tokenService->getCompleteStatus($record);
                                                     
@@ -392,8 +413,17 @@ class CompanyResource extends Resource
                                                 ->label(__('🔄 Renovar Solo Token'))
                                                 ->icon('heroicon-o-arrow-path')
                                                 ->color('warning')
-                                                ->visible(fn ($record) => $record->hasQpseCredentials())
+                                                ->visible(fn ($record) => $record && $record->hasQpseCredentials())
                                                 ->action(function ($record) {
+                                                    if (!$record) {
+                                                        \Filament\Notifications\Notification::make()
+                                                            ->title(__('Registro no encontrado'))
+                                                            ->body(__('Guarde la empresa primero antes de renovar el token'))
+                                                            ->danger()
+                                                            ->send();
+                                                        return;
+                                                    }
+
                                                     $tokenService = app(\App\Services\QpseTokenService::class);
                                                     $result = $tokenService->refreshAccessToken($record);
                                                     
@@ -418,15 +448,24 @@ class CompanyResource extends Resource
                                                 ->label(__('📶 Probar Conexión'))
                                                 ->icon('heroicon-o-signal')
                                                 ->color('info')
-                                                ->visible(fn ($record) => $record->hasQpseCredentials() && !empty($record->qpse_access_token))
+                                                ->visible(fn ($record) => $record && $record->hasQpseCredentials() && !empty($record->qpse_access_token))
                                                 ->action(function ($record) {
+                                                    if (!$record) {
+                                                        \Filament\Notifications\Notification::make()
+                                                            ->title(__('Registro no encontrado'))
+                                                            ->body(__('Guarde la empresa primero antes de probar la conexión'))
+                                                            ->danger()
+                                                            ->send();
+                                                        return;
+                                                    }
+
                                                     \Filament\Notifications\Notification::make()
                                                         ->title(__('Probando conexión...'))
                                                         ->body(__('Verificando conectividad con QPse'))
                                                         ->info()
                                                         ->duration(3000)
                                                         ->send();
-                                                    
+
                                                     $tokenService = app(\App\Services\QpseTokenService::class);
                                                     $result = $tokenService->testConnection($record);
                                                     

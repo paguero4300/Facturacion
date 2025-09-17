@@ -1,0 +1,1 @@
+0	Modelo	Unidad de medida	Posee IGV	Categoría	Marca	Precio	Fecha de vencimiento	Unidad	Descripcion	Factor	Precio 1	Precio 2	Precio 3	Unidad	Descripcion	Factor	Precio 1	Precio 2	Precio 3	Unidad	Descripcion	Factor	Precio 1	Precio 2	Precio 3	imagenes
