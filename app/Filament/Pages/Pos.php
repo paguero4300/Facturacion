@@ -22,6 +22,7 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Enums\Width;
+use Illuminate\Support\Facades\Log;
 
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -439,7 +440,7 @@ class Pos extends Page implements HasForms, HasTable
         $this->dispatch('open-payment-modal');
     }
 
-    public function processSale(array $paymentData): void
+    public function processSale(array $paymentData): array
     {
         if (empty($this->data['cart_items'])) {
             Notification::make()
@@ -447,7 +448,7 @@ class Pos extends Page implements HasForms, HasTable
                 ->body('El carrito está vacío')
                 ->danger()
                 ->send();
-            return;
+            return ['success' => false, 'error' => 'El carrito está vacío'];
         }
 
         // Debug: Log payment data
@@ -459,7 +460,8 @@ class Pos extends Page implements HasForms, HasTable
             'cart_items_count' => count($this->data['cart_items'] ?? [])
         ]);
 
-        DB::transaction(function () use ($paymentData) {
+        $invoiceData = null;
+        DB::transaction(function () use ($paymentData, &$invoiceData) {
             // Bloquear la serie para evitar concurrencia
             $series = DocumentSeries::where('document_type', $paymentData['document_type'])
                 ->where('status', 'active')
@@ -654,10 +656,34 @@ class Pos extends Page implements HasForms, HasTable
             ]);
             
             \Log::info('Invoice created successfully:', ['id' => $invoice->id, 'full_number' => $invoice->full_number]);
+            \Log::info('Invoice totals after creation:', [
+                'subtotal' => $invoice->subtotal,
+                'igv_amount' => $invoice->igv_amount,
+                'total_amount' => $invoice->total_amount
+            ]);
             
             // Crear detalles
             foreach ($this->data['cart_items'] as $index => $item) {
                 $product = Product::find($item['product_id']);
+                
+                // Calcular correctamente los montos (asumiendo que unit_price incluye IGV)
+                $quantity = $item['quantity'];
+                $unitPriceWithIgv = $item['unit_price'];
+                $unitValueWithoutIgv = $unitPriceWithIgv / 1.18; // Valor unitario sin IGV
+                $grossAmount = $quantity * $unitPriceWithIgv;
+                $netAmount = $quantity * $unitValueWithoutIgv; // Base imponible
+                $igvAmount = $netAmount * 0.18; // IGV sobre la base imponible
+                $lineTotal = $netAmount + $igvAmount; // Total de la línea
+                
+                \Log::info("Detail calculation for item {$index}:", [
+                    'product' => $product->name,
+                    'quantity' => $quantity,
+                    'unit_price_with_igv' => $unitPriceWithIgv,
+                    'unit_value_without_igv' => $unitValueWithoutIgv,
+                    'net_amount' => $netAmount,
+                    'igv_amount' => $igvAmount,
+                    'line_total' => $lineTotal
+                ]);
                 
                 InvoiceDetail::create([
                     'invoice_id' => $invoice->id,
@@ -666,15 +692,17 @@ class Pos extends Page implements HasForms, HasTable
                     'product_code' => $product->code,
                     'description' => $product->name,
                     'unit_code' => $product->unit_code ?? 'NIU',
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                    'unit_value' => $item['unit_price'] / 1.18, // Sin IGV
-                    'gross_amount' => $item['quantity'] * $item['unit_price'],
-                    'net_amount' => $item['quantity'] * ($item['unit_price'] / 1.18),
+                    'quantity' => $quantity,
+                    'unit_price' => $unitPriceWithIgv,
+                    'unit_value' => $unitValueWithoutIgv,
+                    'gross_amount' => $grossAmount,
+                    'net_amount' => $netAmount,
+                    'igv_base_amount' => $netAmount,
                     'tax_type' => '10', // Gravado
                     'igv_rate' => 0.18,
-                    'igv_amount' => $item['quantity'] * ($item['unit_price'] * 0.18 / 1.18),
-                    'line_total' => $item['total'],
+                    'igv_amount' => $igvAmount,
+                    'total_taxes' => $igvAmount,
+                    'line_total' => $lineTotal,
                 ]);
                 
                 // Actualizar stock si es producto físico
@@ -682,6 +710,18 @@ class Pos extends Page implements HasForms, HasTable
                     $product->decrement('current_stock', $item['quantity']);
                 }
             }
+            
+            // Refrescar la factura para obtener los totales calculados por el Observer
+            $invoice->refresh();
+            \Log::info('Invoice totals after details creation and Observer calculation:', [
+                'subtotal' => $invoice->subtotal,
+                'igv_amount' => $invoice->igv_amount,
+                'total_amount' => $invoice->total_amount
+            ]);
+            
+            // Capturar datos del carrito ANTES de limpiarlo
+            $cartItemsForResponse = $this->data['cart_items'];
+            Log::info('Cart items being sent to frontend (before clearing):', $cartItemsForResponse);
             
             // Limpiar carrito
             $this->data['cart_items'] = [];
@@ -709,7 +749,33 @@ class Pos extends Page implements HasForms, HasTable
                 ->success()
                 ->duration(5000)
                 ->send();
+            
+            $invoiceData = [
+                'success' => true,
+                'invoice' => [
+                    'id' => $invoice->id,
+                    'series' => $invoice->series,
+                    'number' => $invoice->number,
+                    'full_number' => $invoice->full_number,
+                    'document_type' => $invoice->document_type,
+                    'issue_date' => $invoice->issue_date->format('d/m/Y'),
+                    'issue_time' => $invoice->issue_date->format('H:i'),
+                    'client_name' => $invoice->client_business_name,
+                    'client_document' => $invoice->client_document_number,
+                    'client_document_type' => $invoice->client_document_type,
+                    'subtotal' => $invoice->subtotal,
+                    'igv_amount' => $invoice->igv_amount,
+                    'total_amount' => $invoice->total_amount,
+                    'payment_method' => $paymentData['payment_method'],
+                    'change_amount' => $paymentData['change_amount'] ?? 0
+                ],
+                'cart_items' => $cartItemsForResponse
+            ];
+            
+            Log::info('Complete invoice data being returned:', $invoiceData);
         });
+        
+        return $invoiceData ?? ['success' => false, 'error' => 'Error en la transacción'];
     }
     
     public function searchClient(string $documentNumber): ?array

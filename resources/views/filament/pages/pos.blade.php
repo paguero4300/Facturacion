@@ -668,6 +668,28 @@
             }
         }
         
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+        
         .payment-modal-header {
             display: flex;
             justify-content: space-between;
@@ -2042,7 +2064,7 @@
                                     
                                     <!-- Botón para buscar cliente existente -->
                                     <div class="payment-form-group">
-                                        <button type="button" class="search-client-btn" onclick="searchExistingClient()">
+                                        <button type="button" class="search-client-btn" onclick="searchExistingClient(event)">
                                             🔍 Buscar Cliente Existente
                                         </button>
                                     </div>
@@ -2272,6 +2294,9 @@
             email: @json($company?->email)
         };
         
+        // Variable global para almacenar datos de la factura actual
+        let currentInvoiceData = null;
+        
         let totalAmount = 0;
         
         // Función para obtener el total actual
@@ -2403,7 +2428,13 @@
             }
         }
         
-        function searchExistingClient() {
+        function searchExistingClient(event) {
+            // Prevenir que el evento se propague y cierre el modal
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            
             const documentNumber = document.getElementById('client_document_number').value;
             
             if (!documentNumber) {
@@ -2418,14 +2449,59 @@
                     document.getElementById('client_document_number').value = client.document_number;
                     document.getElementById('client_business_name').value = client.business_name;
                     
-                    alert('Cliente encontrado: ' + client.business_name);
+                    // Mostrar notificación visual en lugar de alert
+                    showClientNotification('✅ Cliente encontrado: ' + client.business_name, 'success');
                 } else {
-                    alert('Cliente no encontrado. Puede ingresar los datos manualmente.');
+                    showClientNotification('⚠️ Cliente no encontrado. Puede ingresar los datos manualmente.', 'warning');
                 }
             }).catch((error) => {
                 console.error('Error buscando cliente:', error);
-                alert('Error al buscar cliente. Puede ingresar los datos manualmente.');
+                showClientNotification('❌ Error al buscar cliente. Puede ingresar los datos manualmente.', 'error');
             });
+        }
+        
+        function showClientNotification(message, type) {
+            // Crear elemento de notificación
+            const notification = document.createElement('div');
+            notification.className = `client-notification client-notification-${type}`;
+            notification.innerHTML = message;
+            
+            // Estilos inline para la notificación
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 20px;
+                border-radius: 8px;
+                color: white;
+                font-weight: 500;
+                z-index: 10001;
+                max-width: 300px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                animation: slideInRight 0.3s ease-out;
+            `;
+            
+            // Colores según el tipo
+            if (type === 'success') {
+                notification.style.backgroundColor = '#10b981';
+            } else if (type === 'warning') {
+                notification.style.backgroundColor = '#f59e0b';
+            } else if (type === 'error') {
+                notification.style.backgroundColor = '#ef4444';
+            }
+            
+            // Agregar al DOM
+            document.body.appendChild(notification);
+            
+            // Remover después de 3 segundos
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
         }
         
         function toggleCashFields() {
@@ -2694,18 +2770,33 @@
             }
             
             // Llamar al método de Livewire
-            @this.call('processSale', paymentData).then(() => {
+            @this.call('processSale', paymentData).then((result) => {
+                console.log('Resultado del processSale:', result);
+                
                 // Cerrar modal de pago
                 closePaymentModal();
                 
-                // Esperar un momento y luego abrir modal de ticket
-                setTimeout(() => {
-                    // Llenar datos del ticket con la información guardada
-                    populateTicketDataWithSavedData(formData, paymentMethod, documentType, currentCartItems, currentTotal, currentSubtotal, currentIgv);
+                // Verificar si la venta fue exitosa
+                if (result && result.success && result.invoice) {
+                    console.log('✅ Sale successful, invoice data:', result.invoice);
+                    console.log('✅ Cart items received:', result.cart_items);
+                    console.log('✅ Payment method:', paymentMethod);
                     
-                    // Mostrar modal de ticket
-                    document.getElementById('ticket-modal').style.display = 'flex';
-                }, 500);
+                    // Esperar un momento y luego abrir modal de ticket con datos reales
+                    setTimeout(() => {
+                        console.log('🎫 About to populate ticket with real invoice data...');
+                        // Llenar datos del ticket con la información real de la factura
+                        populateTicketDataWithRealInvoice(result.invoice, result.cart_items, paymentMethod);
+                        
+                        console.log('🎫 About to show ticket modal...');
+                        // Mostrar modal de ticket
+                        document.getElementById('ticket-modal').style.display = 'flex';
+                        console.log('🎫 Ticket modal should now be visible');
+                    }, 500);
+                } else {
+                    console.error('Error en la respuesta:', result);
+                    alert('Error al procesar el pago: ' + (result?.error || 'Error desconocido'));
+                }
             }).catch((error) => {
                 console.error('Error procesando pago:', error);
                 alert('Error al procesar el pago. Por favor intente nuevamente.');
@@ -2839,6 +2930,154 @@
             }
         }
         
+        function populateTicketDataWithRealInvoice(invoice, cartItems, paymentMethod) {
+            console.log('=== POPULATING TICKET WITH REAL INVOICE DATA ===');
+            console.log('Invoice data:', invoice);
+            console.log('Cart items received:', cartItems);
+            console.log('Payment method:', paymentMethod);
+            
+            // Almacenar datos de la factura globalmente para el botón imprimir
+            currentInvoiceData = {
+                id: invoice.id,
+                document_type: invoice.document_type,
+                full_number: invoice.full_number,
+                invoice: invoice,
+                cartItems: cartItems,
+                paymentMethod: paymentMethod
+            };
+            console.log('📋 Invoice data stored globally:', currentInvoiceData);
+            console.log('Subtotal type:', typeof invoice.subtotal, 'Value:', invoice.subtotal);
+            console.log('IGV type:', typeof invoice.igv_amount, 'Value:', invoice.igv_amount);
+            console.log('Total type:', typeof invoice.total_amount, 'Value:', invoice.total_amount);
+            
+            // Actualizar datos de la empresa en el ticket
+            document.querySelector('.company-name').textContent = companyData.business_name;
+            document.querySelector('.company-ruc').textContent = `RUC: ${companyData.ruc}`;
+            document.querySelector('.company-address').textContent = `${companyData.address}, ${companyData.district} - ${companyData.province}`;
+            
+            // Actualizar teléfono y email si existen
+            const phoneElement = document.querySelector('.company-phone');
+            const emailElement = document.querySelector('.company-email');
+            
+            if (companyData.phone) {
+                if (phoneElement) {
+                    phoneElement.textContent = `Tel: ${companyData.phone}`;
+                    phoneElement.style.display = 'block';
+                } else {
+                    const newPhoneElement = document.createElement('div');
+                    newPhoneElement.className = 'company-phone';
+                    newPhoneElement.textContent = `Tel: ${companyData.phone}`;
+                    document.querySelector('.ticket-header').appendChild(newPhoneElement);
+                }
+            } else if (phoneElement) {
+                phoneElement.style.display = 'none';
+            }
+            
+            if (companyData.email) {
+                if (emailElement) {
+                    emailElement.textContent = `Email: ${companyData.email}`;
+                    emailElement.style.display = 'block';
+                } else {
+                    const newEmailElement = document.createElement('div');
+                    newEmailElement.className = 'company-email';
+                    newEmailElement.textContent = `Email: ${companyData.email}`;
+                    document.querySelector('.ticket-header').appendChild(newEmailElement);
+                }
+            } else if (emailElement) {
+                emailElement.style.display = 'none';
+            }
+            
+            // Actualizar tipo de documento con datos reales
+            const documentTypeNames = {
+                '09': 'NOTA DE VENTA',
+                '03': 'BOLETA DE VENTA', 
+                '01': 'FACTURA'
+            };
+            document.getElementById('ticket-document-type').textContent = documentTypeNames[invoice.document_type] || 'DOCUMENTO';
+            
+            // Usar número real de la factura
+            document.getElementById('ticket-document-number').textContent = invoice.full_number;
+            
+            // Usar fecha y hora real de la factura
+            document.getElementById('ticket-document-date').textContent = `${invoice.issue_date} - ${invoice.issue_time}`;
+            
+            // Información real del cliente
+            const clientDocType = invoice.client_document_type === '6' ? 'RUC' : 'DNI';
+            document.querySelector('.client-name').textContent = `Cliente: ${invoice.client_name}`;
+            document.querySelector('.client-document').textContent = `${clientDocType}: ${invoice.client_document}`;
+            
+            // Productos del carrito usando datos reales
+            populateTicketProductsWithSavedData(cartItems);
+            
+            // Totales reales de la factura
+            const parsedSubtotal = parseFloat(invoice.subtotal);
+            const parsedIgv = parseFloat(invoice.igv_amount);
+            const parsedTotal = parseFloat(invoice.total_amount);
+            
+            console.log('Parsed values:', {parsedSubtotal, parsedIgv, parsedTotal});
+            
+            // Verificar que los elementos existen antes de actualizarlos
+            const subtotalElement = document.getElementById('ticket-subtotal');
+            const igvElement = document.getElementById('ticket-igv');
+            const totalElement = document.getElementById('ticket-total');
+            
+            console.log('DOM elements found:', {
+                subtotalElement: !!subtotalElement,
+                igvElement: !!igvElement,
+                totalElement: !!totalElement
+            });
+            
+            if (subtotalElement) {
+                subtotalElement.textContent = 'S/ ' + parsedSubtotal.toFixed(2);
+            } else {
+                console.error('ticket-subtotal element not found!');
+            }
+            
+            if (igvElement) {
+                igvElement.textContent = 'S/ ' + parsedIgv.toFixed(2);
+            } else {
+                console.error('ticket-igv element not found!');
+            }
+            
+            if (totalElement) {
+                totalElement.textContent = 'S/ ' + parsedTotal.toFixed(2);
+            } else {
+                console.error('ticket-total element not found!');
+            }
+            
+            console.log('Ticket elements updated with:', {
+                subtotal: document.getElementById('ticket-subtotal').textContent,
+                igv: document.getElementById('ticket-igv').textContent,
+                total: document.getElementById('ticket-total').textContent
+            });
+            
+            // Información de pago
+            const paymentMethodNames = {
+                'cash': 'EFECTIVO',
+                'card': 'TARJETA',
+                'yape': 'YAPE',
+                'plin': 'PLIN',
+                'transfer': 'TRANSFERENCIA',
+                'other': 'OTRO'
+            };
+            document.getElementById('ticket-payment-method').textContent = `Método: ${paymentMethodNames[paymentMethod] || 'EFECTIVO'}`;
+            
+            // Datos específicos según método de pago
+            if (paymentMethod === 'cash' && invoice.change_amount > 0) {
+                const amountReceived = parseFloat(invoice.total_amount) + parseFloat(invoice.change_amount);
+                document.getElementById('ticket-payment-received').style.display = 'block';
+                document.getElementById('ticket-payment-received').textContent = `Recibido: S/ ${amountReceived.toFixed(2)}`;
+                document.getElementById('ticket-payment-change').style.display = 'block';
+                document.getElementById('ticket-payment-change').textContent = `Vuelto: S/ ${parseFloat(invoice.change_amount).toFixed(2)}`;
+            } else {
+                // Ocultar elementos de vuelto si no aplican
+                document.getElementById('ticket-payment-received').style.display = 'none';
+                document.getElementById('ticket-payment-change').style.display = 'none';
+            }
+            
+            console.log('✅ populateTicketDataWithRealInvoice completed successfully!');
+        }
+        
         function populateTicketData(formData, paymentMethod, documentType) {
             // Actualizar datos de la empresa en el ticket
             document.querySelector('.company-name').textContent = companyData.business_name;
@@ -2955,6 +3194,8 @@
             productsList.innerHTML = '';
             
             console.log('Populating ticket with saved cart items:', savedCartItems);
+            console.log('Is array?', Array.isArray(savedCartItems));
+            console.log('Length:', savedCartItems ? savedCartItems.length : 'undefined');
             
             if (!Array.isArray(savedCartItems) || savedCartItems.length === 0) {
                 // Mostrar mensaje si no hay productos
@@ -2972,6 +3213,7 @@
             
             savedCartItems.forEach((item, index) => {
                 try {
+                    console.log(`Processing item ${index}:`, item);
                     const productDiv = document.createElement('div');
                     productDiv.className = 'product-item';
                     
@@ -2985,6 +3227,13 @@
                     const quantity = parseInt(item.quantity) || 0;
                     const unitPrice = parseFloat(item.unit_price) || 0;
                     const total = parseFloat(item.total) || 0;
+                    
+                    console.log(`Item ${index} processed values:`, {
+                        description,
+                        quantity,
+                        unitPrice,
+                        total
+                    });
                     
                     productDiv.innerHTML = `
                         <span class="product-desc">${description}</span>
@@ -3223,7 +3472,53 @@
         }
         
         function printTicket() {
-            window.print();
+            // Verificar si tenemos datos de la factura
+            if (!currentInvoiceData || !currentInvoiceData.id) {
+                console.error('❌ No hay datos de factura disponibles para imprimir');
+                alert('Error: No se encontraron datos de la factura para generar el PDF');
+                return;
+            }
+            
+            console.log('🖨️ Abriendo PDF para visualizar e imprimir:', currentInvoiceData.full_number);
+            console.log('📄 Tipo de documento:', currentInvoiceData.document_type);
+            
+            // Determinar la URL del PDF según el tipo de documento
+            let pdfUrl;
+            const invoiceId = currentInvoiceData.id;
+            
+            switch(currentInvoiceData.document_type) {
+                case '09': // Nota de venta
+                    pdfUrl = `/invoices/${invoiceId}/ticket/view`;
+                    console.log('📝 Abriendo PDF de Nota de Venta');
+                    break;
+                case '03': // Boleta de venta
+                    pdfUrl = `/invoices/${invoiceId}/ticket/view`;
+                    console.log('🧾 Abriendo PDF de Boleta de Venta');
+                    break;
+                case '01': // Factura
+                    pdfUrl = `/invoices/${invoiceId}/ticket/view`;
+                    console.log('📋 Abriendo PDF de Factura');
+                    break;
+                default:
+                    console.error('❌ Tipo de documento no reconocido:', currentInvoiceData.document_type);
+                    alert('Error: Tipo de documento no válido');
+                    return;
+            }
+            
+            console.log('🔗 URL del PDF:', pdfUrl);
+            
+            // Abrir el PDF en una nueva ventana para visualizar e imprimir
+            const pdfWindow = window.open(pdfUrl, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+            
+            if (pdfWindow) {
+                console.log('✅ PDF abierto en nueva ventana para visualización e impresión:', currentInvoiceData.full_number);
+                
+                // Opcional: Enfocar la nueva ventana
+                pdfWindow.focus();
+            } else {
+                console.error('❌ No se pudo abrir la ventana del PDF. Verifique si el bloqueador de ventanas emergentes está activo.');
+                alert('No se pudo abrir el PDF. Por favor, permita ventanas emergentes para este sitio.');
+            }
         }
         
         // Cerrar modal de ticket al hacer clic fuera

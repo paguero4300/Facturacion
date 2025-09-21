@@ -21,7 +21,7 @@ return [
         | If not set, Browsershot will try to find Node.js in the system PATH.
         |
         */
-        'node_binary' => env('BROWSERSHOT_NODE_BINARY', '/opt/homebrew/opt/node@20/bin/node'),
+        'node_binary' => env('BROWSERSHOT_NODE_BINARY', 'C:\\Program Files\\nodejs\\node.exe'),
 
         /*
         |--------------------------------------------------------------------------
@@ -32,7 +32,7 @@ return [
         | If not set, Browsershot will try to find NPM in the system PATH.
         |
         */
-        'npm_binary' => env('BROWSERSHOT_NPM_BINARY', '/opt/homebrew/opt/node@20/bin/npm'),
+        'npm_binary' => env('BROWSERSHOT_NPM_BINARY', 'C:\\Program Files\\nodejs\\npm.cmd'),
 
         /*
         |--------------------------------------------------------------------------
@@ -43,7 +43,7 @@ return [
         | executing Node.js commands. This can help resolve binary location issues.
         |
         */
-        'include_path' => env('BROWSERSHOT_INCLUDE_PATH', '/opt/homebrew/opt/node@20/bin:/opt/homebrew/bin:/usr/local/bin'),
+        'include_path' => env('BROWSERSHOT_INCLUDE_PATH', 'C:\\Program Files\\nodejs;C:\\Windows\\System32'),
 
         /*
         |--------------------------------------------------------------------------
@@ -65,7 +65,7 @@ return [
         | try to determine this automatically using NPM.
         |
         */
-        'node_modules_path' => env('BROWSERSHOT_NODE_MODULES_PATH', '/opt/homebrew/lib/node_modules'),
+        'node_modules_path' => env('BROWSERSHOT_NODE_MODULES_PATH', 'C:\\Program Files\\nodejs\\node_modules'),
 
         /*
         |--------------------------------------------------------------------------
