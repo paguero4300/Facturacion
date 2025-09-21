@@ -36,20 +36,22 @@ class InvoicePdfController extends Controller
                 config('invoice-pdf.margins.left', 10)
             )
             ->name($filename)
-            ->addChromiumArguments([
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-gpu',
-                '--disable-web-security',
-                '--disable-features=VizDisplayCompositor',
-                '--run-all-compositor-stages-before-draw',
-                '--disable-backgrounding-occluded-windows',
-                '--disable-renderer-backgrounding',
-                '--disable-field-trial-config',
-                '--disable-ipc-flooding-protection',
-                '--memory-pressure-off'
-            ]);
+            ->withBrowsershot(function ($browsershot) {
+                $browsershot->addChromiumArguments([
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--disable-web-security',
+                    '--disable-features=VizDisplayCompositor',
+                    '--run-all-compositor-stages-before-draw',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-renderer-backgrounding',
+                    '--disable-field-trial-config',
+                    '--disable-ipc-flooding-protection',
+                    '--memory-pressure-off'
+                ]);
+            });
 
         return $pdf->download();
     }
@@ -81,20 +83,22 @@ class InvoicePdfController extends Controller
                 config('invoice-pdf.margins.left', 10)
             )
             ->name($filename)
-            ->addChromiumArguments([
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-gpu',
-                '--disable-web-security',
-                '--disable-features=VizDisplayCompositor',
-                '--run-all-compositor-stages-before-draw',
-                '--disable-backgrounding-occluded-windows',
-                '--disable-renderer-backgrounding',
-                '--disable-field-trial-config',
-                '--disable-ipc-flooding-protection',
-                '--memory-pressure-off'
-            ]);
+            ->withBrowsershot(function ($browsershot) {
+                $browsershot->addChromiumArguments([
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--disable-web-security',
+                    '--disable-features=VizDisplayCompositor',
+                    '--run-all-compositor-stages-before-draw',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-renderer-backgrounding',
+                    '--disable-field-trial-config',
+                    '--disable-ipc-flooding-protection',
+                    '--memory-pressure-off'
+                ]);
+            });
 
         return $pdf;
     }
@@ -126,20 +130,22 @@ class InvoicePdfController extends Controller
                 config('invoice-pdf.margins.bottom', 10),
                 config('invoice-pdf.margins.left', 10)
             )
-            ->addChromiumArguments([
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-gpu',
-                '--disable-web-security',
-                '--disable-features=VizDisplayCompositor',
-                '--run-all-compositor-stages-before-draw',
-                '--disable-backgrounding-occluded-windows',
-                '--disable-renderer-backgrounding',
-                '--disable-field-trial-config',
-                '--disable-ipc-flooding-protection',
-                '--memory-pressure-off'
-            ]);
+            ->withBrowsershot(function ($browsershot) {
+                $browsershot->addChromiumArguments([
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--disable-web-security',
+                    '--disable-features=VizDisplayCompositor',
+                    '--run-all-compositor-stages-before-draw',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-renderer-backgrounding',
+                    '--disable-field-trial-config',
+                    '--disable-ipc-flooding-protection',
+                    '--memory-pressure-off'
+                ]);
+            });
 
         // Guardar en storage
         $pdfContent = $pdf->getBrowsershot()->pdf();
@@ -229,20 +235,22 @@ class InvoicePdfController extends Controller
                         config('invoice-pdf.margins.bottom', 10),
                         config('invoice-pdf.margins.left', 10)
                     )
-                    ->addChromiumArguments([
-                        '--no-sandbox',
-                        '--disable-setuid-sandbox',
-                        '--disable-dev-shm-usage',
-                        '--disable-gpu',
-                        '--disable-web-security',
-                        '--disable-features=VizDisplayCompositor',
-                        '--run-all-compositor-stages-before-draw',
-                        '--disable-backgrounding-occluded-windows',
-                        '--disable-renderer-backgrounding',
-                        '--disable-field-trial-config',
-                        '--disable-ipc-flooding-protection',
-                        '--memory-pressure-off'
-                    ]);
+                    ->withBrowsershot(function ($browsershot) {
+                        $browsershot->addChromiumArguments([
+                            '--no-sandbox',
+                            '--disable-setuid-sandbox',
+                            '--disable-dev-shm-usage',
+                            '--disable-gpu',
+                            '--disable-web-security',
+                            '--disable-features=VizDisplayCompositor',
+                            '--run-all-compositor-stages-before-draw',
+                            '--disable-backgrounding-occluded-windows',
+                            '--disable-renderer-backgrounding',
+                            '--disable-field-trial-config',
+                            '--disable-ipc-flooding-protection',
+                            '--memory-pressure-off'
+                        ]);
+                    });
 
                 $pdfContent = $pdfBuilder->getBrowsershot()->pdf();
 
@@ -300,20 +308,22 @@ class InvoicePdfController extends Controller
                 config('invoice-pdf.margins.left', 10)
             )
             ->name($this->generateFilename($invoice))
-            ->addChromiumArguments([
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-gpu',
-                '--disable-web-security',
-                '--disable-features=VizDisplayCompositor',
-                '--run-all-compositor-stages-before-draw',
-                '--disable-backgrounding-occluded-windows',
-                '--disable-renderer-backgrounding',
-                '--disable-field-trial-config',
-                '--disable-ipc-flooding-protection',
-                '--memory-pressure-off'
-            ]);
+            ->withBrowsershot(function ($browsershot) {
+                $browsershot->addChromiumArguments([
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--disable-web-security',
+                    '--disable-features=VizDisplayCompositor',
+                    '--run-all-compositor-stages-before-draw',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-renderer-backgrounding',
+                    '--disable-field-trial-config',
+                    '--disable-ipc-flooding-protection',
+                    '--memory-pressure-off'
+                ]);
+            });
 
         // Retornar PDF directamente
         return $pdf->inline();
@@ -337,20 +347,22 @@ class InvoicePdfController extends Controller
             ->paperSize(80, 200, 'mm') // 80mm ancho, 200mm alto (se ajusta automáticamente)
             ->margins(0, 0, 0, 0) // Sin márgenes
             ->name($this->generateTicketFilename($invoice))
-            ->addChromiumArguments([
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-gpu',
-                '--disable-web-security',
-                '--disable-features=VizDisplayCompositor',
-                '--run-all-compositor-stages-before-draw',
-                '--disable-backgrounding-occluded-windows',
-                '--disable-renderer-backgrounding',
-                '--disable-field-trial-config',
-                '--disable-ipc-flooding-protection',
-                '--memory-pressure-off'
-            ]);
+            ->withBrowsershot(function ($browsershot) {
+                $browsershot->addChromiumArguments([
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--disable-web-security',
+                    '--disable-features=VizDisplayCompositor',
+                    '--run-all-compositor-stages-before-draw',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-renderer-backgrounding',
+                    '--disable-field-trial-config',
+                    '--disable-ipc-flooding-protection',
+                    '--memory-pressure-off'
+                ]);
+            });
 
         return $pdf->download();
     }
@@ -373,20 +385,22 @@ class InvoicePdfController extends Controller
             ->paperSize(80, 200, 'mm')
             ->margins(0, 0, 0, 0)
             ->name($this->generateTicketFilename($invoice))
-            ->addChromiumArguments([
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-gpu',
-                '--disable-web-security',
-                '--disable-features=VizDisplayCompositor',
-                '--run-all-compositor-stages-before-draw',
-                '--disable-backgrounding-occluded-windows',
-                '--disable-renderer-backgrounding',
-                '--disable-field-trial-config',
-                '--disable-ipc-flooding-protection',
-                '--memory-pressure-off'
-            ]);
+            ->withBrowsershot(function ($browsershot) {
+                $browsershot->addChromiumArguments([
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-gpu',
+                    '--disable-web-security',
+                    '--disable-features=VizDisplayCompositor',
+                    '--run-all-compositor-stages-before-draw',
+                    '--disable-backgrounding-occluded-windows',
+                    '--disable-renderer-backgrounding',
+                    '--disable-field-trial-config',
+                    '--disable-ipc-flooding-protection',
+                    '--memory-pressure-off'
+                ]);
+            });
 
         return $pdf->inline();
     }
