@@ -7,15 +7,19 @@
  * php test_laravel_pdf.php
  */
 
+// Autoloader de Laravel
+require_once __DIR__ . '/vendor/autoload.php';
+
+// Use statements
+use Spatie\Browsershot\Browsershot;
+use function Spatie\LaravelPdf\Support\pdf;
+
 echo "=================================\n";
 echo "🧪 TEST LARAVEL PDF & BROWSERSHOT\n";
 echo "=================================\n";
 echo "Fecha: " . date('Y-m-d H:i:s') . "\n";
 echo "PHP Version: " . phpversion() . "\n";
 echo "Directorio: " . getcwd() . "\n\n";
-
-// Autoloader de Laravel
-require_once __DIR__ . '/vendor/autoload.php';
 
 try {
     // Inicializar aplicación Laravel
@@ -102,8 +106,6 @@ echo "🧪 4. TEST DE BROWSERSHOT BÁSICO\n";
 echo "---------------------------------------\n";
 
 try {
-    use Spatie\Browsershot\Browsershot;
-
     echo "Creando instancia de Browsershot...\n";
     $browsershot = Browsershot::html('<html><body><h1>Test</h1></body></html>');
 
@@ -135,8 +137,6 @@ echo "📄 5. TEST DE PDF SIMPLE\n";
 echo "---------------------------------------\n";
 
 try {
-    use function Spatie\LaravelPdf\Support\pdf;
-
     echo "Creando PDF de prueba...\n";
 
     $pdf = pdf()
