@@ -110,8 +110,7 @@ try {
     $browsershot = Browsershot::html('<html><body><h1>Test</h1></body></html>');
 
     // Verificar configuración de Node
-    $nodeCommand = $browsershot->getNodeCommand();
-    echo "Comando Node: $nodeCommand\n";
+    echo "Instancia de Browsershot creada exitosamente\n";
 
     // Test de detección de binarios
     echo "\n🔍 Detección automática de binarios:\n";
