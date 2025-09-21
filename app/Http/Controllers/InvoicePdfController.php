@@ -25,7 +25,7 @@ class InvoicePdfController extends Controller
         // Generar nombre del archivo
         $filename = $this->generateFilename($invoice);
 
-        // Configurar Browsershot
+        // Configurar Browsershot con argumentos seguros de Chromium
         $pdf = pdf()
             ->view('pdf.invoice', compact('invoice'))
             ->format(config('invoice-pdf.format', 'A4'))
@@ -35,10 +35,21 @@ class InvoicePdfController extends Controller
                 config('invoice-pdf.margins.bottom', 10),
                 config('invoice-pdf.margins.left', 10)
             )
-            ->name($filename);
-
-        // La configuración de Browsershot se maneja automáticamente
-        // a través del archivo config/laravel-pdf.php
+            ->name($filename)
+            ->addChromiumArguments([
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                '--disable-web-security',
+                '--disable-features=VizDisplayCompositor',
+                '--run-all-compositor-stages-before-draw',
+                '--disable-backgrounding-occluded-windows',
+                '--disable-renderer-backgrounding',
+                '--disable-field-trial-config',
+                '--disable-ipc-flooding-protection',
+                '--memory-pressure-off'
+            ]);
 
         return $pdf->download();
     }
@@ -59,7 +70,7 @@ class InvoicePdfController extends Controller
         // Generar nombre del archivo
         $filename = $this->generateFilename($invoice);
 
-        // Configurar PDF para vista
+        // Configurar PDF para vista con argumentos seguros de Chromium
         $pdf = pdf()
             ->view('pdf.invoice', compact('invoice'))
             ->format(config('invoice-pdf.format', 'A4'))
@@ -69,10 +80,21 @@ class InvoicePdfController extends Controller
                 config('invoice-pdf.margins.bottom', 10),
                 config('invoice-pdf.margins.left', 10)
             )
-            ->name($filename);
-
-        // La configuración de Browsershot se maneja automáticamente
-        // a través del archivo config/laravel-pdf.php
+            ->name($filename)
+            ->addChromiumArguments([
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                '--disable-web-security',
+                '--disable-features=VizDisplayCompositor',
+                '--run-all-compositor-stages-before-draw',
+                '--disable-backgrounding-occluded-windows',
+                '--disable-renderer-backgrounding',
+                '--disable-field-trial-config',
+                '--disable-ipc-flooding-protection',
+                '--memory-pressure-off'
+            ]);
 
         return $pdf;
     }
@@ -94,7 +116,7 @@ class InvoicePdfController extends Controller
         $filename = $this->generateFilename($invoice);
         $path = 'invoices/' . $filename;
 
-        // Generar PDF y guardarlo
+        // Generar PDF y guardarlo con argumentos seguros de Chromium
         $pdf = pdf()
             ->view('pdf.invoice', compact('invoice'))
             ->format(config('invoice-pdf.format', 'A4'))
@@ -103,10 +125,21 @@ class InvoicePdfController extends Controller
                 config('invoice-pdf.margins.right', 10),
                 config('invoice-pdf.margins.bottom', 10),
                 config('invoice-pdf.margins.left', 10)
-            );
-
-        // La configuración de Browsershot se maneja automáticamente
-        // a través del archivo config/laravel-pdf.php
+            )
+            ->addChromiumArguments([
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                '--disable-web-security',
+                '--disable-features=VizDisplayCompositor',
+                '--run-all-compositor-stages-before-draw',
+                '--disable-backgrounding-occluded-windows',
+                '--disable-renderer-backgrounding',
+                '--disable-field-trial-config',
+                '--disable-ipc-flooding-protection',
+                '--memory-pressure-off'
+            ]);
 
         // Guardar en storage
         $pdfContent = $pdf->getBrowsershot()->pdf();
@@ -186,7 +219,7 @@ class InvoicePdfController extends Controller
             foreach ($invoices as $invoice) {
                 $filename = $this->generateFilename($invoice);
                 
-                // Generar PDF
+                // Generar PDF con argumentos seguros de Chromium
                 $pdfBuilder = pdf()
                     ->view('pdf.invoice', compact('invoice'))
                     ->format(config('invoice-pdf.format', 'A4'))
@@ -195,10 +228,21 @@ class InvoicePdfController extends Controller
                         config('invoice-pdf.margins.right', 10),
                         config('invoice-pdf.margins.bottom', 10),
                         config('invoice-pdf.margins.left', 10)
-                    );
-
-                // La configuración de Browsershot se maneja automáticamente
-                // a través del archivo config/laravel-pdf.php
+                    )
+                    ->addChromiumArguments([
+                        '--no-sandbox',
+                        '--disable-setuid-sandbox',
+                        '--disable-dev-shm-usage',
+                        '--disable-gpu',
+                        '--disable-web-security',
+                        '--disable-features=VizDisplayCompositor',
+                        '--run-all-compositor-stages-before-draw',
+                        '--disable-backgrounding-occluded-windows',
+                        '--disable-renderer-backgrounding',
+                        '--disable-field-trial-config',
+                        '--disable-ipc-flooding-protection',
+                        '--memory-pressure-off'
+                    ]);
 
                 $pdfContent = $pdfBuilder->getBrowsershot()->pdf();
 
@@ -245,7 +289,7 @@ class InvoicePdfController extends Controller
             'paymentInstallments'
         ]);
 
-        // Configurar PDF
+        // Configurar PDF con argumentos seguros de Chromium
         $pdf = pdf()
             ->view('pdf.invoice', compact('invoice'))
             ->format(config('invoice-pdf.format', 'A4'))
@@ -255,10 +299,21 @@ class InvoicePdfController extends Controller
                 config('invoice-pdf.margins.bottom', 10),
                 config('invoice-pdf.margins.left', 10)
             )
-            ->name($this->generateFilename($invoice));
-
-        // La configuración de Browsershot se maneja automáticamente
-        // a través del archivo config/laravel-pdf.php
+            ->name($this->generateFilename($invoice))
+            ->addChromiumArguments([
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                '--disable-web-security',
+                '--disable-features=VizDisplayCompositor',
+                '--run-all-compositor-stages-before-draw',
+                '--disable-backgrounding-occluded-windows',
+                '--disable-renderer-backgrounding',
+                '--disable-field-trial-config',
+                '--disable-ipc-flooding-protection',
+                '--memory-pressure-off'
+            ]);
 
         // Retornar PDF directamente
         return $pdf->inline();
@@ -276,15 +331,26 @@ class InvoicePdfController extends Controller
             'details.product'
         ]);
 
-        // Configurar PDF para ticket 80mm
+        // Configurar PDF para ticket 80mm con argumentos seguros de Chromium
         $pdf = pdf()
             ->view('pdf.ticket-80mm', compact('invoice'))
             ->paperSize(80, 200, 'mm') // 80mm ancho, 200mm alto (se ajusta automáticamente)
             ->margins(0, 0, 0, 0) // Sin márgenes
-            ->name($this->generateTicketFilename($invoice));
-
-        // La configuración de Browsershot se maneja automáticamente
-        // a través del archivo config/laravel-pdf.php
+            ->name($this->generateTicketFilename($invoice))
+            ->addChromiumArguments([
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                '--disable-web-security',
+                '--disable-features=VizDisplayCompositor',
+                '--run-all-compositor-stages-before-draw',
+                '--disable-backgrounding-occluded-windows',
+                '--disable-renderer-backgrounding',
+                '--disable-field-trial-config',
+                '--disable-ipc-flooding-protection',
+                '--memory-pressure-off'
+            ]);
 
         return $pdf->download();
     }
@@ -301,15 +367,26 @@ class InvoicePdfController extends Controller
             'details.product'
         ]);
 
-        // Configurar PDF para ticket 80mm
+        // Configurar PDF para ticket 80mm con argumentos seguros de Chromium
         $pdf = pdf()
             ->view('pdf.ticket-80mm', compact('invoice'))
             ->paperSize(80, 200, 'mm')
             ->margins(0, 0, 0, 0)
-            ->name($this->generateTicketFilename($invoice));
-
-        // La configuración de Browsershot se maneja automáticamente
-        // a través del archivo config/laravel-pdf.php
+            ->name($this->generateTicketFilename($invoice))
+            ->addChromiumArguments([
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                '--disable-web-security',
+                '--disable-features=VizDisplayCompositor',
+                '--run-all-compositor-stages-before-draw',
+                '--disable-backgrounding-occluded-windows',
+                '--disable-renderer-backgrounding',
+                '--disable-field-trial-config',
+                '--disable-ipc-flooding-protection',
+                '--memory-pressure-off'
+            ]);
 
         return $pdf->inline();
     }
