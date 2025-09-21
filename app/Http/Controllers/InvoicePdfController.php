@@ -38,11 +38,10 @@ class InvoicePdfController extends Controller
             ->name($filename)
             ->withBrowsershot(function ($browsershot) {
                 $browsershot
-                    ->setChromePath('/usr/bin/chromium-browser')
                     ->setNodeBinary('/usr/bin/node')
                     ->setIncludePath('/usr/bin:/usr/local/bin')
                     ->noSandbox()
-                    ->setOption('args', [
+                    ->addChromiumArguments([
                         'disable-setuid-sandbox',
                         'disable-dev-shm-usage',
                         'disable-gpu',
@@ -87,11 +86,10 @@ class InvoicePdfController extends Controller
             ->name($filename)
             ->withBrowsershot(function ($browsershot) {
                 $browsershot
-                    ->setChromePath('/usr/bin/chromium-browser')
                     ->setNodeBinary('/usr/bin/node')
                     ->setIncludePath('/usr/bin:/usr/local/bin')
                     ->noSandbox()
-                    ->setOption('args', [
+                    ->addChromiumArguments([
                         'disable-setuid-sandbox',
                         'disable-dev-shm-usage',
                         'disable-gpu',
@@ -136,11 +134,10 @@ class InvoicePdfController extends Controller
             )
             ->withBrowsershot(function ($browsershot) {
                 $browsershot
-                    ->setChromePath('/usr/bin/chromium-browser')
                     ->setNodeBinary('/usr/bin/node')
                     ->setIncludePath('/usr/bin:/usr/local/bin')
                     ->noSandbox()
-                    ->setOption('args', [
+                    ->addChromiumArguments([
                         'disable-setuid-sandbox',
                         'disable-dev-shm-usage',
                         'disable-gpu',
@@ -334,11 +331,10 @@ class InvoicePdfController extends Controller
             ->name($this->generateFilename($invoice))
             ->withBrowsershot(function ($browsershot) {
                 $browsershot
-                    ->setChromePath('/usr/bin/chromium-browser')
                     ->setNodeBinary('/usr/bin/node')
                     ->setIncludePath('/usr/bin:/usr/local/bin')
                     ->noSandbox()
-                    ->setOption('args', [
+                    ->addChromiumArguments([
                         'disable-setuid-sandbox',
                         'disable-dev-shm-usage',
                         'disable-gpu',
@@ -375,11 +371,10 @@ class InvoicePdfController extends Controller
             ->name($this->generateTicketFilename($invoice))
             ->withBrowsershot(function ($browsershot) {
                 $browsershot
-                    ->setChromePath('/usr/bin/chromium-browser')
                     ->setNodeBinary('/usr/bin/node')
                     ->setIncludePath('/usr/bin:/usr/local/bin')
                     ->noSandbox()
-                    ->setOption('args', [
+                    ->addChromiumArguments([
                         'disable-setuid-sandbox',
                         'disable-dev-shm-usage',
                         'disable-gpu',
@@ -415,11 +410,10 @@ class InvoicePdfController extends Controller
             ->name($this->generateTicketFilename($invoice))
             ->withBrowsershot(function ($browsershot) {
                 $browsershot
-                    ->setChromePath('/usr/bin/chromium-browser')
                     ->setNodeBinary('/usr/bin/node')
                     ->setIncludePath('/usr/bin:/usr/local/bin')
                     ->noSandbox()
-                    ->setOption('args', [
+                    ->addChromiumArguments([
                         'disable-setuid-sandbox',
                         'disable-dev-shm-usage',
                         'disable-gpu',
