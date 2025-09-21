@@ -39,28 +39,22 @@ class InvoicePdfController extends Controller
             ->withBrowsershot(function ($browsershot) {
                 $browsershot
                     ->noSandbox()
-                    ->setOption('args', [
+                    ->addChromiumArguments([
                         '--disable-setuid-sandbox',
                         '--disable-dev-shm-usage',
                         '--disable-gpu',
                         '--disable-web-security',
                         '--disable-features=VizDisplayCompositor',
-                        '--run-all-compositor-stages-before-draw',
+                        '--single-process',
+                        '--no-zygote',
+                        '--disable-extensions',
+                        '--disable-plugins',
+                        '--memory-pressure-off',
+                        '--disable-background-timer-throttling',
                         '--disable-backgrounding-occluded-windows',
                         '--disable-renderer-backgrounding',
                         '--disable-field-trial-config',
-                        '--disable-ipc-flooding-protection',
-                        '--memory-pressure-off',
-                        '--disable-seccomp-filter-sandbox',
-                        '--disable-software-rasterizer',
-                        '--disable-extensions',
-                        '--disable-plugins',
-                        '--disable-images',
-                        '--disable-javascript',
-                        '--virtual-time-budget=60000',
-                        '--single-process',
-                        '--no-zygote',
-                        '--disable-namespace-sandbox'
+                        '--disable-ipc-flooding-protection'
                     ]);
             });
 
@@ -97,28 +91,22 @@ class InvoicePdfController extends Controller
             ->withBrowsershot(function ($browsershot) {
                 $browsershot
                     ->noSandbox()
-                    ->setOption('args', [
+                    ->addChromiumArguments([
                         '--disable-setuid-sandbox',
                         '--disable-dev-shm-usage',
                         '--disable-gpu',
                         '--disable-web-security',
                         '--disable-features=VizDisplayCompositor',
-                        '--run-all-compositor-stages-before-draw',
+                        '--single-process',
+                        '--no-zygote',
+                        '--disable-extensions',
+                        '--disable-plugins',
+                        '--memory-pressure-off',
+                        '--disable-background-timer-throttling',
                         '--disable-backgrounding-occluded-windows',
                         '--disable-renderer-backgrounding',
                         '--disable-field-trial-config',
-                        '--disable-ipc-flooding-protection',
-                        '--memory-pressure-off',
-                        '--disable-seccomp-filter-sandbox',
-                        '--disable-software-rasterizer',
-                        '--disable-extensions',
-                        '--disable-plugins',
-                        '--disable-images',
-                        '--disable-javascript',
-                        '--virtual-time-budget=60000',
-                        '--single-process',
-                        '--no-zygote',
-                        '--disable-namespace-sandbox'
+                        '--disable-ipc-flooding-protection'
                     ]);
             });
 
@@ -155,28 +143,22 @@ class InvoicePdfController extends Controller
             ->withBrowsershot(function ($browsershot) {
                 $browsershot
                     ->noSandbox()
-                    ->setOption('args', [
+                    ->addChromiumArguments([
                         '--disable-setuid-sandbox',
                         '--disable-dev-shm-usage',
                         '--disable-gpu',
                         '--disable-web-security',
                         '--disable-features=VizDisplayCompositor',
-                        '--run-all-compositor-stages-before-draw',
+                        '--single-process',
+                        '--no-zygote',
+                        '--disable-extensions',
+                        '--disable-plugins',
+                        '--memory-pressure-off',
+                        '--disable-background-timer-throttling',
                         '--disable-backgrounding-occluded-windows',
                         '--disable-renderer-backgrounding',
                         '--disable-field-trial-config',
-                        '--disable-ipc-flooding-protection',
-                        '--memory-pressure-off',
-                        '--disable-seccomp-filter-sandbox',
-                        '--disable-software-rasterizer',
-                        '--disable-extensions',
-                        '--disable-plugins',
-                        '--disable-images',
-                        '--disable-javascript',
-                        '--virtual-time-budget=60000',
-                        '--single-process',
-                        '--no-zygote',
-                        '--disable-namespace-sandbox'
+                        '--disable-ipc-flooding-protection'
                     ]);
             });
 
@@ -362,28 +344,22 @@ class InvoicePdfController extends Controller
             ->withBrowsershot(function ($browsershot) {
                 $browsershot
                     ->noSandbox()
-                    ->setOption('args', [
+                    ->addChromiumArguments([
                         '--disable-setuid-sandbox',
                         '--disable-dev-shm-usage',
                         '--disable-gpu',
                         '--disable-web-security',
                         '--disable-features=VizDisplayCompositor',
-                        '--run-all-compositor-stages-before-draw',
+                        '--single-process',
+                        '--no-zygote',
+                        '--disable-extensions',
+                        '--disable-plugins',
+                        '--memory-pressure-off',
+                        '--disable-background-timer-throttling',
                         '--disable-backgrounding-occluded-windows',
                         '--disable-renderer-backgrounding',
                         '--disable-field-trial-config',
-                        '--disable-ipc-flooding-protection',
-                        '--memory-pressure-off',
-                        '--disable-seccomp-filter-sandbox',
-                        '--disable-software-rasterizer',
-                        '--disable-extensions',
-                        '--disable-plugins',
-                        '--disable-images',
-                        '--disable-javascript',
-                        '--virtual-time-budget=60000',
-                        '--single-process',
-                        '--no-zygote',
-                        '--disable-namespace-sandbox'
+                        '--disable-ipc-flooding-protection'
                     ]);
             });
 
@@ -412,28 +388,22 @@ class InvoicePdfController extends Controller
             ->withBrowsershot(function ($browsershot) {
                 $browsershot
                     ->noSandbox()
-                    ->setOption('args', [
+                    ->addChromiumArguments([
                         '--disable-setuid-sandbox',
                         '--disable-dev-shm-usage',
                         '--disable-gpu',
                         '--disable-web-security',
                         '--disable-features=VizDisplayCompositor',
-                        '--run-all-compositor-stages-before-draw',
+                        '--single-process',
+                        '--no-zygote',
+                        '--disable-extensions',
+                        '--disable-plugins',
+                        '--memory-pressure-off',
+                        '--disable-background-timer-throttling',
                         '--disable-backgrounding-occluded-windows',
                         '--disable-renderer-backgrounding',
                         '--disable-field-trial-config',
-                        '--disable-ipc-flooding-protection',
-                        '--memory-pressure-off',
-                        '--disable-seccomp-filter-sandbox',
-                        '--disable-software-rasterizer',
-                        '--disable-extensions',
-                        '--disable-plugins',
-                        '--disable-images',
-                        '--disable-javascript',
-                        '--virtual-time-budget=60000',
-                        '--single-process',
-                        '--no-zygote',
-                        '--disable-namespace-sandbox'
+                        '--disable-ipc-flooding-protection'
                     ]);
             });
 
@@ -461,28 +431,22 @@ class InvoicePdfController extends Controller
             ->withBrowsershot(function ($browsershot) {
                 $browsershot
                     ->noSandbox()
-                    ->setOption('args', [
+                    ->addChromiumArguments([
                         '--disable-setuid-sandbox',
                         '--disable-dev-shm-usage',
                         '--disable-gpu',
                         '--disable-web-security',
                         '--disable-features=VizDisplayCompositor',
-                        '--run-all-compositor-stages-before-draw',
+                        '--single-process',
+                        '--no-zygote',
+                        '--disable-extensions',
+                        '--disable-plugins',
+                        '--memory-pressure-off',
+                        '--disable-background-timer-throttling',
                         '--disable-backgrounding-occluded-windows',
                         '--disable-renderer-backgrounding',
                         '--disable-field-trial-config',
-                        '--disable-ipc-flooding-protection',
-                        '--memory-pressure-off',
-                        '--disable-seccomp-filter-sandbox',
-                        '--disable-software-rasterizer',
-                        '--disable-extensions',
-                        '--disable-plugins',
-                        '--disable-images',
-                        '--disable-javascript',
-                        '--virtual-time-budget=60000',
-                        '--single-process',
-                        '--no-zygote',
-                        '--disable-namespace-sandbox'
+                        '--disable-ipc-flooding-protection'
                     ]);
             });
 
