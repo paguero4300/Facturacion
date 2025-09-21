@@ -49,7 +49,6 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 \App\Filament\Widgets\PosStatsOverview::class,
                 AccountWidget::class,
-                FilamentInfoWidget::class,
             ])
             ->globalSearch(true)
             ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
