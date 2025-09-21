@@ -56,7 +56,7 @@ return [
         | try to find Chrome/Chromium automatically.
         |
         */
-        'chrome_path' => env('BROWSERSHOT_CHROME_PATH', '/usr/bin/chromium-browser'),
+        'chrome_path' => env('BROWSERSHOT_CHROME_PATH'),
 
         /*
         |--------------------------------------------------------------------------
