@@ -50,7 +50,17 @@ class InvoicePdfController extends Controller
                         '--disable-renderer-backgrounding',
                         '--disable-field-trial-config',
                         '--disable-ipc-flooding-protection',
-                        '--memory-pressure-off'
+                        '--memory-pressure-off',
+                        '--disable-seccomp-filter-sandbox',
+                        '--disable-software-rasterizer',
+                        '--disable-extensions',
+                        '--disable-plugins',
+                        '--disable-images',
+                        '--disable-javascript',
+                        '--virtual-time-budget=60000',
+                        '--single-process',
+                        '--no-zygote',
+                        '--disable-namespace-sandbox'
                     ]);
             });
 
@@ -98,7 +108,17 @@ class InvoicePdfController extends Controller
                         '--disable-renderer-backgrounding',
                         '--disable-field-trial-config',
                         '--disable-ipc-flooding-protection',
-                        '--memory-pressure-off'
+                        '--memory-pressure-off',
+                        '--disable-seccomp-filter-sandbox',
+                        '--disable-software-rasterizer',
+                        '--disable-extensions',
+                        '--disable-plugins',
+                        '--disable-images',
+                        '--disable-javascript',
+                        '--virtual-time-budget=60000',
+                        '--single-process',
+                        '--no-zygote',
+                        '--disable-namespace-sandbox'
                     ]);
             });
 
@@ -146,7 +166,17 @@ class InvoicePdfController extends Controller
                         '--disable-renderer-backgrounding',
                         '--disable-field-trial-config',
                         '--disable-ipc-flooding-protection',
-                        '--memory-pressure-off'
+                        '--memory-pressure-off',
+                        '--disable-seccomp-filter-sandbox',
+                        '--disable-software-rasterizer',
+                        '--disable-extensions',
+                        '--disable-plugins',
+                        '--disable-images',
+                        '--disable-javascript',
+                        '--virtual-time-budget=60000',
+                        '--single-process',
+                        '--no-zygote',
+                        '--disable-namespace-sandbox'
                     ]);
             });
 
@@ -278,13 +308,31 @@ class InvoicePdfController extends Controller
         // Cargar relaciones necesarias
         $invoice->load([
             'company',
-            'client', 
+            'client',
             'details.product',
             'paymentInstallments'
         ]);
 
         // Retornar la vista HTML (sin PDF) para debugging
         return view('pdf.invoice', compact('invoice'));
+    }
+
+    /**
+     * Vista previa HTML (alternativa temporal mientras se resuelve Browsershot)
+     */
+    public function htmlPreview(Invoice $invoice)
+    {
+        // Cargar relaciones necesarias
+        $invoice->load([
+            'company',
+            'client',
+            'details.product',
+            'paymentInstallments'
+        ]);
+
+        // Retornar la vista HTML directamente en una ventana nueva
+        return view('pdf.invoice', compact('invoice'))
+            ->with('preview_mode', true);
     }
 
     /**
@@ -325,7 +373,17 @@ class InvoicePdfController extends Controller
                         '--disable-renderer-backgrounding',
                         '--disable-field-trial-config',
                         '--disable-ipc-flooding-protection',
-                        '--memory-pressure-off'
+                        '--memory-pressure-off',
+                        '--disable-seccomp-filter-sandbox',
+                        '--disable-software-rasterizer',
+                        '--disable-extensions',
+                        '--disable-plugins',
+                        '--disable-images',
+                        '--disable-javascript',
+                        '--virtual-time-budget=60000',
+                        '--single-process',
+                        '--no-zygote',
+                        '--disable-namespace-sandbox'
                     ]);
             });
 
@@ -365,7 +423,17 @@ class InvoicePdfController extends Controller
                         '--disable-renderer-backgrounding',
                         '--disable-field-trial-config',
                         '--disable-ipc-flooding-protection',
-                        '--memory-pressure-off'
+                        '--memory-pressure-off',
+                        '--disable-seccomp-filter-sandbox',
+                        '--disable-software-rasterizer',
+                        '--disable-extensions',
+                        '--disable-plugins',
+                        '--disable-images',
+                        '--disable-javascript',
+                        '--virtual-time-budget=60000',
+                        '--single-process',
+                        '--no-zygote',
+                        '--disable-namespace-sandbox'
                     ]);
             });
 
@@ -404,7 +472,17 @@ class InvoicePdfController extends Controller
                         '--disable-renderer-backgrounding',
                         '--disable-field-trial-config',
                         '--disable-ipc-flooding-protection',
-                        '--memory-pressure-off'
+                        '--memory-pressure-off',
+                        '--disable-seccomp-filter-sandbox',
+                        '--disable-software-rasterizer',
+                        '--disable-extensions',
+                        '--disable-plugins',
+                        '--disable-images',
+                        '--disable-javascript',
+                        '--virtual-time-budget=60000',
+                        '--single-process',
+                        '--no-zygote',
+                        '--disable-namespace-sandbox'
                     ]);
             });
 

@@ -56,7 +56,7 @@ return [
         | try to find Chrome/Chromium automatically.
         |
         */
-        'chrome_path' => env('BROWSERSHOT_CHROME_PATH'),
+        'chrome_path' => env('BROWSERSHOT_CHROME_PATH', '/usr/bin/chromium-browser'),
 
         /*
         |--------------------------------------------------------------------------
@@ -102,5 +102,36 @@ return [
         |
         */
         'write_options_to_file' => env('BROWSERSHOT_WRITE_OPTIONS_TO_FILE', false),
+
+        /*
+        |--------------------------------------------------------------------------
+        | Default Chrome Arguments
+        |--------------------------------------------------------------------------
+        |
+        | Default arguments to pass to Chrome/Chromium for all PDF generations.
+        | These help solve common permission and memory issues in server environments.
+        |
+        */
+        'default_chrome_args' => [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--disable-web-security',
+            '--disable-features=VizDisplayCompositor',
+            '--run-all-compositor-stages-before-draw',
+            '--disable-backgrounding-occluded-windows',
+            '--disable-renderer-backgrounding',
+            '--disable-field-trial-config',
+            '--disable-ipc-flooding-protection',
+            '--memory-pressure-off',
+            '--disable-seccomp-filter-sandbox',
+            '--disable-software-rasterizer',
+            '--disable-extensions',
+            '--disable-plugins',
+            '--single-process',
+            '--no-zygote',
+            '--disable-namespace-sandbox'
+        ],
     ],
 ];
