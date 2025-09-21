@@ -21,7 +21,7 @@ return [
         | If not set, Browsershot will try to find Node.js in the system PATH.
         |
         */
-        'node_binary' => env('BROWSERSHOT_NODE_BINARY', 'C:\\Program Files\\nodejs\\node.exe'),
+        'node_binary' => env('BROWSERSHOT_NODE_BINARY', PHP_OS_FAMILY === 'Windows' ? 'C:\\Program Files\\nodejs\\node.exe' : '/usr/bin/node'),
 
         /*
         |--------------------------------------------------------------------------
@@ -32,7 +32,7 @@ return [
         | If not set, Browsershot will try to find NPM in the system PATH.
         |
         */
-        'npm_binary' => env('BROWSERSHOT_NPM_BINARY', 'C:\\Program Files\\nodejs\\npm.cmd'),
+        'npm_binary' => env('BROWSERSHOT_NPM_BINARY', PHP_OS_FAMILY === 'Windows' ? 'C:\\Program Files\\nodejs\\npm.cmd' : '/usr/bin/npm'),
 
         /*
         |--------------------------------------------------------------------------
@@ -43,7 +43,7 @@ return [
         | executing Node.js commands. This can help resolve binary location issues.
         |
         */
-        'include_path' => env('BROWSERSHOT_INCLUDE_PATH', 'C:\\Program Files\\nodejs;C:\\Windows\\System32'),
+        'include_path' => env('BROWSERSHOT_INCLUDE_PATH', PHP_OS_FAMILY === 'Windows' ? 'C:\\Program Files\\nodejs;C:\\Windows\\System32' : '/usr/bin:/usr/local/bin'),
 
         /*
         |--------------------------------------------------------------------------
@@ -65,7 +65,7 @@ return [
         | try to determine this automatically using NPM.
         |
         */
-        'node_modules_path' => env('BROWSERSHOT_NODE_MODULES_PATH', 'C:\\Program Files\\nodejs\\node_modules'),
+        'node_modules_path' => env('BROWSERSHOT_NODE_MODULES_PATH', PHP_OS_FAMILY === 'Windows' ? 'C:\\Program Files\\nodejs\\node_modules' : '/usr/lib/node_modules'),
 
         /*
         |--------------------------------------------------------------------------
