@@ -38,23 +38,20 @@ class InvoicePdfController extends Controller
             ->name($filename)
             ->withBrowsershot(function ($browsershot) {
                 $browsershot
+                    ->setChromePath('/usr/bin/chromium-browser')
+                    ->setNodeBinary('/usr/bin/node')
+                    ->setIncludePath('/usr/bin:/usr/local/bin')
                     ->noSandbox()
-                    ->addChromiumArguments([
-                        '--disable-setuid-sandbox',
-                        '--disable-dev-shm-usage',
-                        '--disable-gpu',
-                        '--disable-web-security',
-                        '--disable-features=VizDisplayCompositor',
-                        '--single-process',
-                        '--no-zygote',
-                        '--disable-extensions',
-                        '--disable-plugins',
-                        '--memory-pressure-off',
-                        '--disable-background-timer-throttling',
-                        '--disable-backgrounding-occluded-windows',
-                        '--disable-renderer-backgrounding',
-                        '--disable-field-trial-config',
-                        '--disable-ipc-flooding-protection'
+                    ->setOption('args', [
+                        'disable-setuid-sandbox',
+                        'disable-dev-shm-usage',
+                        'disable-gpu',
+                        'disable-web-security',
+                        'single-process',
+                        'no-zygote',
+                        'disable-extensions',
+                        'disable-plugins',
+                        'memory-pressure-off'
                     ]);
             });
 
@@ -90,23 +87,20 @@ class InvoicePdfController extends Controller
             ->name($filename)
             ->withBrowsershot(function ($browsershot) {
                 $browsershot
+                    ->setChromePath('/usr/bin/chromium-browser')
+                    ->setNodeBinary('/usr/bin/node')
+                    ->setIncludePath('/usr/bin:/usr/local/bin')
                     ->noSandbox()
-                    ->addChromiumArguments([
-                        '--disable-setuid-sandbox',
-                        '--disable-dev-shm-usage',
-                        '--disable-gpu',
-                        '--disable-web-security',
-                        '--disable-features=VizDisplayCompositor',
-                        '--single-process',
-                        '--no-zygote',
-                        '--disable-extensions',
-                        '--disable-plugins',
-                        '--memory-pressure-off',
-                        '--disable-background-timer-throttling',
-                        '--disable-backgrounding-occluded-windows',
-                        '--disable-renderer-backgrounding',
-                        '--disable-field-trial-config',
-                        '--disable-ipc-flooding-protection'
+                    ->setOption('args', [
+                        'disable-setuid-sandbox',
+                        'disable-dev-shm-usage',
+                        'disable-gpu',
+                        'disable-web-security',
+                        'single-process',
+                        'no-zygote',
+                        'disable-extensions',
+                        'disable-plugins',
+                        'memory-pressure-off'
                     ]);
             });
 
@@ -142,23 +136,20 @@ class InvoicePdfController extends Controller
             )
             ->withBrowsershot(function ($browsershot) {
                 $browsershot
+                    ->setChromePath('/usr/bin/chromium-browser')
+                    ->setNodeBinary('/usr/bin/node')
+                    ->setIncludePath('/usr/bin:/usr/local/bin')
                     ->noSandbox()
-                    ->addChromiumArguments([
-                        '--disable-setuid-sandbox',
-                        '--disable-dev-shm-usage',
-                        '--disable-gpu',
-                        '--disable-web-security',
-                        '--disable-features=VizDisplayCompositor',
-                        '--single-process',
-                        '--no-zygote',
-                        '--disable-extensions',
-                        '--disable-plugins',
-                        '--memory-pressure-off',
-                        '--disable-background-timer-throttling',
-                        '--disable-backgrounding-occluded-windows',
-                        '--disable-renderer-backgrounding',
-                        '--disable-field-trial-config',
-                        '--disable-ipc-flooding-protection'
+                    ->setOption('args', [
+                        'disable-setuid-sandbox',
+                        'disable-dev-shm-usage',
+                        'disable-gpu',
+                        'disable-web-security',
+                        'single-process',
+                        'no-zygote',
+                        'disable-extensions',
+                        'disable-plugins',
+                        'memory-pressure-off'
                     ]);
             });
 
@@ -343,23 +334,20 @@ class InvoicePdfController extends Controller
             ->name($this->generateFilename($invoice))
             ->withBrowsershot(function ($browsershot) {
                 $browsershot
+                    ->setChromePath('/usr/bin/chromium-browser')
+                    ->setNodeBinary('/usr/bin/node')
+                    ->setIncludePath('/usr/bin:/usr/local/bin')
                     ->noSandbox()
-                    ->addChromiumArguments([
-                        '--disable-setuid-sandbox',
-                        '--disable-dev-shm-usage',
-                        '--disable-gpu',
-                        '--disable-web-security',
-                        '--disable-features=VizDisplayCompositor',
-                        '--single-process',
-                        '--no-zygote',
-                        '--disable-extensions',
-                        '--disable-plugins',
-                        '--memory-pressure-off',
-                        '--disable-background-timer-throttling',
-                        '--disable-backgrounding-occluded-windows',
-                        '--disable-renderer-backgrounding',
-                        '--disable-field-trial-config',
-                        '--disable-ipc-flooding-protection'
+                    ->setOption('args', [
+                        'disable-setuid-sandbox',
+                        'disable-dev-shm-usage',
+                        'disable-gpu',
+                        'disable-web-security',
+                        'single-process',
+                        'no-zygote',
+                        'disable-extensions',
+                        'disable-plugins',
+                        'memory-pressure-off'
                     ]);
             });
 
@@ -387,23 +375,20 @@ class InvoicePdfController extends Controller
             ->name($this->generateTicketFilename($invoice))
             ->withBrowsershot(function ($browsershot) {
                 $browsershot
+                    ->setChromePath('/usr/bin/chromium-browser')
+                    ->setNodeBinary('/usr/bin/node')
+                    ->setIncludePath('/usr/bin:/usr/local/bin')
                     ->noSandbox()
-                    ->addChromiumArguments([
-                        '--disable-setuid-sandbox',
-                        '--disable-dev-shm-usage',
-                        '--disable-gpu',
-                        '--disable-web-security',
-                        '--disable-features=VizDisplayCompositor',
-                        '--single-process',
-                        '--no-zygote',
-                        '--disable-extensions',
-                        '--disable-plugins',
-                        '--memory-pressure-off',
-                        '--disable-background-timer-throttling',
-                        '--disable-backgrounding-occluded-windows',
-                        '--disable-renderer-backgrounding',
-                        '--disable-field-trial-config',
-                        '--disable-ipc-flooding-protection'
+                    ->setOption('args', [
+                        'disable-setuid-sandbox',
+                        'disable-dev-shm-usage',
+                        'disable-gpu',
+                        'disable-web-security',
+                        'single-process',
+                        'no-zygote',
+                        'disable-extensions',
+                        'disable-plugins',
+                        'memory-pressure-off'
                     ]);
             });
 
@@ -430,23 +415,20 @@ class InvoicePdfController extends Controller
             ->name($this->generateTicketFilename($invoice))
             ->withBrowsershot(function ($browsershot) {
                 $browsershot
+                    ->setChromePath('/usr/bin/chromium-browser')
+                    ->setNodeBinary('/usr/bin/node')
+                    ->setIncludePath('/usr/bin:/usr/local/bin')
                     ->noSandbox()
-                    ->addChromiumArguments([
-                        '--disable-setuid-sandbox',
-                        '--disable-dev-shm-usage',
-                        '--disable-gpu',
-                        '--disable-web-security',
-                        '--disable-features=VizDisplayCompositor',
-                        '--single-process',
-                        '--no-zygote',
-                        '--disable-extensions',
-                        '--disable-plugins',
-                        '--memory-pressure-off',
-                        '--disable-background-timer-throttling',
-                        '--disable-backgrounding-occluded-windows',
-                        '--disable-renderer-backgrounding',
-                        '--disable-field-trial-config',
-                        '--disable-ipc-flooding-protection'
+                    ->setOption('args', [
+                        'disable-setuid-sandbox',
+                        'disable-dev-shm-usage',
+                        'disable-gpu',
+                        'disable-web-security',
+                        'single-process',
+                        'no-zygote',
+                        'disable-extensions',
+                        'disable-plugins',
+                        'memory-pressure-off'
                     ]);
             });
 
