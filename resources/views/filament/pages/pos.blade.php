@@ -3478,46 +3478,51 @@
                 alert('Error: No se encontraron datos de la factura para generar el PDF');
                 return;
             }
-            
+
             console.log('🖨️ Abriendo PDF para visualizar e imprimir:', currentInvoiceData.full_number);
             console.log('📄 Tipo de documento:', currentInvoiceData.document_type);
-            
+
             // Determinar la URL del PDF según el tipo de documento
             let pdfUrl;
             const invoiceId = currentInvoiceData.id;
-            
-            switch(currentInvoiceData.document_type) {
-                case '09': // Nota de venta
-                    pdfUrl = `/invoices/${invoiceId}/ticket/view`;
-                    console.log('📝 Abriendo PDF de Nota de Venta');
-                    break;
-                case '03': // Boleta de venta
-                    pdfUrl = `/invoices/${invoiceId}/ticket/view`;
-                    console.log('🧾 Abriendo PDF de Boleta de Venta');
-                    break;
-                case '01': // Factura
-                    pdfUrl = `/invoices/${invoiceId}/ticket/view`;
-                    console.log('📋 Abriendo PDF de Factura');
-                    break;
-                default:
-                    console.error('❌ Tipo de documento no reconocido:', currentInvoiceData.document_type);
-                    alert('Error: Tipo de documento no válido');
-                    return;
-            }
-            
-            console.log('🔗 URL del PDF:', pdfUrl);
-            
-            // Abrir el PDF en una nueva ventana para visualizar e imprimir
-            const pdfWindow = window.open(pdfUrl, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
-            
-            if (pdfWindow) {
-                console.log('✅ PDF abierto en nueva ventana para visualización e impresión:', currentInvoiceData.full_number);
-                
-                // Opcional: Enfocar la nueva ventana
-                pdfWindow.focus();
-            } else {
-                console.error('❌ No se pudo abrir la ventana del PDF. Verifique si el bloqueador de ventanas emergentes está activo.');
-                alert('No se pudo abrir el PDF. Por favor, permita ventanas emergentes para este sitio.');
+
+            try {
+                switch(currentInvoiceData.document_type) {
+                    case '09': // Nota de venta
+                        pdfUrl = `/invoices/${invoiceId}/ticket/view`;
+                        console.log('📝 Abriendo PDF de Nota de Venta');
+                        break;
+                    case '03': // Boleta de venta
+                        pdfUrl = `/invoices/${invoiceId}/ticket/view`;
+                        console.log('🧾 Abriendo PDF de Boleta de Venta');
+                        break;
+                    case '01': // Factura
+                        pdfUrl = `/invoices/${invoiceId}/ticket/view`;
+                        console.log('📋 Abriendo PDF de Factura');
+                        break;
+                    default:
+                        console.error('❌ Tipo de documento no reconocido:', currentInvoiceData.document_type);
+                        alert('Error: Tipo de documento no válido');
+                        return;
+                }
+
+                console.log('🔗 URL del PDF:', pdfUrl);
+
+                // Abrir el PDF en una nueva ventana para visualizar e imprimir
+                const pdfWindow = window.open(pdfUrl, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
+
+                if (pdfWindow) {
+                    console.log('✅ PDF abierto en nueva ventana para visualización e impresión:', currentInvoiceData.full_number);
+
+                    // Opcional: Enfocar la nueva ventana
+                    pdfWindow.focus();
+                } else {
+                    console.error('❌ No se pudo abrir la ventana del PDF. Verifique si el bloqueador de ventanas emergentes está activo.');
+                    alert('No se pudo abrir el PDF. Por favor, permita ventanas emergentes para este sitio.');
+                }
+            } catch (error) {
+                console.error('❌ Error al abrir el PDF:', error);
+                alert('Error al generar el PDF. El servidor puede no tener Node.js configurado. Contacte al administrador.');
             }
         }
         

@@ -21,7 +21,8 @@ return [
         | If not set, Browsershot will try to find Node.js in the system PATH.
         |
         */
-        'node_binary' => env('BROWSERSHOT_NODE_BINARY', PHP_OS_FAMILY === 'Windows' ? 'C:\\Program Files\\nodejs\\node.exe' : '/usr/bin/node'),
+        'node_binary' => env('BROWSERSHOT_NODE_BINARY', PHP_OS_FAMILY === 'Windows' ? 'C:\\Program Files\\nodejs\\node.exe' :
+            (PHP_OS_FAMILY === 'Darwin' ? '/usr/local/bin/node' : '/usr/bin/node')),
 
         /*
         |--------------------------------------------------------------------------
@@ -43,7 +44,8 @@ return [
         | executing Node.js commands. This can help resolve binary location issues.
         |
         */
-        'include_path' => env('BROWSERSHOT_INCLUDE_PATH', PHP_OS_FAMILY === 'Windows' ? 'C:\\Program Files\\nodejs;C:\\Windows\\System32' : '/usr/bin:/usr/local/bin'),
+        'include_path' => env('BROWSERSHOT_INCLUDE_PATH', PHP_OS_FAMILY === 'Windows' ? 'C:\\Program Files\\nodejs;C:\\Windows\\System32' :
+            (PHP_OS_FAMILY === 'Darwin' ? '/usr/local/bin:/opt/homebrew/bin' : '/usr/bin:/usr/local/bin')),
 
         /*
         |--------------------------------------------------------------------------
