@@ -40,6 +40,9 @@ class Pos extends Page implements HasForms, HasTable
     use InteractsWithForms;
     use InteractsWithTable;
 
+    public $categories;
+    public $products;
+
     protected static ?string $title = '';
     
     protected static ?string $navigationLabel = 'POS';
@@ -111,7 +114,11 @@ class Pos extends Page implements HasForms, HasTable
     {
         // Cargar datos de la empresa
         $this->company = Company::active()->first();
-        
+
+        // Load categories and products once to avoid N+1 queries
+        $this->categories = Category::orderBy('name')->get();
+        $this->products = $this->getFilteredProducts();
+
         $this->data = [
             'client_id' => null,
             'document_series_id' => DocumentSeries::where('document_type', '03')->first()?->id,
@@ -120,8 +127,18 @@ class Pos extends Page implements HasForms, HasTable
             'exchange_rate' => 1.0000,
             'cart_items' => [],
         ];
-        
+
         $this->calculateTotals();
+    }
+
+
+    private function getFilteredProducts()
+    {
+        return Product::query()
+            ->active()
+            ->forSale()
+            ->when($this->selectedCategory, fn($q) => $q->where('category_id', $this->selectedCategory))
+            ->get();
     }
 
     protected function getFormSchema(): array
@@ -261,13 +278,16 @@ class Pos extends Page implements HasForms, HasTable
     public function selectCategory(?int $categoryId): void
     {
         $this->selectedCategory = $categoryId;
-        
+
+        // Reload filtered products when category changes
+        $this->products = $this->getFilteredProducts();
+
         // Resetear la tabla para aplicar el filtro
         $this->resetTable();
-        
+
         // Emitir evento para actualizar la vista
         $this->dispatch('categoryChanged', $categoryId);
-        
+
         // Mostrar notificación
         if ($categoryId) {
             $category = Category::find($categoryId);

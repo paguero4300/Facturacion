@@ -489,6 +489,43 @@
             height: 100%;
             object-fit: cover;
         }
+
+        /* Lazy Loading Styles */
+        .product-lazy-img {
+            transition: opacity 0.3s ease-in-out;
+            opacity: 1;
+        }
+
+        .product-lazy-img[data-loaded="false"] {
+            opacity: 0.6;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        .dark .product-lazy-img[data-loaded="false"] {
+            background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+            background-size: 200% 100%;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .product-image-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .dark .product-image-loading {
+            background: #1e293b;
+            color: #9ca3af;
+        }
         
         .price-tag {
             position: absolute;
@@ -1960,7 +1997,7 @@
                 <button class="tab {{ is_null($selectedCategory) ? 'active' : '' }}" wire:click="selectCategory(null)">
                     Todas las Categorías
                 </button>
-                @foreach(\App\Models\Category::orderBy('name')->get() as $category)
+                @foreach($categories as $category)
                     <button class="tab {{ $selectedCategory == $category->id ? 'active' : '' }}" wire:click="selectCategory({{ $category->id }})">
                         {{ strtoupper($category->name) }}
                     </button>
@@ -1971,12 +2008,16 @@
 
             <!-- Grilla de Productos -->
             <div class="products-grid">
-                @foreach(\App\Models\Product::query()->active()->forSale()->when($selectedCategory, fn($q) => $q->where('category_id', $selectedCategory))->get() as $product)
+                @foreach($products as $product)
                     <div class="product-card" wire:click="addToCart({{ $product->id }})">
                         <div class="product-image">
-                            <img 
-                                src="{{ $product->image_path ? Storage::disk('public')->url($product->image_path) : '/images/no-image.svg' }}" 
+                            <img
+                                src="{{ $product->image_path ? Storage::disk('public')->url($product->image_path) : '/images/no-image.svg' }}"
                                 alt="{{ $product->name }}"
+                                loading="lazy"
+                                class="product-lazy-img"
+                                data-src="{{ $product->image_path ? Storage::disk('public')->url($product->image_path) : '/images/no-image.svg' }}"
+                                onerror="this.src='/images/no-image.svg'"
                             >
                             <div class="price-tag">S/ {{ number_format($product->sale_price, 2) }}</div>
                             <div class="weight-tag">{{ $product->current_stock }} {{ $product->unit_code ?? 'unidad' }}</div>
@@ -2335,6 +2376,7 @@
             setTimeout(() => {
                 totalAmount = getCurrentTotal();
                 console.log('Total inicializado:', totalAmount);
+                initializeLazyLoading();
             }, 100);
         });
         
@@ -2343,8 +2385,67 @@
             setTimeout(() => {
                 totalAmount = getCurrentTotal();
                 console.log('Total actualizado:', totalAmount);
+                // Re-initialize lazy loading for newly loaded images
+                initializeLazyLoading();
             }, 50);
         });
+
+        // Lazy Loading Implementation
+        function initializeLazyLoading() {
+            const images = document.querySelectorAll('.product-lazy-img');
+
+            if ('IntersectionObserver' in window) {
+                const imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+
+                            // Add loading state
+                            img.setAttribute('data-loaded', 'false');
+
+                            // Create new image to preload
+                            const tempImg = new Image();
+                            tempImg.onload = function() {
+                                img.src = this.src;
+                                img.setAttribute('data-loaded', 'true');
+                                img.style.opacity = '1';
+                            };
+
+                            tempImg.onerror = function() {
+                                img.src = '/images/no-image.svg';
+                                img.setAttribute('data-loaded', 'true');
+                                img.style.opacity = '1';
+                            };
+
+                            // Start loading the image
+                            tempImg.src = img.dataset.src || img.src;
+
+                            // Stop observing this image
+                            observer.unobserve(img);
+                        }
+                    });
+                }, {
+                    rootMargin: '50px 0px', // Start loading 50px before the image enters viewport
+                    threshold: 0.1
+                });
+
+                images.forEach(img => {
+                    if (img.dataset.src) {
+                        imageObserver.observe(img);
+                    }
+                });
+
+                console.log(`🖼️ Lazy loading initialized for ${images.length} images`);
+            } else {
+                // Fallback for browsers without IntersectionObserver
+                images.forEach(img => {
+                    if (img.dataset.src) {
+                        img.src = img.dataset.src;
+                    }
+                });
+                console.log('⚠️ Lazy loading fallback applied (no IntersectionObserver support)');
+            }
+        }
         
         function openPaymentModal() {
             // Actualizar el total amount con el valor actual
