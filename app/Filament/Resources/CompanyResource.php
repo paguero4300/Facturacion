@@ -222,7 +222,8 @@ class CompanyResource extends Resource
                                         Toggle::make('status')
                                             ->default(true)
                                             ->label(__('Empresa Activa'))
-                                            ->helperText(__('Desactivar una empresa ocultará sus documentos del sistema')),
+                                            ->helperText(__('Desactivar una empresa ocultará sus documentos del sistema'))
+                                            ->disabled(true),
                                     ]),
                             ]),
 
