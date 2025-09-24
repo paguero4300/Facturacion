@@ -2732,6 +2732,12 @@
         }
         
         function saveClientToLocal(documentNumber) {
+            // Verificar si se está procesando un pago
+            if (isProcessingPayment) {
+                showClientNotification('⏳ Espere a que termine el procesamiento del pago antes de guardar el cliente', 'warning');
+                return;
+            }
+            
             @this.call('saveFactilizaClientToLocal', documentNumber).then((result) => {
                 if (result.success) {
                     showClientNotification('✅ Cliente guardado exitosamente en registros locales', 'success');
