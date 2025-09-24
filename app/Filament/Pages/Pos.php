@@ -531,7 +531,7 @@ class Pos extends Page implements HasForms, HasTable
                             'document_number' => $paymentData['client_document_number'],
                         ],
                         [
-                            'company_id' => 1,
+                            'company_id' => Company::first()->id,
                             'business_name' => $paymentData['client_business_name'],
                             'client_type' => 'regular',
                             'status' => 'active',
@@ -550,7 +550,7 @@ class Pos extends Page implements HasForms, HasTable
                     
                     if (!$client) {
                         $client = Client::create([
-                            'company_id' => 1,
+                            'company_id' => Company::first()->id,
                             'document_type' => '1',
                             'document_number' => '00000000',
                             'business_name' => 'CLIENTE VARIOS',
@@ -573,7 +573,7 @@ class Pos extends Page implements HasForms, HasTable
                 if (!$client) {
                     // Crear cliente genérico si no existe
                     $client = Client::create([
-                        'company_id' => 1,
+                        'company_id' => Company::first()->id,
                         'document_type' => '1',
                         'document_number' => '00000000',
                         'business_name' => 'CLIENTE VARIOS',
@@ -618,7 +618,7 @@ class Pos extends Page implements HasForms, HasTable
             
             // Validar datos antes de crear
             $invoiceData = [
-                'company_id' => 1,
+                'company_id' => Company::first()->id,
                 'client_id' => $clientId,
                 'document_series_id' => $series->id,
                 'series' => $series->series,
@@ -798,22 +798,157 @@ class Pos extends Page implements HasForms, HasTable
         return $invoiceData ?? ['success' => false, 'error' => 'Error en la transacción'];
     }
     
-    public function searchClient(string $documentNumber): ?array
+    public function searchClient(string $documentNumber): array
     {
-        $client = Client::where('document_number', $documentNumber)
-            ->where('status', 'active')
-            ->first();
-            
-        if ($client) {
-            return [
-                'id' => $client->id,
-                'document_type' => $client->document_type,
-                'document_number' => $client->document_number,
-                'business_name' => $client->business_name,
-            ];
+        // PASO 1: Buscar en tabla local 'clients' filtrado por company_id
+        $activeCompany = Company::where('is_active', true)->first();
+        
+        if ($activeCompany) {
+            $client = Client::where('document_number', $documentNumber)
+                ->where('company_id', $activeCompany->id)
+                ->where('status', 'active')
+                ->first();
+                
+            if ($client) {
+                return [
+                    'success' => true,
+                    'source' => 'local',
+                    'client' => [
+                        'id' => $client->id,
+                        'document_type' => $client->document_type,
+                        'document_number' => $client->document_number,
+                        'business_name' => $client->business_name,
+                    ],
+                    'message' => '✅ Cliente encontrado en registros locales'
+                ];
+            }
         }
         
-        return null;
+        // PASO 2: Si no se encuentra localmente, buscar en Factiliza
+        try {
+            $factilizaService = app(\App\Services\FactilizaService::class);
+            $documentType = strlen($documentNumber) === 8 ? '1' : '6'; // DNI o RUC
+            
+            if ($documentType === '1') {
+                $result = $factilizaService->consultarDni($documentNumber);
+            } else {
+                $result = $factilizaService->consultarRuc($documentNumber);
+            }
+            
+            if ($result['success'] && $result['data']) {
+                $data = $result['data'];
+                
+                return [
+                    'success' => true,
+                    'source' => 'factiliza',
+                    'client' => [
+                        'id' => null,
+                        'document_type' => $documentType,
+                        'document_number' => $documentNumber,
+                        'business_name' => $documentType === '1' 
+                            ? ($data['nombre_completo'] ?? '') 
+                            : ($data['nombre_o_razon_social'] ?? ''),
+                        'address' => $data['direccion'] ?? '',
+                        'district' => $data['distrito'] ?? '',
+                        'province' => $data['provincia'] ?? '',
+                        'department' => $data['departamento'] ?? '',
+                    ],
+                    'message' => '🌐 Datos encontrados en Factiliza',
+                    'can_save' => true
+                ];
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error en búsqueda Factiliza desde POS', [
+                'document_number' => $documentNumber,
+                'error' => $e->getMessage()
+            ]);
+        }
+        
+        // PASO 3: No encontrado en ningún lado
+        return [
+            'success' => false,
+            'source' => 'none',
+            'client' => null,
+            'message' => '⚠️ Cliente no encontrado. Puede ingresar los datos manualmente.'
+        ];
+    }
+    
+    public function saveFactilizaClientToLocal(string $documentNumber): array
+    {
+        try {
+            $activeCompany = Company::where('is_active', true)->first();
+            
+            if (!$activeCompany) {
+                return [
+                    'success' => false,
+                    'message' => 'No hay empresa activa seleccionada'
+                ];
+            }
+            
+            // Verificar si ya existe el cliente
+            $existingClient = Client::where('document_number', $documentNumber)
+                ->where('company_id', $activeCompany->id)
+                ->first();
+                
+            if ($existingClient) {
+                return [
+                    'success' => false,
+                    'message' => 'El cliente ya existe en los registros locales'
+                ];
+            }
+            
+            // Buscar datos en Factiliza
+            $factilizaService = app(\App\Services\FactilizaService::class);
+            $documentType = strlen($documentNumber) === 8 ? '1' : '6';
+            
+            if ($documentType === '1') {
+                $result = $factilizaService->consultarDni($documentNumber);
+            } else {
+                $result = $factilizaService->consultarRuc($documentNumber);
+            }
+            
+            if (!$result['success'] || !$result['data']) {
+                return [
+                    'success' => false,
+                    'message' => 'No se pudieron obtener los datos de Factiliza'
+                ];
+            }
+            
+            $data = $result['data'];
+            
+            // Crear cliente en tabla local
+            $client = Client::create([
+                'company_id' => $activeCompany->id,
+                'document_type' => $documentType,
+                'document_number' => $documentNumber,
+                'business_name' => $documentType === '1' 
+                    ? ($data['nombre_completo'] ?? '') 
+                    : ($data['nombre_o_razon_social'] ?? ''),
+                'address' => $data['direccion'] ?? '',
+                'district' => $data['distrito'] ?? '',
+                'province' => $data['provincia'] ?? '',
+                'department' => $data['departamento'] ?? '',
+                'status' => 'active',
+                'created_by' => auth()->id(),
+            ]);
+            
+            return [
+                'success' => true,
+                'message' => 'Cliente guardado exitosamente',
+                'client_id' => $client->id
+            ];
+            
+        } catch (\Exception $e) {
+            \Log::error('Error guardando cliente de Factiliza en POS', [
+                'document_number' => $documentNumber,
+                'error' => $e->getMessage()
+            ]);
+            
+            return [
+                'success' => false,
+                'message' => 'Error interno al guardar cliente'
+            ];
+        }
     }
     
     private function getPaidAmount(array $paymentData): float

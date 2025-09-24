@@ -2037,7 +2037,7 @@
         <div class="payment-modal-content">
             <div class="payment-modal-header">
                 <h3>Procesar Pago</h3>
-                <button class="payment-modal-close" onclick="closePaymentModal()">&times;</button>
+                <button class="payment-modal-close" id="payment-modal-close-btn" onclick="closePaymentModal()">&times;</button>
             </div>
             
             <div class="payment-modal-body">
@@ -2221,7 +2221,7 @@
             </div>
             
             <div class="payment-modal-footer">
-                <button type="button" class="payment-btn payment-btn-cancel" onclick="closePaymentModal()">
+                <button type="button" class="payment-btn payment-btn-cancel" id="payment-cancel-btn" onclick="closePaymentModal()">
                     ❌ Cancelar
                 </button>
                 <button type="button" class="payment-btn payment-btn-confirm" onclick="confirmPayment()">
@@ -2337,6 +2337,7 @@
         
         // Variable global para almacenar datos de la factura actual
         let currentInvoiceData = null;
+        let isProcessingPayment = false;
         
         let totalAmount = 0;
         
@@ -2470,7 +2471,44 @@
         }
         
         function closePaymentModal() {
+            // No cerrar el modal si se está procesando un pago
+            if (isProcessingPayment) {
+                console.log('Modal no se puede cerrar: procesando pago...');
+                return;
+            }
             document.getElementById('payment-modal').style.display = 'none';
+        }
+        
+        function updatePaymentModalButtons() {
+            const closeBtn = document.getElementById('payment-modal-close-btn');
+            const cancelBtn = document.getElementById('payment-cancel-btn');
+            const confirmBtn = document.querySelector('.payment-btn-confirm');
+            
+            if (isProcessingPayment) {
+                // Deshabilitar botones de cierre
+                closeBtn.style.opacity = '0.5';
+                closeBtn.style.cursor = 'not-allowed';
+                cancelBtn.style.opacity = '0.5';
+                cancelBtn.style.cursor = 'not-allowed';
+                cancelBtn.disabled = true;
+                
+                // Cambiar texto del botón confirmar
+                confirmBtn.innerHTML = '⏳ Procesando...';
+                confirmBtn.disabled = true;
+                confirmBtn.style.opacity = '0.7';
+            } else {
+                // Restaurar botones
+                closeBtn.style.opacity = '1';
+                closeBtn.style.cursor = 'pointer';
+                cancelBtn.style.opacity = '1';
+                cancelBtn.style.cursor = 'pointer';
+                cancelBtn.disabled = false;
+                
+                // Restaurar texto del botón confirmar
+                confirmBtn.innerHTML = '💳 Procesar Pago';
+                confirmBtn.disabled = false;
+                confirmBtn.style.opacity = '1';
+            }
         }
         
         function toggleClientFields() {
@@ -2529,6 +2567,39 @@
             }
         }
         
+        // Variable global para controlar el estado de búsqueda
+        let isSearchingClient = false;
+        
+        // Interceptar eventos de cierre del modal
+        document.addEventListener('DOMContentLoaded', function() {
+            // Interceptar eventos que puedan cerrar el modal
+            document.addEventListener('close-modal', function(e) {
+                if (isSearchingClient) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }, true);
+            
+            // Interceptar clicks en overlay del modal
+            document.addEventListener('click', function(e) {
+                if (isSearchingClient && e.target.classList.contains('fi-modal-close-overlay')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }, true);
+            
+            // Interceptar tecla ESC
+            document.addEventListener('keydown', function(e) {
+                if (isSearchingClient && e.key === 'Escape') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }, true);
+        });
+        
         function searchExistingClient(event) {
             // Prevenir que el evento se propague y cierre el modal
             if (event) {
@@ -2539,26 +2610,156 @@
             const documentNumber = document.getElementById('client_document_number').value;
             
             if (!documentNumber) {
-                alert('Ingrese el número de documento para buscar');
+                showClientNotification('⚠️ Ingrese el número de documento para buscar', 'warning');
                 return;
             }
             
-            // Llamar a Livewire para buscar el cliente
-            @this.call('searchClient', documentNumber).then((client) => {
-                if (client) {
-                    document.getElementById('client_document_type').value = client.document_type;
-                    document.getElementById('client_document_number').value = client.document_number;
-                    document.getElementById('client_business_name').value = client.business_name;
+            // Activar modo de protección del modal
+            isSearchingClient = true;
+            
+            // Mostrar indicador de carga
+            const searchButton = event.target;
+            const originalText = searchButton.innerHTML;
+            searchButton.innerHTML = '🔍 Buscando...';
+            searchButton.disabled = true;
+            
+            // Usar fetch en lugar de @this.call para evitar el comportamiento automático de Livewire
+            fetch('/admin/pos/search-client', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    document_number: documentNumber
+                })
+            })
+            .then(response => response.json())
+            .then((response) => {
+                // Restaurar botón
+                searchButton.innerHTML = originalText;
+                searchButton.disabled = false;
+                
+                // Desactivar modo de protección del modal
+                isSearchingClient = false;
+                
+                if (response.success) {
+                    const client = response.client;
                     
-                    // Mostrar notificación visual en lugar de alert
-                    showClientNotification('✅ Cliente encontrado: ' + client.business_name, 'success');
+                    // Llenar campos del cliente sin disparar eventos
+                    setTimeout(() => {
+                        const docTypeField = document.getElementById('client_document_type');
+                        const docNumberField = document.getElementById('client_document_number');
+                        const businessNameField = document.getElementById('client_business_name');
+                        
+                        if (docTypeField) docTypeField.value = client.document_type;
+                        if (docNumberField) docNumberField.value = client.document_number;
+                        if (businessNameField) businessNameField.value = client.business_name;
+                    }, 100);
+                    
+                    // Mostrar notificación según la fuente
+                    setTimeout(() => {
+                        showClientNotification(response.message + ': ' + client.business_name, 'success');
+                        
+                        // Si viene de Factiliza, mostrar opción para guardar
+                        if (response.source === 'factiliza' && response.can_save) {
+                            showSaveClientOption(client);
+                        }
+                    }, 200);
                 } else {
-                    showClientNotification('⚠️ Cliente no encontrado. Puede ingresar los datos manualmente.', 'warning');
+                    // No encontrado en ningún lado
+                    showClientNotification(response.message, 'warning');
                 }
             }).catch((error) => {
+                // Restaurar botón
+                searchButton.innerHTML = originalText;
+                searchButton.disabled = false;
+                
+                // Desactivar modo de protección del modal
+                isSearchingClient = false;
+                
                 console.error('Error buscando cliente:', error);
                 showClientNotification('❌ Error al buscar cliente. Puede ingresar los datos manualmente.', 'error');
             });
+        }
+        
+        function showSaveClientOption(client) {
+            // Crear notificación especial con botón para guardar
+            const notification = document.createElement('div');
+            notification.className = 'client-save-notification';
+            notification.innerHTML = `
+                <div style="margin-bottom: 8px;">💾 ¿Desea guardar este cliente en sus registros locales?</div>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="saveClientToLocal('${client.document_number}')" 
+                            style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                        ✅ Guardar
+                    </button>
+                    <button onclick="closeSaveNotification(this)" 
+                            style="background: #6b7280; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                        ❌ No
+                    </button>
+                </div>
+            `;
+            
+            // Estilos
+             notification.style.cssText = `
+                 position: fixed;
+                 top: 80px;
+                 right: 20px;
+                 padding: 16px;
+                 border-radius: 8px;
+                 background: #1f2937;
+                 color: white;
+                 font-weight: 500;
+                 z-index: 9998;
+                 max-width: 320px;
+                 box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+                 animation: slideInRight 0.3s ease-out;
+             `;
+             
+             // Agregar al DOM de forma segura
+              setTimeout(() => {
+                  document.body.appendChild(notification);
+              }, 300);
+            
+            // Auto-remover después de 10 segundos
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    closeSaveNotification(notification);
+                }
+            }, 10000);
+        }
+        
+        function saveClientToLocal(documentNumber) {
+            @this.call('saveFactilizaClientToLocal', documentNumber).then((result) => {
+                if (result.success) {
+                    showClientNotification('✅ Cliente guardado exitosamente en registros locales', 'success');
+                } else {
+                    showClientNotification('❌ Error al guardar cliente: ' + (result.message || 'Error desconocido'), 'error');
+                }
+            }).catch((error) => {
+                console.error('Error guardando cliente:', error);
+                showClientNotification('❌ Error al guardar cliente', 'error');
+            });
+            
+            // Cerrar notificación de guardado
+            const saveNotification = document.querySelector('.client-save-notification');
+            if (saveNotification) {
+                closeSaveNotification(saveNotification);
+            }
+        }
+        
+        function closeSaveNotification(element) {
+            const notification = element.closest ? element.closest('.client-save-notification') : element;
+            if (notification && notification.parentNode) {
+                notification.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }
         }
         
         function showClientNotification(message, type) {
@@ -2576,10 +2777,11 @@
                 border-radius: 8px;
                 color: white;
                 font-weight: 500;
-                z-index: 10001;
+                z-index: 9999;
                 max-width: 300px;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.3);
                 animation: slideInRight 0.3s ease-out;
+                pointer-events: none;
             `;
             
             // Colores según el tipo
@@ -2591,17 +2793,21 @@
                 notification.style.backgroundColor = '#ef4444';
             }
             
-            // Agregar al DOM
-            document.body.appendChild(notification);
+            // Agregar al DOM de forma segura
+            setTimeout(() => {
+                document.body.appendChild(notification);
+            }, 50);
             
             // Remover después de 3 segundos
             setTimeout(() => {
-                notification.style.animation = 'slideOutRight 0.3s ease-in';
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.parentNode.removeChild(notification);
-                    }
-                }, 300);
+                if (notification.parentNode) {
+                    notification.style.animation = 'slideOutRight 0.3s ease-in';
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.parentNode.removeChild(notification);
+                        }
+                    }, 300);
+                }
             }, 3000);
         }
         
@@ -2870,9 +3076,18 @@
                 }
             }
             
+            // Establecer estado de procesamiento
+            isProcessingPayment = true;
+            updatePaymentModalButtons();
+            console.log('Iniciando procesamiento de pago...');
+            
             // Llamar al método de Livewire
             @this.call('processSale', paymentData).then((result) => {
                 console.log('Resultado del processSale:', result);
+                
+                // Restablecer estado de procesamiento
+                isProcessingPayment = false;
+                updatePaymentModalButtons();
                 
                 // Cerrar modal de pago
                 closePaymentModal();
@@ -2900,6 +3115,11 @@
                 }
             }).catch((error) => {
                 console.error('Error procesando pago:', error);
+                
+                // Restablecer estado de procesamiento en caso de error
+                isProcessingPayment = false;
+                updatePaymentModalButtons();
+                
                 alert('Error al procesar el pago. Por favor intente nuevamente.');
             });
         }
@@ -2907,7 +3127,7 @@
         // Cerrar modal al hacer clic fuera
         document.addEventListener('click', function(event) {
             const modal = document.getElementById('payment-modal');
-            if (event.target === modal) {
+            if (event.target === modal && !isProcessingPayment) {
                 closePaymentModal();
             }
         });
@@ -2920,7 +3140,7 @@
                 
                 if (ticketModal.style.display !== 'none') {
                     closeTicketModal();
-                } else if (paymentModal.style.display !== 'none') {
+                } else if (paymentModal.style.display !== 'none' && !isProcessingPayment) {
                     closePaymentModal();
                 }
             }

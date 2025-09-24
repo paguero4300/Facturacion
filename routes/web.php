@@ -2,10 +2,18 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InvoicePdfController;
+use App\Filament\Pages\Pos;
 
 Route::get('/', function () {
     return redirect('/admin');
 });
+
+// Ruta AJAX para búsqueda de clientes en POS
+Route::post('/admin/pos/search-client', function (\Illuminate\Http\Request $request) {
+    $pos = new Pos();
+    $result = $pos->searchClient($request->input('document_number'));
+    return response()->json($result);
+})->middleware(['web', 'auth']);
 
 // Rutas para PDFs de facturas
 Route::prefix('invoices')->name('invoices.')->group(function () {
