@@ -70,13 +70,9 @@ class ProductResource extends Resource
                 ->columns(3)
                 ->columnSpanFull()
                 ->schema([
-                    Select::make('company_id')
-                        ->relationship('company', 'business_name')
-                        ->required()
-                        ->searchable()
-                        ->preload()
-                        ->label(__('Empresa'))
-                        ->columnSpan(1),
+                    // Campo empresa oculto - se asigna automáticamente
+                    Hidden::make('company_id')
+                        ->default(fn () => \App\Models\Company::where('is_active', true)->first()?->id),
                         
                     TextInput::make('code')
                         ->required()

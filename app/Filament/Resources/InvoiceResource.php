@@ -85,17 +85,36 @@ class InvoiceResource extends Resource
                     Select::make('company_id')
                         ->relationship('company', 'business_name')
                         ->required()
-                        ->searchable()
-                        ->preload()
-                        ->default(function () {
-                            if (Company::query()->count() === 1) {
-                                return Company::query()->value('id');
-                            }
-                            return null;
-                        })
-                        // ->hidden(fn () => Company::query()->count() === 1) // Comentado para mostrar siempre
                         ->label(__('Empresa'))
-                        ->live()
+                        ->default(fn () => \App\Models\Company::where('is_active', true)->first()?->id)
+                        ->reactive()
+                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                            // Reset series when company changes
+                            $set('document_series_id', null);
+                            $set('series', null);
+                            $set('number', null);
+                            
+                            // Auto-select document series based on company and document type
+                            $docType = $get('document_type');
+                            if ($state && $docType) {
+                                $series = \App\Models\DocumentSeries::query()
+                                    ->where('company_id', $state)
+                                    ->where('document_type', $docType)
+                                    ->active()
+                                    ->orderBy('series')
+                                    ->first();
+                                
+                                if ($series) {
+                                    $set('document_series_id', $series->id);
+                                    $set('series', $series->series);
+                                    $set('number', str_pad($series->current_number + 1, 8, '0', STR_PAD_LEFT));
+                                }
+                            }
+                        })
+                        ->columnSpan(2),
+
+                    // Placeholder para mantener la funcionalidad de actualización de series
+                    Hidden::make('_company_placeholder')
                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
                             // Auto-select document series when company changes
                             $docType = $get('document_type');
@@ -122,8 +141,14 @@ class InvoiceResource extends Resource
 
                     Select::make('client_id')
                         ->options(function (callable $get) {
+                            $companyId = $get('company_id');
                             $doc = $get('document_type');
-                            $query = Client::query();
+                            
+                            if (!$companyId) {
+                                return [];
+                            }
+                            
+                            $query = Client::query()->where('company_id', $companyId);
                             if ($doc === '01') { // Factura => RUC
                                 $query->where('document_type', '6');
                             } elseif ($doc === '03') { // Boleta => DNI

@@ -64,13 +64,8 @@ class BrandResource extends Resource
                 ->columns(2)
                 ->columnSpanFull()
                 ->schema([
-                    Select::make('company_id')
-                        ->relationship('company', 'business_name')
-                        ->required()
-                        ->searchable()
-                        ->preload()
-                        ->label(__('Empresa'))
-                        ->columnSpan(1),
+                    // Campo empresa oculto - se asigna automáticamente
+                    Hidden::make('company_id'),
 
                     TextInput::make('name')
                         ->required()

@@ -67,15 +67,8 @@ class ClientResource extends Resource
                 ->columns(4)
                 ->columnSpanFull()
                 ->schema([
-                    // Primera fila: Empresa (campo contextual importante)
-                    Select::make('company_id')
-                        ->relationship('company', 'business_name')
-                        ->required()
-                        ->searchable()
-                        ->preload()
-                        ->label(__('Empresa'))
-                        ->placeholder(__('Seleccione la empresa'))
-                        ->columnSpan(4),
+                    // Campo empresa oculto - se asigna automáticamente
+                    Hidden::make('company_id'),
                         
                     // Segunda fila: Identificación del cliente
                     Select::make('document_type')

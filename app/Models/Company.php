@@ -33,6 +33,7 @@ class Company extends Model
         'status',
         'sunat_production',
         'factiliza_token',
+        'is_active',
     ];
 
     protected $casts = [
@@ -40,6 +41,7 @@ class Company extends Model
         'additional_config' => 'array',
         'qpse_last_response' => 'array',
         'qpse_token_expires_at' => 'datetime',
+        'is_active' => 'boolean',
     ];
 
     // Relationships

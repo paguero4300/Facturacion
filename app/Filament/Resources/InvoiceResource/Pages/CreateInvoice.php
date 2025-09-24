@@ -15,12 +15,11 @@ class CreateInvoice extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        // Set default company if hidden/single-company setup
-        if (empty($data['company_id'])) {
-            $singleCompanyId = Company::query()->count() === 1 ? Company::query()->value('id') : null;
-            if ($singleCompanyId) {
-                $data['company_id'] = $singleCompanyId;
-            }
+        // Asignar automáticamente la empresa activa
+        $activeCompany = Company::where('is_active', true)->first();
+        
+        if ($activeCompany) {
+            $data['company_id'] = $activeCompany->id;
         }
 
         // Snapshot client data
