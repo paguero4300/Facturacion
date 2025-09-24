@@ -22,6 +22,7 @@ use AchyutN\FilamentLogViewer\FilamentLogViewer;
 use Filafly\Themes\Brisk\BriskTheme;
 use Filafly\Icons\Iconoir\IconoirIcons;
 use Filament\Navigation\NavigationGroup;
+use App\Models\Company;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -32,6 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName(fn () => Company::where('is_active', true)->first()?->commercial_name ?? config('app.name'))
             ->colors([
                 'primary' => Color::Amber,
             ])
