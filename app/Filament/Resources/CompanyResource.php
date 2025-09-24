@@ -807,7 +807,8 @@ class CompanyResource extends Resource
             ->actions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->hidden(fn () => true),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
