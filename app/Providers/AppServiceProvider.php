@@ -7,10 +7,12 @@ use App\Models\Invoice;
 use App\Models\InvoiceDetail;
 use App\Models\PaymentInstallment;
 use App\Models\Product;
+use App\Models\InventoryMovement;
 use App\Observers\InvoiceObserver;
 use App\Observers\InvoiceDetailObserver;
 use App\Observers\PaymentInstallmentObserver;
 use App\Observers\ProductObserver;
+use App\Observers\InventoryMovementObserver;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\ServiceProvider;
@@ -34,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
         InvoiceDetail::observe(InvoiceDetailObserver::class);
         PaymentInstallment::observe(PaymentInstallmentObserver::class);
         Product::observe(ProductObserver::class);
+        InventoryMovement::observe(InventoryMovementObserver::class);
         
         // Ocultar header completo en la página POS
         FilamentView::registerRenderHook(

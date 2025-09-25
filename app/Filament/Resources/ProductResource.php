@@ -301,7 +301,7 @@ class ProductResource extends Resource
             // 5) Inventario y Stock
             Section::make(__('Inventario y Stock'))
                 ->icon('iconoir-package')
-                ->description(__('Control de inventario y existencias'))
+                ->description(__('Control de inventario y existencias por almacén'))
                 ->columns(3)
                 ->columnSpanFull()
                 ->schema([
@@ -312,12 +312,23 @@ class ProductResource extends Resource
                         ->live()
                         ->columnSpan(1),
                         
-                    TextInput::make('current_stock')
+                    Select::make('warehouse_id')
+                        ->label(__('Almacén'))
+                        ->options(fn () => \App\Models\Warehouse::active()->forCompany(auth()->user()->company_id ?? 1)->pluck('name', 'id'))
+                        ->searchable()
+                        ->preload()
+                        ->required()
+                        ->helperText(__('Selecciona el almacén donde se registrará el stock inicial'))
+                        ->visible(fn (callable $get) => $get('track_inventory'))
+                        ->columnSpan(2),
+                        
+                    TextInput::make('initial_stock')
                         ->numeric()
                         ->step(0.01)
                         ->default(0)
-                        ->label(__('Stock Actual'))
+                        ->label(__('Stock Inicial'))
                         ->placeholder(__('0.00'))
+                        ->helperText(__('Cantidad inicial en el almacén seleccionado'))
                         ->visible(fn (callable $get) => $get('track_inventory'))
                         ->columnSpan(1),
                         

@@ -11,7 +11,24 @@ class ProductObserver
      */
     public function created(Product $product): void
     {
-        //
+        // Si el producto tiene control de inventario activado
+        if ($product->track_inventory) {
+            // Obtener los datos del formulario desde la sesión o request
+            $warehouseId = request()->input('warehouse_id');
+            $initialStock = request()->input('initial_stock', 0);
+            $minimumStock = request()->input('minimum_stock', 0);
+            
+            // Si se proporcionó un almacén, crear el registro de stock
+            if ($warehouseId) {
+                \App\Models\Stock::create([
+                    'company_id' => $product->company_id,
+                    'product_id' => $product->id,
+                    'warehouse_id' => $warehouseId,
+                    'qty' => $initialStock,
+                    'min_qty' => $minimumStock,
+                ]);
+            }
+        }
     }
 
     /**
