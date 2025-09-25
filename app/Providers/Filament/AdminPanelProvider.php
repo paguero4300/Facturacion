@@ -60,6 +60,10 @@ class AdminPanelProvider extends PanelProvider
                     ->icon('iconoir-shop')
                     ->collapsible()
                     ->collapsed(),
+                NavigationGroup::make('Inventario')
+                    ->icon('iconoir-packages')
+                    ->collapsible()
+                    ->collapsed(),
                 NavigationGroup::make('Facturación')
                     ->icon('iconoir-credit-card')
                     ->collapsible()
