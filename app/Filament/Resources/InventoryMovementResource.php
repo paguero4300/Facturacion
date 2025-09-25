@@ -106,30 +106,6 @@ class InventoryMovementResource extends Resource
                     ->columnSpanFull()
                     ->visible(fn (Get $get) => filled($get('type')))
                     ->schema([
-                        // Producto - Siempre visible
-                        Select::make('product_id')
-                            ->label(__('Producto'))
-                            ->relationship('product', 'name')
-                            ->required()
-                            ->searchable()
-                            ->preload()
-                            ->options(function (Get $get) {
-                                $type = $get('type');
-                                $warehouseId = $get('from_warehouse_id');
-                                
-                                // Para salidas, solo mostrar productos con stock en el almacén seleccionado
-                                if ($type === InventoryMovement::TYPE_OUT && $warehouseId) {
-                                    return Product::whereHas('stocks', function ($query) use ($warehouseId) {
-                                        $query->where('warehouse_id', $warehouseId)
-                                              ->where('qty', '>', 0);
-                                    })->pluck('name', 'id');
-                                }
-                                
-                                return Product::pluck('name', 'id');
-                            })
-                            ->live()
-                            ->columnSpan(2),
-
                         // Tipo de Ajuste - Solo para ADJUST
                         Select::make('adjustment_type')
                             ->label(__('Tipo de Ajuste'))
@@ -197,6 +173,30 @@ class InventoryMovementResource extends Resource
                                        ($type === InventoryMovement::TYPE_ADJUST && $adjustType === 'SURPLUS');
                             })
                             ->columnSpan(1),
+
+                        // Producto - Ahora después de los almacenes
+                        Select::make('product_id')
+                            ->label(__('Producto'))
+                            ->relationship('product', 'name')
+                            ->required()
+                            ->searchable()
+                            ->preload()
+                            ->options(function (Get $get) {
+                                $type = $get('type');
+                                $warehouseId = $get('from_warehouse_id');
+                                
+                                // Para salidas, solo mostrar productos con stock en el almacén seleccionado
+                                if ($type === InventoryMovement::TYPE_OUT && $warehouseId) {
+                                    return Product::whereHas('stocks', function ($query) use ($warehouseId) {
+                                        $query->where('warehouse_id', $warehouseId)
+                                              ->where('qty', '>', 0);
+                                    })->pluck('name', 'id');
+                                }
+                                
+                                return Product::pluck('name', 'id');
+                            })
+                            ->live()
+                            ->columnSpan(2),
 
                         // Stock Disponible - Solo para salidas
                         Placeholder::make('available_stock')
