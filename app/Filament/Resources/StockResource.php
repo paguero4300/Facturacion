@@ -126,12 +126,6 @@ class StockResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('company_id')
-                    ->label(__('Empresa'))
-                    ->relationship('company', 'business_name')
-                    ->searchable()
-                    ->preload(),
-                    
                 SelectFilter::make('warehouse_id')
                     ->label(__('Almacén'))
                     ->relationship('warehouse', 'name')

@@ -210,12 +210,6 @@ class InventoryMovementResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('company_id')
-                    ->label(__('Empresa'))
-                    ->relationship('company', 'business_name')
-                    ->searchable()
-                    ->preload(),
-                    
                 SelectFilter::make('type')
                     ->label(__('Tipo'))
                     ->options(InventoryMovement::getTypes()),

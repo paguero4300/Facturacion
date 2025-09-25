@@ -138,12 +138,6 @@ class WarehouseResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                SelectFilter::make('company_id')
-                    ->label(__('Empresa'))
-                    ->relationship('company', 'business_name')
-                    ->searchable()
-                    ->preload(),
-                    
                 SelectFilter::make('is_active')
                     ->label(__('Estado'))
                     ->options([
