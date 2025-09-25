@@ -69,11 +69,6 @@ class WarehouseResource extends Resource
                         Hidden::make('company_id')
                             ->default(fn() => \App\Models\Company::where('status', 'active')->first()?->id ?? 1)
                             ->required(),
-
-                        Placeholder::make('company_display')
-                            ->label(__('Empresa'))
-                            ->content(fn() => \App\Models\Company::where('status', 'active')->first()?->business_name ?? 'No hay empresa activa')
-                            ->columnSpan(2),
                         
                         TextInput::make('code')
                             ->label(__('Código'))

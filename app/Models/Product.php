@@ -81,6 +81,11 @@ class Product extends Model
         return $this->hasMany(InvoiceDetail::class);
     }
 
+    public function stocks(): HasMany
+    {
+        return $this->hasMany(Stock::class);
+    }
+
     // Scopes
     public function scopeActive($query)
     {

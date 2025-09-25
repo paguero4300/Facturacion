@@ -7,6 +7,7 @@ use App\Models\InventoryMovement;
 use App\Models\Company;
 use App\Models\Product;
 use App\Models\Warehouse;
+use App\Models\Stock;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
@@ -63,123 +64,165 @@ class InventoryMovementResource extends Resource
     {
         return $schema
             ->schema([
-                // Sección 1: Información Básica
-                Section::make(__('📋 Información Básica'))
-                    ->description(__('Datos principales del movimiento'))
+                // Hidden company field
+                Hidden::make('company_id')
+                    ->default(function () {
+                        return \App\Models\Company::where('is_active', true)->first()?->id ?? 1;
+                    }),
+
+                // Hidden user field
+                Hidden::make('user_id')
+                    ->default(auth()->id()),
+
+                // Sección 1: Tipo de Movimiento
+                Section::make(__('📋 Tipo de Movimiento'))
+                    ->description(__('Seleccione el tipo de movimiento de inventario'))
                     ->icon('iconoir-page')
-                    ->columns(2)
+                    ->columns(1)
                     ->columnSpanFull()
                     ->schema([
-                        Hidden::make('company_id')
-                            ->default(function () {
-                                return \App\Models\Company::where('is_active', true)->first()?->id ?? 1;
-                            }),
-                            
-                        Placeholder::make('company_display')
-                            ->label(__('Empresa'))
-                            ->content(function () {
-                                $company = \App\Models\Company::where('is_active', true)->first();
-                                return $company ? $company->business_name : 'Empresa por defecto';
-                            })
-                            ->columnSpan(1),
-                            
-                        Select::make('product_id')
-                            ->label(__('Producto'))
-                            ->relationship('product', 'name')
-                            ->required()
-                            ->searchable()
-                            ->preload()
-                            ->columnSpan(1),
-                            
                         Select::make('type')
                             ->label(__('Tipo de Movimiento'))
                             ->options(InventoryMovement::getTypes())
                             ->required()
                             ->live()
                             ->afterStateUpdated(function (Set $set, Get $get, $state) {
-                                // Limpiar campos de almacén cuando cambia el tipo
+                                // Limpiar campos cuando cambia el tipo
+                                $set('product_id', null);
                                 $set('from_warehouse_id', null);
                                 $set('to_warehouse_id', null);
-                                $set('adjust_type', null);
+                                $set('adjustment_type', null);
+                                $set('qty', null);
+                                $set('reason', null);
                             })
-                            ->columnSpan(1),
-                            
-                        Select::make('adjust_type')
+                            ->columnSpanFull(),
+                    ]),
+
+                // Sección 2: Detalles del Movimiento (Dinámica)
+                Section::make(__('🏪 Detalles del Movimiento'))
+                    ->description(__('Configure los detalles según el tipo de movimiento'))
+                    ->icon('iconoir-package')
+                    ->columns(2)
+                    ->columnSpanFull()
+                    ->visible(fn (Get $get) => filled($get('type')))
+                    ->schema([
+                        // Producto - Siempre visible
+                        Select::make('product_id')
+                            ->label(__('Producto'))
+                            ->relationship('product', 'name')
+                            ->required()
+                            ->searchable()
+                            ->preload()
+                            ->options(function (Get $get) {
+                                $type = $get('type');
+                                $warehouseId = $get('from_warehouse_id');
+                                
+                                // Para salidas, solo mostrar productos con stock en el almacén seleccionado
+                                if ($type === InventoryMovement::TYPE_OUT && $warehouseId) {
+                                    return Product::whereHas('stocks', function ($query) use ($warehouseId) {
+                                        $query->where('warehouse_id', $warehouseId)
+                                              ->where('qty', '>', 0);
+                                    })->pluck('name', 'id');
+                                }
+                                
+                                return Product::pluck('name', 'id');
+                            })
+                            ->live()
+                            ->columnSpan(2),
+
+                        // Tipo de Ajuste - Solo para ADJUST
+                        Select::make('adjustment_type')
                             ->label(__('Tipo de Ajuste'))
                             ->options([
-                                'positive' => __('Positivo (Entrada)'),
-                                'negative' => __('Negativo (Salida)'),
+                                'SHORTAGE' => __('Faltante'),
+                                'SURPLUS' => __('Sobrante'),
                             ])
                             ->visible(fn (Get $get) => $get('type') === InventoryMovement::TYPE_ADJUST)
                             ->required(fn (Get $get) => $get('type') === InventoryMovement::TYPE_ADJUST)
                             ->live()
                             ->afterStateUpdated(function (Set $set, Get $get, $state) {
                                 if ($get('type') === InventoryMovement::TYPE_ADJUST) {
-                                    if ($state === 'positive') {
-                                        // Ajuste positivo: solo to_warehouse_id
-                                        $set('from_warehouse_id', null);
-                                    } elseif ($state === 'negative') {
-                                        // Ajuste negativo: solo from_warehouse_id
+                                    if ($state === 'SHORTAGE') {
+                                        // Faltante: solo from_warehouse_id
                                         $set('to_warehouse_id', null);
+                                    } elseif ($state === 'SURPLUS') {
+                                        // Sobrante: solo to_warehouse_id
+                                        $set('from_warehouse_id', null);
                                     }
                                 }
                             })
-                            ->columnSpan(1),
-                    ]),
+                            ->columnSpan(2),
 
-                // Sección 2: Detalles del Movimiento
-                Section::make(__('🏪 Detalles del Movimiento'))
-                    ->description(__('Almacenes, cantidad y fecha del movimiento'))
-                    ->icon('iconoir-package')
-                    ->columns(2)
-                    ->columnSpanFull()
-                    ->schema([
+                        // Almacén de Origen
                         Select::make('from_warehouse_id')
-                            ->label(__('Desde Almacén'))
+                            ->label(__('Almacén de Origen'))
                             ->relationship('fromWarehouse', 'name')
                             ->searchable()
                             ->preload()
                             ->visible(function (Get $get) {
                                 $type = $get('type');
-                                $adjustType = $get('adjust_type');
+                                $adjustType = $get('adjustment_type');
                                 
-                                // Mostrar para OUT, TRANSFER y ADJUST negativo
                                 return in_array($type, [InventoryMovement::TYPE_OUT, InventoryMovement::TYPE_TRANSFER]) ||
-                                       ($type === InventoryMovement::TYPE_ADJUST && $adjustType === 'negative');
+                                       ($type === InventoryMovement::TYPE_ADJUST && $adjustType === 'SHORTAGE');
                             })
                             ->required(function (Get $get) {
                                 $type = $get('type');
-                                $adjustType = $get('adjust_type');
+                                $adjustType = $get('adjustment_type');
                                 
-                                // Requerido para OUT, TRANSFER y ADJUST negativo
                                 return in_array($type, [InventoryMovement::TYPE_OUT, InventoryMovement::TYPE_TRANSFER]) ||
-                                       ($type === InventoryMovement::TYPE_ADJUST && $adjustType === 'negative');
+                                       ($type === InventoryMovement::TYPE_ADJUST && $adjustType === 'SHORTAGE');
                             })
+                            ->live()
                             ->columnSpan(1),
-                            
+
+                        // Almacén de Destino
                         Select::make('to_warehouse_id')
-                            ->label(__('Hacia Almacén'))
+                            ->label(__('Almacén de Destino'))
                             ->relationship('toWarehouse', 'name')
                             ->searchable()
                             ->preload()
                             ->visible(function (Get $get) {
                                 $type = $get('type');
-                                $adjustType = $get('adjust_type');
+                                $adjustType = $get('adjustment_type');
                                 
-                                // Mostrar para OPENING, IN, TRANSFER y ADJUST positivo
                                 return in_array($type, [InventoryMovement::TYPE_OPENING, InventoryMovement::TYPE_IN, InventoryMovement::TYPE_TRANSFER]) ||
-                                       ($type === InventoryMovement::TYPE_ADJUST && $adjustType === 'positive');
+                                       ($type === InventoryMovement::TYPE_ADJUST && $adjustType === 'SURPLUS');
                             })
                             ->required(function (Get $get) {
                                 $type = $get('type');
-                                $adjustType = $get('adjust_type');
+                                $adjustType = $get('adjustment_type');
                                 
-                                // Requerido para OPENING, IN, TRANSFER y ADJUST positivo
                                 return in_array($type, [InventoryMovement::TYPE_OPENING, InventoryMovement::TYPE_IN, InventoryMovement::TYPE_TRANSFER]) ||
-                                       ($type === InventoryMovement::TYPE_ADJUST && $adjustType === 'positive');
+                                       ($type === InventoryMovement::TYPE_ADJUST && $adjustType === 'SURPLUS');
                             })
                             ->columnSpan(1),
-                            
+
+                        // Stock Disponible - Solo para salidas
+                        Placeholder::make('available_stock')
+                            ->label(__('Stock Disponible'))
+                            ->content(function (Get $get) {
+                                $productId = $get('product_id');
+                                $warehouseId = $get('from_warehouse_id');
+                                
+                                if (!$productId || !$warehouseId) {
+                                    return __('Seleccione producto y almacén');
+                                }
+                                
+                                $stock = Stock::where('product_id', $productId)
+                                            ->where('warehouse_id', $warehouseId)
+                                            ->first();
+                                
+                                return $stock ? number_format($stock->qty, 2) : '0.00';
+                            })
+                            ->visible(function (Get $get) {
+                                $type = $get('type');
+                                return in_array($type, [InventoryMovement::TYPE_OUT, InventoryMovement::TYPE_TRANSFER]) ||
+                                       ($type === InventoryMovement::TYPE_ADJUST && $get('adjustment_type') === 'SHORTAGE');
+                            })
+                            ->columnSpan(1),
+
+                        // Cantidad
                         TextInput::make('qty')
                             ->label(__('Cantidad'))
                             ->required()
@@ -187,14 +230,36 @@ class InventoryMovementResource extends Resource
                             ->minValue(0.01)
                             ->step(0.01)
                             ->placeholder('0.00')
+                            ->rules(function (Get $get) {
+                                $type = $get('type');
+                                $productId = $get('product_id');
+                                $warehouseId = $get('from_warehouse_id');
+                                
+                                // Validación de stock para salidas
+                                if (in_array($type, [InventoryMovement::TYPE_OUT, InventoryMovement::TYPE_TRANSFER]) ||
+                                    ($type === InventoryMovement::TYPE_ADJUST && $get('adjustment_type') === 'SHORTAGE')) {
+                                    
+                                    if ($productId && $warehouseId) {
+                                        $stock = Stock::where('product_id', $productId)
+                                                    ->where('warehouse_id', $warehouseId)
+                                                    ->first();
+                                        
+                                        $maxQty = $stock ? $stock->qty : 0;
+                                        return ['max:' . $maxQty];
+                                    }
+                                }
+                                
+                                return [];
+                            })
                             ->columnSpan(1),
-                            
+
+                        // Fecha del Movimiento
                         DateTimePicker::make('movement_date')
                             ->label(__('Fecha del Movimiento'))
                             ->required()
                             ->default(now())
                             ->native(false)
-                            ->columnSpan(1),
+                            ->columnSpan(2),
                     ]),
 
                 // Sección 3: Observaciones
@@ -202,6 +267,7 @@ class InventoryMovementResource extends Resource
                     ->description(__('Motivo y comentarios adicionales'))
                     ->icon('iconoir-notes')
                     ->columnSpanFull()
+                    ->visible(fn (Get $get) => filled($get('type')))
                     ->schema([
                         Textarea::make('reason')
                             ->label(__('Motivo/Observaciones'))
@@ -209,9 +275,6 @@ class InventoryMovementResource extends Resource
                             ->rows(4)
                             ->placeholder(__('Descripción del motivo del movimiento...'))
                             ->columnSpanFull(),
-                            
-                        Hidden::make('user_id')
-                            ->default(auth()->id()),
                     ]),
             ]);
     }
