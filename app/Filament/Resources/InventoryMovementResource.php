@@ -100,8 +100,31 @@ class InventoryMovementResource extends Resource
                                 // Limpiar campos de almacén cuando cambia el tipo
                                 $set('from_warehouse_id', null);
                                 $set('to_warehouse_id', null);
+                                $set('adjust_type', null);
                             })
-                            ->columnSpanFull(),
+                            ->columnSpan(1),
+                            
+                        Select::make('adjust_type')
+                            ->label(__('Tipo de Ajuste'))
+                            ->options([
+                                'positive' => __('Positivo (Entrada)'),
+                                'negative' => __('Negativo (Salida)'),
+                            ])
+                            ->visible(fn (Get $get) => $get('type') === InventoryMovement::TYPE_ADJUST)
+                            ->required(fn (Get $get) => $get('type') === InventoryMovement::TYPE_ADJUST)
+                            ->live()
+                            ->afterStateUpdated(function (Set $set, Get $get, $state) {
+                                if ($get('type') === InventoryMovement::TYPE_ADJUST) {
+                                    if ($state === 'positive') {
+                                        // Ajuste positivo: solo to_warehouse_id
+                                        $set('from_warehouse_id', null);
+                                    } elseif ($state === 'negative') {
+                                        // Ajuste negativo: solo from_warehouse_id
+                                        $set('to_warehouse_id', null);
+                                    }
+                                }
+                            })
+                            ->columnSpan(1),
                     ]),
 
                 // Sección 2: Detalles del Movimiento
@@ -116,8 +139,22 @@ class InventoryMovementResource extends Resource
                             ->relationship('fromWarehouse', 'name')
                             ->searchable()
                             ->preload()
-                            ->visible(fn (Get $get) => in_array($get('type'), [InventoryMovement::TYPE_OUT, InventoryMovement::TYPE_TRANSFER, InventoryMovement::TYPE_ADJUST]))
-                            ->required(fn (Get $get) => in_array($get('type'), [InventoryMovement::TYPE_OUT, InventoryMovement::TYPE_TRANSFER]))
+                            ->visible(function (Get $get) {
+                                $type = $get('type');
+                                $adjustType = $get('adjust_type');
+                                
+                                // Mostrar para OUT, TRANSFER y ADJUST negativo
+                                return in_array($type, [InventoryMovement::TYPE_OUT, InventoryMovement::TYPE_TRANSFER]) ||
+                                       ($type === InventoryMovement::TYPE_ADJUST && $adjustType === 'negative');
+                            })
+                            ->required(function (Get $get) {
+                                $type = $get('type');
+                                $adjustType = $get('adjust_type');
+                                
+                                // Requerido para OUT, TRANSFER y ADJUST negativo
+                                return in_array($type, [InventoryMovement::TYPE_OUT, InventoryMovement::TYPE_TRANSFER]) ||
+                                       ($type === InventoryMovement::TYPE_ADJUST && $adjustType === 'negative');
+                            })
                             ->columnSpan(1),
                             
                         Select::make('to_warehouse_id')
@@ -125,8 +162,22 @@ class InventoryMovementResource extends Resource
                             ->relationship('toWarehouse', 'name')
                             ->searchable()
                             ->preload()
-                            ->visible(fn (Get $get) => in_array($get('type'), [InventoryMovement::TYPE_OPENING, InventoryMovement::TYPE_IN, InventoryMovement::TYPE_TRANSFER, InventoryMovement::TYPE_ADJUST]))
-                            ->required(fn (Get $get) => in_array($get('type'), [InventoryMovement::TYPE_OPENING, InventoryMovement::TYPE_IN, InventoryMovement::TYPE_TRANSFER]))
+                            ->visible(function (Get $get) {
+                                $type = $get('type');
+                                $adjustType = $get('adjust_type');
+                                
+                                // Mostrar para OPENING, IN, TRANSFER y ADJUST positivo
+                                return in_array($type, [InventoryMovement::TYPE_OPENING, InventoryMovement::TYPE_IN, InventoryMovement::TYPE_TRANSFER]) ||
+                                       ($type === InventoryMovement::TYPE_ADJUST && $adjustType === 'positive');
+                            })
+                            ->required(function (Get $get) {
+                                $type = $get('type');
+                                $adjustType = $get('adjust_type');
+                                
+                                // Requerido para OPENING, IN, TRANSFER y ADJUST positivo
+                                return in_array($type, [InventoryMovement::TYPE_OPENING, InventoryMovement::TYPE_IN, InventoryMovement::TYPE_TRANSFER]) ||
+                                       ($type === InventoryMovement::TYPE_ADJUST && $adjustType === 'positive');
+                            })
                             ->columnSpan(1),
                             
                         TextInput::make('qty')

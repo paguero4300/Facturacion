@@ -85,12 +85,20 @@ class InventoryMovementObserver
                 break;
 
             case 'ADJUST':
-                // Ajuste: establecer cantidad exacta en el almacén
+                // Ajuste: sumar o restar cantidad del stock actual
                 if ($movement->to_warehouse_id) {
-                    $this->setStock(
+                    // Ajuste positivo: agregar al almacén destino
+                    $this->adjustStock(
                         $movement->product_id,
                         $movement->to_warehouse_id,
                         $movement->qty
+                    );
+                } elseif ($movement->from_warehouse_id) {
+                    // Ajuste negativo: restar del almacén origen
+                    $this->adjustStock(
+                        $movement->product_id,
+                        $movement->from_warehouse_id,
+                        -$movement->qty
                     );
                 }
                 break;
@@ -147,7 +155,22 @@ class InventoryMovementObserver
                 break;
 
             case 'ADJUST':
-                // Para ajustes, necesitaríamos el valor anterior, por simplicidad no revertimos
+                // Para ajustes, revertir el cambio anterior
+                if ($originalMovement['to_warehouse_id']) {
+                    // Revertir ajuste positivo: restar la cantidad
+                    $this->adjustStock(
+                        $movement->product_id,
+                        $originalMovement['to_warehouse_id'],
+                        -$originalMovement['qty']
+                    );
+                } elseif ($originalMovement['from_warehouse_id']) {
+                    // Revertir ajuste negativo: agregar la cantidad
+                    $this->adjustStock(
+                        $movement->product_id,
+                        $originalMovement['from_warehouse_id'],
+                        $originalMovement['qty']
+                    );
+                }
                 break;
         }
     }
