@@ -67,8 +67,10 @@ class WarehouseResource extends Resource
                                     ->label(__('Empresa'))
                                     ->relationship('company', 'business_name')
                                     ->required()
-                                    ->searchable()
-                                    ->preload(),
+                                    ->default(function () {
+                                        return \App\Models\Company::first()?->id;
+                                    })
+                                    ->disabled(),
                                     
                                 TextInput::make('code')
                                     ->label(__('Código'))

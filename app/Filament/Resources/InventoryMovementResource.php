@@ -71,8 +71,10 @@ class InventoryMovementResource extends Resource
                                     ->label(__('Empresa'))
                                     ->relationship('company', 'business_name')
                                     ->required()
-                                    ->searchable()
-                                    ->preload(),
+                                    ->default(function () {
+                                        return \App\Models\Company::first()?->id;
+                                    })
+                                    ->disabled(),
                                     
                                 Select::make('product_id')
                                     ->label(__('Producto'))
