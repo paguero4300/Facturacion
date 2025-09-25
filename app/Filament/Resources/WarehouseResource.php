@@ -104,11 +104,6 @@ class WarehouseResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('company.business_name')
-                    ->label(__('Empresa'))
-                    ->searchable()
-                    ->sortable(),
-                    
                 TextColumn::make('code')
                     ->label(__('Código'))
                     ->searchable()

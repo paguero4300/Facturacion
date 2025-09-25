@@ -150,12 +150,6 @@ class InventoryMovementResource extends Resource
                     ->sortable()
                     ->searchable(),
                     
-                TextColumn::make('company.business_name')
-                    ->label(__('Empresa'))
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable(),
-                    
                 TextColumn::make('type')
                     ->label(__('Tipo'))
                     ->formatStateUsing(fn ($state) => InventoryMovement::getTypes()[$state] ?? $state)

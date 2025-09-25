@@ -34,17 +34,17 @@ class StockResource extends Resource
 
     public static function getNavigationLabel(): string
     {
-        return __('Existencias');
+        return __('Stocks');
     }
 
     public static function getModelLabel(): string
     {
-        return __('Existencia');
+        return __('Stock');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('Existencias');
+        return __('Stocks');
     }
 
     public static function canCreate(): bool
@@ -72,11 +72,6 @@ class StockResource extends Resource
         return $table
             ->modifyQueryUsing(fn (Builder $query) => $query->with(['product', 'warehouse', 'company']))
             ->columns([
-                TextColumn::make('company.business_name')
-                    ->label(__('Empresa'))
-                    ->searchable()
-                    ->sortable(),
-                    
                 TextColumn::make('product.code')
                     ->label(__('Código'))
                     ->searchable()
