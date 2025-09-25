@@ -152,6 +152,11 @@ class InventoryMovementResource extends Resource
                     ->sortable()
                     ->searchable(),
                     
+                TextColumn::make('product.code')
+                    ->label(__('Código'))
+                    ->sortable()
+                    ->searchable(),
+                    
                 TextColumn::make('type')
                     ->label(__('Tipo'))
                     ->formatStateUsing(fn ($state) => InventoryMovement::getTypes()[$state] ?? $state)
