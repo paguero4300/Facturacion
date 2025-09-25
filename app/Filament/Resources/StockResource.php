@@ -171,6 +171,9 @@ class StockResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with(['company', 'product', 'warehouse', 'product.category']);
+            ->with(['company', 'product', 'warehouse', 'product.category'])
+            ->whereHas('product', function (Builder $query) {
+                $query->where('product_type', 'product');
+            });
     }
 }
