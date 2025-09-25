@@ -40,7 +40,7 @@ class InventoryReportsPage extends Page implements HasTable
     // Tabla para Existencias Actuales
     public function getCurrentStockTable(): Table
     {
-        return Table::make()
+        return Table::make($this)
             ->query(
                 Stock::query()
                     ->join('products', 'stocks.product_id', '=', 'products.id')
@@ -48,8 +48,8 @@ class InventoryReportsPage extends Page implements HasTable
                     ->select(
                         'products.name as product_name',
                         'warehouses.name as warehouse_name', 
-                        'stocks.quantity as stock_actual',
-                        'products.minimum_stock as stock_minimo',
+                        'stocks.qty as stock_actual',
+                        'stocks.min_qty as stock_minimo',
                         'stocks.id'
                     )
             )
@@ -100,17 +100,17 @@ class InventoryReportsPage extends Page implements HasTable
     // Tabla para Bajo Stock
     public function getLowStockTable(): Table
     {
-        return Table::make()
+        return Table::make($this)
             ->query(
                 Stock::query()
                     ->join('products', 'stocks.product_id', '=', 'products.id')
                     ->join('warehouses', 'stocks.warehouse_id', '=', 'warehouses.id')
-                    ->whereRaw('stocks.quantity <= products.minimum_stock')
+                    ->whereRaw('stocks.qty <= stocks.min_qty')
                     ->select(
                         'products.name as product_name',
                         'warehouses.name as warehouse_name',
-                        'stocks.quantity as stock_actual',
-                        'products.minimum_stock as stock_minimo',
+                        'stocks.qty as stock_actual',
+                        'stocks.min_qty as stock_minimo',
                         'stocks.id'
                     )
             )
