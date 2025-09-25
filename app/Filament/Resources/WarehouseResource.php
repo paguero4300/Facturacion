@@ -8,6 +8,8 @@ use App\Models\Company;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
 use Filament\Resources\Resource;
@@ -58,47 +60,42 @@ class WarehouseResource extends Resource
     {
         return $schema
             ->schema([
-                Section::make(__('📦 Datos del Almacén'))
+                Section::make(__('Datos del Almacén'))
+                    ->icon('iconoir-package')
                     ->description(__('Información básica del almacén'))
-                    ->icon('iconoir-building')
+                    ->columns(3)
+                    ->columnSpanFull()
                     ->schema([
-                        Grid::make(2)
-                            ->schema([
-                                Select::make('company_id')
-                                    ->label(__('Empresa'))
-                                    ->relationship('company', 'business_name')
-                                    ->required()
-                                    ->default(function () {
-                                        return \App\Models\Company::first()?->id;
-                                    })
-                                    ->disabled(),
-                                    
-                                TextInput::make('code')
-                                    ->label(__('Código'))
-                                    ->required()
-                                    ->maxLength(20)
-                                    ->unique(ignoreRecord: true)
-                                    ->placeholder('ALM001'),
-                                    
-                                TextInput::make('name')
-                                    ->label(__('Nombre'))
-                                    ->required()
-                                    ->maxLength(255)
-                                    ->placeholder('Almacén Principal')
-                                    ->columnSpan(2),
-                            ]),
-                            
-                        Grid::make(2)
-                            ->schema([
-                                Toggle::make('is_default')
-                                    ->label(__('Almacén por Defecto'))
-                                    ->helperText(__('Solo puede haber un almacén por defecto por empresa'))
-                                    ->default(false),
-                                    
-                                Toggle::make('is_active')
-                                    ->label(__('Activo'))
-                                    ->default(true),
-                            ]),
+                        Hidden::make('company_id')
+                            ->default(fn() => \App\Models\Company::where('status', 'active')->first()?->id ?? 1)
+                            ->required(),
+
+                        Placeholder::make('company_display')
+                            ->label(__('Empresa'))
+                            ->content(fn() => \App\Models\Company::where('status', 'active')->first()?->business_name ?? 'No hay empresa activa')
+                            ->columnSpan(2),
+                        
+                        TextInput::make('code')
+                            ->label(__('Código'))
+                            ->required()
+                            ->maxLength(50)
+                            ->columnSpan(1),
+                        
+                        TextInput::make('name')
+                            ->label(__('Nombre'))
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpan(3),
+                        
+                        Toggle::make('is_default')
+                            ->label(__('Almacén por Defecto'))
+                            ->helperText(__('Solo puede haber un almacén por defecto por empresa'))
+                            ->columnSpan(1),
+                        
+                        Toggle::make('is_active')
+                            ->label(__('Activo'))
+                            ->default(true)
+                            ->columnSpan(1),
                     ]),
             ]);
     }

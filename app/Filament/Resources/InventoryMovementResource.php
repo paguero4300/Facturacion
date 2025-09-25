@@ -14,6 +14,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
@@ -62,81 +63,101 @@ class InventoryMovementResource extends Resource
     {
         return $schema
             ->schema([
-                Section::make(__('🚚 Datos del Movimiento'))
-                    ->description(__('Información del movimiento de inventario'))
-                    ->icon('iconoir-truck')
+                // Sección 1: Información Básica
+                Section::make(__('📋 Información Básica'))
+                    ->description(__('Datos principales del movimiento'))
+                    ->icon('iconoir-page')
+                    ->columns(2)
+                    ->columnSpanFull()
                     ->schema([
-                        Grid::make(3)
-                            ->schema([
-                                Select::make('company_id')
-                                    ->label(__('Empresa'))
-                                    ->relationship('company', 'business_name')
-                                    ->required()
-                                    ->default(function () {
-                                        return \App\Models\Company::first()?->id;
-                                    })
-                                    ->disabled(),
-                                    
-                                Select::make('product_id')
-                                    ->label(__('Producto'))
-                                    ->relationship('product', 'name')
-                                    ->required()
-                                    ->searchable()
-                                    ->preload(),
-                                    
-                                Select::make('type')
-                                    ->label(__('Tipo de Movimiento'))
-                                    ->options(InventoryMovement::getTypes())
-                                    ->required()
-                                    ->live()
-                                    ->afterStateUpdated(function (Set $set, Get $get, $state) {
-                                        // Limpiar campos de almacén cuando cambia el tipo
-                                        $set('from_warehouse_id', null);
-                                        $set('to_warehouse_id', null);
-                                    }),
-                            ]),
+                        Hidden::make('company_id')
+                            ->default(function () {
+                                return \App\Models\Company::where('is_active', true)->first()?->id ?? 1;
+                            }),
                             
-                        Grid::make(2)
-                            ->schema([
-                                Select::make('from_warehouse_id')
-                                    ->label(__('Desde Almacén'))
-                                    ->relationship('fromWarehouse', 'name')
-                                    ->searchable()
-                                    ->preload()
-                                    ->visible(fn (Get $get) => in_array($get('type'), [InventoryMovement::TYPE_OUT, InventoryMovement::TYPE_TRANSFER, InventoryMovement::TYPE_ADJUST]))
-                                    ->required(fn (Get $get) => in_array($get('type'), [InventoryMovement::TYPE_OUT, InventoryMovement::TYPE_TRANSFER])),
-                                    
-                                Select::make('to_warehouse_id')
-                                    ->label(__('Hacia Almacén'))
-                                    ->relationship('toWarehouse', 'name')
-                                    ->searchable()
-                                    ->preload()
-                                    ->visible(fn (Get $get) => in_array($get('type'), [InventoryMovement::TYPE_OPENING, InventoryMovement::TYPE_IN, InventoryMovement::TYPE_TRANSFER, InventoryMovement::TYPE_ADJUST]))
-                                    ->required(fn (Get $get) => in_array($get('type'), [InventoryMovement::TYPE_OPENING, InventoryMovement::TYPE_IN, InventoryMovement::TYPE_TRANSFER])),
-                            ]),
+                        Placeholder::make('company_display')
+                            ->label(__('Empresa'))
+                            ->content(function () {
+                                $company = \App\Models\Company::where('is_active', true)->first();
+                                return $company ? $company->business_name : 'Empresa por defecto';
+                            })
+                            ->columnSpan(1),
                             
-                        Grid::make(2)
-                            ->schema([
-                                TextInput::make('qty')
-                                    ->label(__('Cantidad'))
-                                    ->required()
-                                    ->numeric()
-                                    ->minValue(0.01)
-                                    ->step(0.01)
-                                    ->placeholder('0.00'),
-                                    
-                                DateTimePicker::make('movement_date')
-                                    ->label(__('Fecha del Movimiento'))
-                                    ->required()
-                                    ->default(now())
-                                    ->native(false),
-                            ]),
+                        Select::make('product_id')
+                            ->label(__('Producto'))
+                            ->relationship('product', 'name')
+                            ->required()
+                            ->searchable()
+                            ->preload()
+                            ->columnSpan(1),
                             
+                        Select::make('type')
+                            ->label(__('Tipo de Movimiento'))
+                            ->options(InventoryMovement::getTypes())
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(function (Set $set, Get $get, $state) {
+                                // Limpiar campos de almacén cuando cambia el tipo
+                                $set('from_warehouse_id', null);
+                                $set('to_warehouse_id', null);
+                            })
+                            ->columnSpanFull(),
+                    ]),
+
+                // Sección 2: Detalles del Movimiento
+                Section::make(__('🏪 Detalles del Movimiento'))
+                    ->description(__('Almacenes, cantidad y fecha del movimiento'))
+                    ->icon('iconoir-package')
+                    ->columns(2)
+                    ->columnSpanFull()
+                    ->schema([
+                        Select::make('from_warehouse_id')
+                            ->label(__('Desde Almacén'))
+                            ->relationship('fromWarehouse', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->visible(fn (Get $get) => in_array($get('type'), [InventoryMovement::TYPE_OUT, InventoryMovement::TYPE_TRANSFER, InventoryMovement::TYPE_ADJUST]))
+                            ->required(fn (Get $get) => in_array($get('type'), [InventoryMovement::TYPE_OUT, InventoryMovement::TYPE_TRANSFER]))
+                            ->columnSpan(1),
+                            
+                        Select::make('to_warehouse_id')
+                            ->label(__('Hacia Almacén'))
+                            ->relationship('toWarehouse', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->visible(fn (Get $get) => in_array($get('type'), [InventoryMovement::TYPE_OPENING, InventoryMovement::TYPE_IN, InventoryMovement::TYPE_TRANSFER, InventoryMovement::TYPE_ADJUST]))
+                            ->required(fn (Get $get) => in_array($get('type'), [InventoryMovement::TYPE_OPENING, InventoryMovement::TYPE_IN, InventoryMovement::TYPE_TRANSFER]))
+                            ->columnSpan(1),
+                            
+                        TextInput::make('qty')
+                            ->label(__('Cantidad'))
+                            ->required()
+                            ->numeric()
+                            ->minValue(0.01)
+                            ->step(0.01)
+                            ->placeholder('0.00')
+                            ->columnSpan(1),
+                            
+                        DateTimePicker::make('movement_date')
+                            ->label(__('Fecha del Movimiento'))
+                            ->required()
+                            ->default(now())
+                            ->native(false)
+                            ->columnSpan(1),
+                    ]),
+
+                // Sección 3: Observaciones
+                Section::make(__('📝 Observaciones'))
+                    ->description(__('Motivo y comentarios adicionales'))
+                    ->icon('iconoir-notes')
+                    ->columnSpanFull()
+                    ->schema([
                         Textarea::make('reason')
                             ->label(__('Motivo/Observaciones'))
                             ->maxLength(500)
-                            ->rows(3)
-                            ->placeholder(__('Descripción del motivo del movimiento...')),
+                            ->rows(4)
+                            ->placeholder(__('Descripción del motivo del movimiento...'))
+                            ->columnSpanFull(),
                             
                         Hidden::make('user_id')
                             ->default(auth()->id()),
