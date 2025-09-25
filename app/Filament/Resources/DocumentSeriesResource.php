@@ -32,7 +32,7 @@ class DocumentSeriesResource extends Resource
 {
     protected static ?string $model = DocumentSeries::class;
 
-    protected static BackedEnum|string|null $navigationIcon = 'iconoir-numbered-list-left';
+    protected static BackedEnum|string|null $navigationIcon = 'iconoir-list';
     
     protected static string|UnitEnum|null $navigationGroup = 'Facturación';
     
