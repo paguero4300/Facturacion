@@ -32,4 +32,9 @@ class InventoryReportResource extends Resource
     {
         return 'Reportes';
     }
+    
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
 }
