@@ -36,9 +36,53 @@ class StockMinimoPage extends Page implements HasTable
 
     protected ?string $subheading = 'Productos con stock bajo o crítico que requieren reposición';
 
+    // Propiedades para las estadísticas de stock
+    public int $stockDisponible = 0;
+    public int $stockAgotado = 0;
+    public int $stockCritico = 0;
+    public int $stockMinimo = 0;
+
     public function getMaxContentWidth(): Width|string|null
     {
         return Width::Full;
+    }
+
+    public function mount(): void
+    {
+        // Calcular estadísticas de stock (igual que en StockActualPage)
+        $products = Product::query()
+            ->where('track_inventory', true)
+            ->where('status', 'active')
+            ->with(['stocks'])
+            ->get();
+
+        $this->stockDisponible = 0;
+        $this->stockAgotado = 0;
+        $this->stockCritico = 0;
+        $this->stockMinimo = 0;
+
+        foreach ($products as $product) {
+            $stock = $product->stocks->first();
+            if ($stock) {
+                $actual = $stock->qty ?? 0;
+                $minimo = $stock->min_qty ?? 0;
+
+                if ($actual <= 0) {
+                    $this->stockAgotado++;
+                } elseif ($actual <= $minimo) {
+                    $this->stockCritico++;
+                } else {
+                    $this->stockDisponible++;
+                }
+
+                if ($minimo > 0) {
+                    $this->stockMinimo++;
+                }
+            } else {
+                // Sin stock = agotado
+                $this->stockAgotado++;
+            }
+        }
     }
 
     public function table(Table $table): Table
