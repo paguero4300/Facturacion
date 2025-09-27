@@ -1,91 +1,51 @@
 <?php
 
-namespace App\Filament\Resources\ReporteInventarioResource\Pages;
+namespace App\Filament\Resources;
 
-use App\Filament\Resources\ReporteInventarioResource;
+use App\Filament\Resources\StockActualResource\Pages;
 use App\Models\Product;
-use App\Models\Stock;
-use App\Models\Warehouse;
 use App\Models\Category;
-use Filament\Resources\Pages\Page;
+use App\Models\Warehouse;
+use Filament\Resources\Resource;
+use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
-use Filament\Actions\Action;
-use Filament\Actions\BulkAction;
-use Filament\Tables\Concerns\InteractsWithTable;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Support\Enums\Width;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
+use Filament\Actions\ExportAction;
+use Filament\Actions\BulkAction;
+use Filament\Actions\ViewAction;
+use Filament\Actions\Action;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Response;
+use UnitEnum;
+use BackedEnum;
 
-class StockActualPage extends Page implements HasTable
+class StockActualResource extends Resource
 {
-    use InteractsWithTable;
-    
-    protected static string $resource = ReporteInventarioResource::class;
-    
-    protected string $view = 'filament.resources.reporte-inventario.pages.stock-actual';
+    protected static ?string $model = Product::class;
 
-    protected ?string $heading = 'Reporte de Stock Actual';
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-cube';
 
-    protected ?string $subheading = 'Inventario actual de todos los productos';
+    protected static ?string $navigationLabel = 'Stock Actual';
 
-    // Propiedades para las estadísticas de stock
-    public int $stockDisponible = 0;
-    public int $stockAgotado = 0;
-    public int $stockCritico = 0;
-    public int $stockMinimo = 0;
+    protected static string|UnitEnum|null $navigationGroup = 'Reportes de Inventario';
 
-    public function getMaxContentWidth(): Width|string|null
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $slug = 'stock-actual';
+
+    public static function getNavigationBadge(): ?string
     {
-        return Width::Full;
-    }
-
-    public function mount(): void
-    {
-        // Calcular estadísticas de stock
-        $products = Product::query()
-            ->where('track_inventory', true)
+        return static::getModel()::where('track_inventory', true)
             ->where('status', 'active')
-            ->with(['stocks'])
-            ->get();
-
-        $this->stockDisponible = 0;
-        $this->stockAgotado = 0;
-        $this->stockCritico = 0;
-        $this->stockMinimo = 0;
-
-        foreach ($products as $product) {
-            $stock = $product->stocks->first();
-            if ($stock) {
-                $actual = $stock->qty ?? 0;
-                $minimo = $stock->min_qty ?? 0;
-
-                if ($actual <= 0) {
-                    $this->stockAgotado++;
-                } elseif ($actual <= $minimo) {
-                    $this->stockCritico++;
-                } else {
-                    $this->stockDisponible++;
-                }
-
-                if ($minimo > 0) {
-                    $this->stockMinimo++;
-                }
-            } else {
-                // Sin stock = agotado
-                $this->stockAgotado++;
-            }
-        }
+            ->count();
     }
 
-    public function table(Table $table): Table
+    public static function table(Table $table): Table
     {
         return $table
             ->query(
@@ -106,61 +66,67 @@ class StockActualPage extends Page implements HasTable
                     ->label('Producto')
                     ->searchable()
                     ->sortable()
-                    ->weight('medium'),
-                    
+                    ->weight('medium')
+                    ->copyable(),
+
                 TextColumn::make('code')
                     ->label('SKU')
                     ->searchable()
                     ->sortable()
-                    ->toggleable(),
-                    
+                    ->toggleable()
+                    ->copyable(),
+
                 TextColumn::make('category.name')
                     ->label('Categoría')
                     ->sortable()
-                    ->toggleable(),
-                    
+                    ->toggleable()
+                    ->badge(),
+
                 TextColumn::make('warehouse_name')
                     ->label('Almacén')
                     ->getStateUsing(function (Product $record) {
                         return $record->stocks->first()?->warehouse?->name ?? 'N/A';
                     })
-                    ->sortable(),
-                    
+                    ->sortable()
+                    ->badge()
+                    ->color('gray'),
+
                 TextColumn::make('stock_actual')
                     ->label('Stock Actual')
                     ->getStateUsing(function (Product $record) {
                         return $record->stocks->first()?->qty ?? 0;
                     })
-                    ->numeric()
+                    ->numeric(decimalPlaces: 2)
                     ->sortable()
-                    ->color(fn ($state) => $state <= 0 ? 'danger' : 'success'),
-                    
+                    ->color(fn ($state) => $state <= 0 ? 'danger' : 'success')
+                    ->weight('bold'),
+
                 TextColumn::make('stock_minimo')
                     ->label('Stock Mínimo')
                     ->getStateUsing(function (Product $record) {
                         return $record->stocks->first()?->min_qty ?? 0;
                     })
-                    ->numeric()
+                    ->numeric(decimalPlaces: 2)
                     ->sortable()
                     ->toggleable(),
-                    
+
                 BadgeColumn::make('estado')
                     ->label('Estado')
                     ->getStateUsing(function (Product $record) {
                         $stock = $record->stocks->first();
                         if (!$stock) return 'Sin Stock';
-                        
+
                         $actual = $stock->qty ?? 0;
                         $minimo = $stock->min_qty ?? 0;
-                        
+
                         if ($actual <= 0) return 'Agotado';
-                        if ($actual <= $minimo) return 'Bajo';
+                        if ($actual <= $minimo && $minimo > 0) return 'Bajo';
                         return 'Normal';
                     })
                     ->colors([
-                        'danger' => ['Agotado', 'Bajo'],
-                        'warning' => 'Sin Stock',
-                        'success' => 'Normal',
+                        'danger' => ['Agotado'],
+                        'warning' => ['Bajo', 'Sin Stock'],
+                        'success' => ['Normal'],
                     ])
                     ->icons([
                         'heroicon-o-x-circle' => 'Agotado',
@@ -176,11 +142,11 @@ class StockActualPage extends Page implements HasTable
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['value'],
-                            fn (Builder $query, $warehouse): Builder => 
+                            fn (Builder $query, $warehouse): Builder =>
                                 $query->whereHas('stocks', fn ($q) => $q->where('warehouse_id', $warehouse))
                         );
                     }),
-                    
+
                 SelectFilter::make('category_id')
                     ->label('Categoría')
                     ->options(Category::pluck('name', 'id'))
@@ -190,7 +156,7 @@ class StockActualPage extends Page implements HasTable
                             fn (Builder $query, $category): Builder => $query->where('category_id', $category)
                         );
                     }),
-                    
+
                 Filter::make('stock_status')
                     ->label('Estado del Stock')
                     ->form([
@@ -212,50 +178,85 @@ class StockActualPage extends Page implements HasTable
                                             return $q->where('qty', '<=', 0);
                                         case 'bajo':
                                             return $q->whereColumn('qty', '<=', 'min_qty')
-                                                    ->where('qty', '>', 0);
+                                                    ->where('qty', '>', 0)
+                                                    ->whereNotNull('min_qty');
                                         case 'normal':
-                                            return $q->whereColumn('qty', '>', 'min_qty');
+                                            return $q->whereColumn('qty', '>', 'min_qty')
+                                                    ->whereNotNull('min_qty');
                                     }
                                 });
                             }
                         );
                     })
             ])
-            ->actions([
-                Action::make('view_details')
-                    ->label('Ver Detalles')
-                    ->icon('heroicon-o-eye')
-                    ->color('info')
-                    ->url(fn (Product $record): string => route('filament.admin.resources.products.view', $record))
-                    ->openUrlInNewTab()
+            ->recordActions([
+                ViewAction::make()
+                    ->label('Ver Producto')
+                    ->url(fn (Product $record): string =>
+                        route('filament.admin.resources.products.view', $record))
+                    ->openUrlInNewTab(),
             ])
-            ->bulkActions([
-                BulkAction::make('export_selected')
-                    ->label('Exportar Seleccionados')
+            ->toolbarActions([
+                BulkAction::make('export_csv')
+                    ->label('Exportar CSV')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
                     ->action(function (Collection $records) {
-                        return $this->exportToCsv($records);
+                        return static::exportToCsv($records);
                     })
+                    ->deselectRecordsAfterCompletion(),
             ])
             ->headerActions([
                 Action::make('export_all')
                     ->label('Exportar Todo')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('primary')
-                    ->action(function () {
-                        return $this->exportToCsv($this->getFilteredTableQuery()->get());
-                    })
+                    ->action(function ($livewire) {
+                        // Obtener los mismos datos que se muestran en la tabla con filtros aplicados
+                        $query = $livewire->getFilteredTableQuery();
+                        return static::exportToCsv($query->get());
+                    }),
             ])
             ->defaultSort('name')
             ->striped()
-            ->paginated([10, 25, 50, 100]);
+            ->paginated([10, 25, 50, 100])
+            ->poll('30s') // Auto-refresh cada 30 segundos
+            ->deferLoading()
+            ->persistFiltersInSession();
     }
 
-    protected function exportToCsv($records)
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListStockActual::route('/'),
+        ];
+    }
+
+
+    public static function canCreate(): bool
+    {
+        return false;
+    }
+
+    public static function canEdit($record): bool
+    {
+        return false;
+    }
+
+    public static function canDelete($record): bool
+    {
+        return false;
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return false;
+    }
+
+    protected static function exportToCsv($records)
     {
         $filename = 'stock-actual-' . now()->format('Y-m-d-H-i-s') . '.csv';
-        
+
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"$filename\"",
@@ -263,7 +264,7 @@ class StockActualPage extends Page implements HasTable
 
         $callback = function() use ($records) {
             $file = fopen('php://output', 'w');
-            
+
             // Headers CSV
             fputcsv($file, [
                 'Producto',
@@ -279,11 +280,11 @@ class StockActualPage extends Page implements HasTable
                 $stock = $record->stocks->first();
                 $actual = $stock?->qty ?? 0;
                 $minimo = $stock?->min_qty ?? 0;
-                
+
                 $estado = 'Sin Stock';
                 if ($stock) {
                     if ($actual <= 0) $estado = 'Agotado';
-                    elseif ($actual <= $minimo) $estado = 'Bajo';
+                    elseif ($actual <= $minimo && $minimo > 0) $estado = 'Bajo';
                     else $estado = 'Normal';
                 }
 

@@ -5,14 +5,14 @@
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 1rem;
         }
-        
+
         .detail-card {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
             padding: 1rem;
         }
-        
+
         .detail-label {
             font-size: 0.75rem;
             font-weight: 600;
@@ -21,13 +21,13 @@
             letter-spacing: 0.05em;
             margin-bottom: 0.25rem;
         }
-        
+
         .detail-value {
             font-size: 0.875rem;
             color: #1f2937;
             font-weight: 500;
         }
-        
+
         .movement-type-badge {
             display: inline-flex;
             align-items: center;
@@ -37,32 +37,32 @@
             font-size: 0.75rem;
             font-weight: 600;
         }
-        
+
         .type-in {
             background: #dcfce7;
             color: #166534;
         }
-        
+
         .type-out {
             background: #fee2e2;
             color: #991b1b;
         }
-        
+
         .type-transfer {
             background: #fef3c7;
             color: #92400e;
         }
-        
+
         .type-adjust {
             background: #dbeafe;
             color: #1e40af;
         }
-        
+
         .type-opening {
             background: #f3e8ff;
             color: #7c3aed;
         }
-        
+
         .warehouse-flow {
             display: flex;
             align-items: center;
@@ -72,7 +72,7 @@
             border-radius: 8px;
             margin: 1rem 0;
         }
-        
+
         .warehouse-box {
             flex: 1;
             text-align: center;
@@ -81,23 +81,23 @@
             border-radius: 6px;
             border: 2px solid #e2e8f0;
         }
-        
+
         .warehouse-name {
             font-weight: 600;
             color: #1f2937;
         }
-        
+
         .warehouse-type {
             font-size: 0.75rem;
             color: #6b7280;
             margin-top: 0.25rem;
         }
-        
+
         .flow-arrow {
             color: #6b7280;
             font-size: 1.5rem;
         }
-        
+
         .quantity-display {
             text-align: center;
             padding: 1.5rem;
@@ -105,13 +105,13 @@
             border-radius: 8px;
             margin: 1rem 0;
         }
-        
+
         .quantity-value {
             font-size: 2rem;
             font-weight: 700;
             margin-bottom: 0.25rem;
         }
-        
+
         .quantity-label {
             font-size: 0.875rem;
             color: #6b7280;
@@ -120,35 +120,47 @@
 
     <!-- Header with Movement Type -->
     <div class="text-center">
-        <div class="movement-type-badge {{ 
-            $movement->type === 'IN' || $movement->type === 'OPENING' ? 'type-in' : 
-            ($movement->type === 'OUT' ? 'type-out' : 
-            ($movement->type === 'TRANSFER' ? 'type-transfer' : 
-            ($movement->type === 'ADJUST' ? 'type-adjust' : 'type-opening'))) 
+        <div class="movement-type-badge {{
+            $movement->type === 'IN' || $movement->type === 'OPENING' ? 'type-in' :
+            ($movement->type === 'OUT' ? 'type-out' :
+            ($movement->type === 'TRANSFER' ? 'type-transfer' :
+            ($movement->type === 'ADJUST' ? 'type-adjust' : 'type-opening')))
         }}">
             @switch($movement->type)
                 @case('IN')
-                    <i class="fas fa-plus-circle"></i>
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
+                    </svg>
                     Entrada de Inventario
                     @break
                 @case('OUT')
-                    <i class="fas fa-minus-circle"></i>
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path>
+                    </svg>
                     Salida de Inventario
                     @break
                 @case('TRANSFER')
-                    <i class="fas fa-exchange-alt"></i>
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
                     Transferencia entre Almacenes
                     @break
                 @case('ADJUST')
-                    <i class="fas fa-edit"></i>
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"></path>
+                    </svg>
                     Ajuste de Inventario
                     @break
                 @case('OPENING')
-                    <i class="fas fa-play-circle"></i>
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path>
+                    </svg>
                     Inventario Inicial
                     @break
                 @default
-                    <i class="fas fa-cube"></i>
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                    </svg>
                     Movimiento de Inventario
             @endswitch
         </div>
@@ -156,9 +168,9 @@
 
     <!-- Quantity Display -->
     <div class="quantity-display">
-        <div class="quantity-value {{ 
-            $movement->type === 'IN' || $movement->type === 'OPENING' ? 'text-green-600' : 
-            ($movement->type === 'OUT' ? 'text-red-600' : 'text-blue-600') 
+        <div class="quantity-value {{
+            $movement->type === 'IN' || $movement->type === 'OPENING' ? 'text-green-600' :
+            ($movement->type === 'OUT' ? 'text-red-600' : 'text-blue-600')
         }}">
             @if($movement->type === 'IN' || $movement->type === 'OPENING')
                 +{{ number_format($movement->qty, 2) }}
@@ -179,7 +191,9 @@
                 <div class="warehouse-type">Almacén Origen</div>
             </div>
             <div class="flow-arrow">
-                <i class="fas fa-arrow-right"></i>
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                </svg>
             </div>
             <div class="warehouse-box">
                 <div class="warehouse-name">{{ $movement->toWarehouse->name }}</div>
@@ -199,8 +213,8 @@
             <div class="detail-label">Producto</div>
             <div class="detail-value">
                 {{ $movement->product->name ?? 'N/A' }}
-                @if($movement->product && $movement->product->sku)
-                    <div class="text-xs text-gray-500 mt-1">SKU: {{ $movement->product->sku }}</div>
+                @if($movement->product && $movement->product->code)
+                    <div class="text-xs text-gray-500 mt-1">SKU: {{ $movement->product->code }}</div>
                 @endif
             </div>
         </div>
@@ -239,42 +253,16 @@
         </div>
     </div>
 
-    <!-- Additional Information -->
-    @if($movement->notes || $movement->batch_number || $movement->expiry_date)
-        <div class="mt-6">
-            <h4 class="text-sm font-semibold text-gray-700 mb-3">Información Adicional</h4>
-            <div class="detail-grid">
-                @if($movement->batch_number)
-                    <div class="detail-card">
-                        <div class="detail-label">Número de Lote</div>
-                        <div class="detail-value">{{ $movement->batch_number }}</div>
-                    </div>
-                @endif
-
-                @if($movement->expiry_date)
-                    <div class="detail-card">
-                        <div class="detail-label">Fecha de Vencimiento</div>
-                        <div class="detail-value">{{ \Carbon\Carbon::parse($movement->expiry_date)->format('d/m/Y') }}</div>
-                    </div>
-                @endif
-
-                @if($movement->notes)
-                    <div class="detail-card" style="grid-column: 1 / -1;">
-                        <div class="detail-label">Notas</div>
-                        <div class="detail-value">{{ $movement->notes }}</div>
-                    </div>
-                @endif
-            </div>
-        </div>
-    @endif
-
     <!-- Movement Summary -->
     <div class="mt-6 p-4 bg-gray-50 rounded-lg">
         <h4 class="text-sm font-semibold text-gray-700 mb-2">Resumen del Movimiento</h4>
         <p class="text-sm text-gray-600">
-            {{ $movement->getTypeDescription() }}
+            {{ $movement->getTypeLabel() }} de {{ number_format($movement->qty, 2) }} unidades
             @if($movement->fromWarehouse || $movement->toWarehouse)
-                {{ $movement->getWarehouseMovementDescription() }}
+                - {{ $movement->getWarehouseMovementDescription() }}
+            @endif
+            @if($movement->reason)
+                <br><strong>Motivo:</strong> {{ $movement->reason }}
             @endif
         </p>
     </div>
