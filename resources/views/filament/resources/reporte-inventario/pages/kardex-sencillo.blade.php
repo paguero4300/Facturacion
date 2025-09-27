@@ -200,6 +200,68 @@
             z-index: 1;
         }
         
+        /* Enhanced Filament 4 Card Styles */
+        .filament-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e5e7eb;
+            transition: all 0.2s ease;
+        }
+        
+        .filament-card:hover {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        .gradient-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .gradient-icon.success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .gradient-icon.danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .gradient-icon.warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+        
+        .gradient-icon.info {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+        
+        .gradient-icon.purple {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+        
+        /* Responsive Widget Grid */
+        .flex-wrap {
+            flex-wrap: wrap;
+        }
+        
+        .flex-wrap > * {
+            flex: 1 1 140px;
+            min-width: 140px;
+        }
+        
+        @media (max-width: 640px) {
+            .flex-wrap > * {
+                flex: 1 1 100%;
+                min-width: 120px;
+            }
+        }
+        
+        @media (min-width: 1024px) {
+            .flex-wrap > * {
+                flex: 1 1 120px;
+                min-width: 120px;
+            }
+        }
+        
         .table-container {
             background: white;
             border-radius: 12px;
@@ -389,40 +451,129 @@
             @if($this->selectedProductId)
                 @php $summary = $this->getProductSummary(); @endphp
                 
-                <!-- Product Summary -->
-                <div class="product-summary">
-                    <h3 class="text-lg font-semibold mb-2">Resumen del Producto</h3>
-                    <div class="text-sm text-gray-600 mb-3">
-                        {{ $summary['product']->name ?? 'Producto no encontrado' }}
-                        @if(isset($summary['product']->sku))
-                            <span class="ml-2 text-gray-500">({{ $summary['product']->sku }})</span>
-                        @endif
+                <!-- Product Summary with Horizontal Widgets -->
+                <div class="space-y-4">
+                    <!-- Product Header Widget -->
+                    <div class="filament-card p-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-8 h-8 gradient-icon rounded-lg flex items-center justify-center">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <h3 class="text-base font-semibold text-gray-900 truncate">
+                                        {{ $summary['product']->name ?? 'Producto no encontrado' }}
+                                    </h3>
+                                    @if(isset($summary['product']->sku))
+                                        <p class="text-xs text-gray-500">SKU: {{ $summary['product']->sku }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-lg font-bold text-gray-900">{{ number_format($summary['totalMovements'] ?? 0) }}</span>
+                                <p class="text-xs text-gray-500">movimientos</p>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <div class="summary-grid">
-                        <div class="summary-card">
-                            <div class="summary-value text-blue-600">{{ $summary['totalMovements'] ?? 0 }}</div>
-                            <div class="summary-label">Total Movimientos</div>
+
+                    <!-- Statistics Widgets Row -->
+                    <div class="flex flex-wrap gap-3">
+                        <!-- Total Movements Widget -->
+                        <div class="filament-card flex-1 min-w-[140px] p-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-6 h-6 gradient-icon info rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs text-gray-600">Total</p>
+                                    <p class="text-base font-bold text-gray-900">{{ number_format($summary['totalMovements'] ?? 0) }}</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="summary-card">
-                            <div class="summary-value text-green-600">+{{ number_format($summary['totalIn'] ?? 0, 2) }}</div>
-                            <div class="summary-label">Entradas</div>
+
+                        <!-- Entries Widget -->
+                        <div class="filament-card flex-1 min-w-[140px] p-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-6 h-6 gradient-icon success rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs text-gray-600">Entradas</p>
+                                    <p class="text-base font-bold text-green-600">+{{ number_format($summary['totalIn'] ?? 0, 0) }}</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="summary-card">
-                            <div class="summary-value text-red-600">-{{ number_format($summary['totalOut'] ?? 0, 2) }}</div>
-                            <div class="summary-label">Salidas</div>
+
+                        <!-- Exits Widget -->
+                        <div class="filament-card flex-1 min-w-[140px] p-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-6 h-6 gradient-icon danger rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs text-gray-600">Salidas</p>
+                                    <p class="text-base font-bold text-red-600">-{{ number_format($summary['totalOut'] ?? 0, 0) }}</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="summary-card">
-                            <div class="summary-value text-purple-600">{{ number_format($summary['netMovement'] ?? 0, 2) }}</div>
-                            <div class="summary-label">Movimiento Neto</div>
+
+                        <!-- Net Movement Widget -->
+                        <div class="filament-card flex-1 min-w-[140px] p-3">
+                            <div class="flex items-center space-x-2">
+                                @php
+                                    $netMovement = $summary['netMovement'] ?? 0;
+                                    $isPositive = $netMovement >= 0;
+                                @endphp
+                                <div class="w-6 h-6 gradient-icon {{ $isPositive ? 'success' : 'danger' }} rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs text-gray-600">Neto</p>
+                                    <p class="text-base font-bold {{ $isPositive ? 'text-green-600' : 'text-red-600' }}">
+                                        {{ $isPositive ? '+' : '' }}{{ number_format($netMovement, 0) }}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="summary-card">
-                            <div class="summary-value text-orange-600">{{ $summary['totalTransfers'] ?? 0 }}</div>
-                            <div class="summary-label">Transferencias</div>
+
+                        <!-- Transfers Widget -->
+                        <div class="filament-card flex-1 min-w-[140px] p-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-6 h-6 gradient-icon info rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs text-gray-600">Transf.</p>
+                                    <p class="text-base font-bold text-blue-600">{{ number_format($summary['totalTransfers'] ?? 0) }}</p>
+                                </div>
+                            </div>
                         </div>
-                        <div class="summary-card">
-                            <div class="summary-value text-indigo-600">{{ $summary['totalAdjustments'] ?? 0 }}</div>
-                            <div class="summary-label">Ajustes</div>
+
+                        <!-- Adjustments Widget -->
+                        <div class="filament-card flex-1 min-w-[140px] p-3">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-6 h-6 gradient-icon purple rounded flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/>
+                                    </svg>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-xs text-gray-600">Ajustes</p>
+                                    <p class="text-base font-bold text-purple-600">{{ number_format($summary['totalAdjustments'] ?? 0) }}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

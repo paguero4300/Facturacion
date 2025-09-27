@@ -220,16 +220,7 @@ class StockMinimoPage extends Page implements HasTable
                     ->icon('heroicon-o-eye')
                     ->color('info')
                     ->url(fn (Product $record): string => route('filament.admin.resources.products.view', $record))
-                    ->openUrlInNewTab(),
-                    
-                Action::make('create_purchase_order')
-                    ->label('Crear Orden')
-                    ->icon('heroicon-o-shopping-cart')
-                    ->color('success')
-                    ->action(function (Product $record) {
-                        // Aquí se podría integrar con un sistema de órdenes de compra
-                        $this->notify('success', 'Funcionalidad de orden de compra pendiente de implementar');
-                    })
+                    ->openUrlInNewTab()
             ])
             ->bulkActions([
                 BulkAction::make('export_selected')
@@ -238,14 +229,6 @@ class StockMinimoPage extends Page implements HasTable
                     ->color('success')
                     ->action(function (Collection $records) {
                         return $this->exportToCsv($records);
-                    }),
-                    
-                BulkAction::make('create_bulk_orders')
-                    ->label('Crear Órdenes Masivas')
-                    ->icon('heroicon-o-shopping-cart')
-                    ->color('warning')
-                    ->action(function (Collection $records) {
-                        $this->notify('success', 'Funcionalidad de órdenes masivas pendiente de implementar');
                     })
             ])
             ->headerActions([

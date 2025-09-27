@@ -50,41 +50,48 @@ class KardexSencilloPage extends Page implements HasTable, HasForms
 
     public function mount(): void
     {
-        $this->dateFrom = now()->subMonth()->format('Y-m-d');
+        // Obtener la fecha del movimiento más antiguo para establecer un rango adecuado
+        $oldestMovement = InventoryMovement::orderBy('movement_date', 'asc')->first();
+        
+        if ($oldestMovement) {
+            // Si hay movimientos antiguos, usar 3 meses hacia atrás desde hoy
+            $this->dateFrom = now()->subMonths(3)->format('Y-m-d');
+        } else {
+            // Si no hay movimientos, usar 1 mes hacia atrás
+            $this->dateFrom = now()->subMonth()->format('Y-m-d');
+        }
+        
         $this->dateTo = now()->format('Y-m-d');
     }
 
     public function form(Schema $form): Schema
     {
-        return $form
-            ->schema([
-                Select::make('selectedProductId')
-                    ->label('Seleccionar Producto')
-                    ->options(
-                        Product::where('track_inventory', true)
-                            ->where('status', 'active')
-                            ->pluck('name', 'id')
-                    )
-                    ->searchable()
-                    ->placeholder('Buscar producto...')
-                    ->required()
-                    ->live()
-                    ->afterStateUpdated(fn () => $this->resetTable()),
-                    
-                DatePicker::make('dateFrom')
-                    ->label('Fecha Desde')
-                    ->default(now()->subMonth())
-                    ->live()
-                    ->afterStateUpdated(fn () => $this->resetTable()),
-                    
-                DatePicker::make('dateTo')
-                    ->label('Fecha Hasta')
-                    ->default(now())
-                    ->live()
-                    ->afterStateUpdated(fn () => $this->resetTable()),
-            ])
-            ->columns(3)
-            ->statePath('data');
+        return $form->schema([
+            Select::make('selectedProductId')
+                ->label('Seleccionar Producto')
+                ->options(
+                    Product::where('track_inventory', true)
+                        ->where('status', 'active')
+                        ->pluck('name', 'id')
+                )
+                ->searchable()
+                ->placeholder('Buscar producto...')
+                ->required()
+                ->live()
+                ->afterStateUpdated(fn () => $this->resetTable()),
+                
+            DatePicker::make('dateFrom')
+                ->label('Fecha Desde')
+                ->default(now()->subMonth())
+                ->live()
+                ->afterStateUpdated(fn () => $this->resetTable()),
+                
+            DatePicker::make('dateTo')
+                ->label('Fecha Hasta')
+                ->default(now())
+                ->live()
+                ->afterStateUpdated(fn () => $this->resetTable()),
+        ])->columns(3);
     }
 
     public function table(Table $table): Table
