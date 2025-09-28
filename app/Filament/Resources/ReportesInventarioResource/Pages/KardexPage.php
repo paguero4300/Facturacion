@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\ReportesInventarioResource\Pages;
 
-use App\Filament\Resources\KardexResource\Pages;
+use App\Filament\Resources\ReportesInventarioResource;
 use App\Models\InventoryMovement;
 use App\Models\Product;
 use App\Models\Warehouse;
-use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Resources\Pages\Page;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
@@ -15,40 +16,49 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
-use Filament\Actions\BulkAction;
 use Filament\Actions\Action;
-use Filament\Actions\ViewAction;
+use Filament\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Response;
-use Carbon\Carbon;
-use UnitEnum;
-use BackedEnum;
 
-class KardexResource extends Resource
+class KardexPage extends Page implements HasTable
 {
-    protected static ?string $model = InventoryMovement::class;
+    use InteractsWithTable;
 
-    protected static bool $shouldRegisterNavigation = false;
+    protected static string $resource = ReportesInventarioResource::class;
 
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-clipboard-document-list';
-
-    protected static ?string $navigationLabel = 'Kardex';
-
-    protected static string|UnitEnum|null $navigationGroup = 'Reportes de Inventario';
-
-    protected static ?int $navigationSort = 3;
-
-    protected static ?string $slug = 'kardex';
-
-    protected static ?string $pluralModelLabel = 'Movimientos de Inventario';
-
-    public static function getNavigationBadge(): ?string
+    public function getView(): string
     {
-        return static::getModel()::whereDate('created_at', today())->count();
+        return 'filament.resources.reportes-inventario-resource.pages.kardex-page';
     }
 
-    public static function table(Table $table): Table
+    public static function getNavigationLabel(): string
+    {
+        return '📋 Kardex';
+    }
+
+    public static function getNavigationIcon(): ?string
+    {
+        return 'heroicon-o-clipboard-document-list';
+    }
+
+    public function getTitle(): string
+    {
+        return 'Kardex';
+    }
+
+    public function getHeading(): string
+    {
+        return 'Kardex de Inventario';
+    }
+
+    public function getSubheading(): ?string
+    {
+        return 'Historial detallado de movimientos de inventario';
+    }
+
+    public function table(Table $table): Table
     {
         return $table
             ->query(
@@ -242,7 +252,7 @@ class KardexResource extends Resource
                             );
                     }),
             ])
-            ->recordActions([
+            ->actions([
                 Action::make('view_details')
                     ->label('Ver Detalles')
                     ->icon('heroicon-o-eye')
@@ -264,13 +274,13 @@ class KardexResource extends Resource
                     ->openUrlInNewTab()
                     ->visible(fn (InventoryMovement $record): bool => $record->product_id !== null),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkAction::make('export_csv')
                     ->label('Exportar CSV')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
                     ->action(function (Collection $records) {
-                        return static::exportToCsv($records);
+                        return $this->exportToCsv($records);
                     })
                     ->deselectRecordsAfterCompletion(),
 
@@ -280,7 +290,6 @@ class KardexResource extends Resource
                     ->color('warning')
                     ->requiresConfirmation()
                     ->action(function (Collection $records) {
-                        // Lógica para marcar movimientos como revisados
                         $records->each(function ($record) {
                             $record->update([
                                 'reviewed_at' => now(),
@@ -294,10 +303,9 @@ class KardexResource extends Resource
                     ->label('Exportar Todo')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('primary')
-                    ->action(function ($livewire) {
-                        // Obtener los mismos datos que se muestran en la tabla con filtros aplicados
-                        $query = $livewire->getFilteredTableQuery();
-                        return static::exportToCsv($query->get());
+                    ->action(function () {
+                        $query = $this->getFilteredTableQuery();
+                        return $this->exportToCsv($query->get());
                     }),
 
                 Action::make('quick_filter_today')
@@ -305,7 +313,6 @@ class KardexResource extends Resource
                     ->icon('heroicon-o-calendar')
                     ->color('gray')
                     ->action(function () {
-                        // This would set table filters programmatically
                         session(['kardex_filter_date_from' => today()]);
                         session(['kardex_filter_date_until' => today()]);
                         return redirect()->request()->getUri();
@@ -334,7 +341,7 @@ class KardexResource extends Resource
             ->defaultSort('movement_date', 'desc')
             ->striped()
             ->paginated([25, 50, 100, 200])
-            ->poll('120s') // Refresh cada 2 minutos
+            ->poll('120s')
             ->deferLoading()
             ->persistFiltersInSession()
             ->emptyStateHeading('No hay movimientos de inventario')
@@ -342,35 +349,7 @@ class KardexResource extends Resource
             ->emptyStateIcon('heroicon-o-clipboard-document-list');
     }
 
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListKardex::route('/'),
-        ];
-    }
-
-
-    public static function canCreate(): bool
-    {
-        return false;
-    }
-
-    public static function canEdit($record): bool
-    {
-        return false;
-    }
-
-    public static function canDelete($record): bool
-    {
-        return false;
-    }
-
-    public static function canDeleteAny(): bool
-    {
-        return false;
-    }
-
-    protected static function exportToCsv($records)
+    protected function exportToCsv($records)
     {
         $filename = 'kardex-movimientos-' . now()->format('Y-m-d-H-i-s') . '.csv';
 
@@ -382,7 +361,6 @@ class KardexResource extends Resource
         $callback = function() use ($records) {
             $file = fopen('php://output', 'w');
 
-            // Headers CSV
             fputcsv($file, [
                 'Fecha',
                 'Producto',

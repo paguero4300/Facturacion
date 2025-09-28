@@ -1,53 +1,64 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\ReportesInventarioResource\Pages;
 
-use App\Filament\Resources\StockActualResource\Pages;
+use App\Filament\Resources\ReportesInventarioResource;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Warehouse;
-use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Resources\Pages\Page;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
-use Filament\Actions\ExportAction;
+use Filament\Actions\Action;
 use Filament\Actions\BulkAction;
 use Filament\Actions\ViewAction;
-use Filament\Actions\Action;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Response;
-use UnitEnum;
-use BackedEnum;
 
-class StockActualResource extends Resource
+class StockActualPage extends Page implements HasTable
 {
-    protected static ?string $model = Product::class;
+    use InteractsWithTable;
 
-    protected static bool $shouldRegisterNavigation = false;
+    protected static string $resource = ReportesInventarioResource::class;
 
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-cube';
-
-    protected static ?string $navigationLabel = 'Stock Actual';
-
-    protected static string|UnitEnum|null $navigationGroup = 'Reportes de Inventario';
-
-    protected static ?int $navigationSort = 1;
-
-    protected static ?string $slug = 'stock-actual';
-
-    public static function getNavigationBadge(): ?string
+    public function getView(): string
     {
-        return static::getModel()::where('track_inventory', true)
-            ->where('status', 'active')
-            ->count();
+        return 'filament.resources.reportes-inventario-resource.pages.stock-actual-page';
     }
 
-    public static function table(Table $table): Table
+    public static function getNavigationLabel(): string
+    {
+        return '📦 Stock Actual';
+    }
+
+    public static function getNavigationIcon(): ?string
+    {
+        return 'heroicon-o-cube';
+    }
+
+    public function getTitle(): string
+    {
+        return 'Stock Actual';
+    }
+
+    public function getHeading(): string
+    {
+        return 'Reporte de Stock Actual';
+    }
+
+    public function getSubheading(): ?string
+    {
+        return 'Visualiza el inventario actual de todos los productos';
+    }
+
+    public function table(Table $table): Table
     {
         return $table
             ->query(
@@ -191,20 +202,20 @@ class StockActualResource extends Resource
                         );
                     })
             ])
-            ->recordActions([
+            ->actions([
                 ViewAction::make()
                     ->label('Ver Producto')
                     ->url(fn (Product $record): string =>
                         route('filament.admin.resources.products.view', $record))
                     ->openUrlInNewTab(),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkAction::make('export_csv')
                     ->label('Exportar CSV')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
                     ->action(function (Collection $records) {
-                        return static::exportToCsv($records);
+                        return $this->exportToCsv($records);
                     })
                     ->deselectRecordsAfterCompletion(),
             ])
@@ -213,49 +224,20 @@ class StockActualResource extends Resource
                     ->label('Exportar Todo')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('primary')
-                    ->action(function ($livewire) {
-                        // Obtener los mismos datos que se muestran en la tabla con filtros aplicados
-                        $query = $livewire->getFilteredTableQuery();
-                        return static::exportToCsv($query->get());
+                    ->action(function () {
+                        $query = $this->getFilteredTableQuery();
+                        return $this->exportToCsv($query->get());
                     }),
             ])
             ->defaultSort('name')
             ->striped()
             ->paginated([10, 25, 50, 100])
-            ->poll('30s') // Auto-refresh cada 30 segundos
+            ->poll('30s')
             ->deferLoading()
             ->persistFiltersInSession();
     }
 
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListStockActual::route('/'),
-        ];
-    }
-
-
-    public static function canCreate(): bool
-    {
-        return false;
-    }
-
-    public static function canEdit($record): bool
-    {
-        return false;
-    }
-
-    public static function canDelete($record): bool
-    {
-        return false;
-    }
-
-    public static function canDeleteAny(): bool
-    {
-        return false;
-    }
-
-    protected static function exportToCsv($records)
+    protected function exportToCsv($records)
     {
         $filename = 'stock-actual-' . now()->format('Y-m-d-H-i-s') . '.csv';
 
@@ -267,7 +249,6 @@ class StockActualResource extends Resource
         $callback = function() use ($records) {
             $file = fopen('php://output', 'w');
 
-            // Headers CSV
             fputcsv($file, [
                 'Producto',
                 'SKU',

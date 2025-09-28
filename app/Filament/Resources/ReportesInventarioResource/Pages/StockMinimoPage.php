@@ -1,64 +1,64 @@
 <?php
 
-namespace App\Filament\Resources;
+namespace App\Filament\Resources\ReportesInventarioResource\Pages;
 
-use App\Filament\Resources\StockMinimoResource\Pages;
+use App\Filament\Resources\ReportesInventarioResource;
 use App\Models\Stock;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Warehouse;
-use Filament\Resources\Resource;
-use Filament\Tables;
+use Filament\Resources\Pages\Page;
+use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\Select;
-use Filament\Actions\BulkAction;
-use Filament\Actions\ViewAction;
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Response;
-use UnitEnum;
-use BackedEnum;
 
-class StockMinimoResource extends Resource
+class StockMinimoPage extends Page implements HasTable
 {
-    protected static ?string $model = Stock::class;
+    use InteractsWithTable;
 
-    protected static bool $shouldRegisterNavigation = false;
+    protected static string $resource = ReportesInventarioResource::class;
 
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-exclamation-triangle';
-
-    protected static ?string $navigationLabel = 'Stock Mínimo';
-
-    protected static string|UnitEnum|null $navigationGroup = 'Reportes de Inventario';
-
-    protected static ?int $navigationSort = 2;
-
-    protected static ?string $slug = 'stock-minimo';
-
-    public static function getNavigationBadge(): ?string
+    public function getView(): string
     {
-        return static::getModel()::lowStock()
-            ->whereHas('product', function ($query) {
-                $query->where('track_inventory', true)
-                      ->where('status', 'active');
-            })
-            ->count();
+        return 'filament.resources.reportes-inventario-resource.pages.stock-minimo-page';
     }
 
-    public static function getNavigationBadgeColor(): string|array|null
+    public static function getNavigationLabel(): string
     {
-        $count = static::getNavigationBadge();
-        if ($count > 10) return 'danger';
-        if ($count > 5) return 'warning';
-        return 'success';
+        return '⚠️ Stock Mínimo';
     }
 
-    public static function table(Table $table): Table
+    public static function getNavigationIcon(): ?string
+    {
+        return 'heroicon-o-exclamation-triangle';
+    }
+
+    public function getTitle(): string
+    {
+        return 'Stock Mínimo';
+    }
+
+    public function getHeading(): string
+    {
+        return 'Reporte de Stock Mínimo';
+    }
+
+    public function getSubheading(): ?string
+    {
+        return 'Productos con stock por debajo del mínimo establecido';
+    }
+
+    public function table(Table $table): Table
     {
         return $table
             ->query(
@@ -69,7 +69,7 @@ class StockMinimoResource extends Resource
                               ->where('status', 'active');
                     })
                     ->with(['product.category', 'warehouse'])
-                    ->orderBy('qty', 'asc') // Los más críticos primero
+                    ->orderBy('qty', 'asc')
                     ->orderBy('warehouse_id')
             )
             ->columns([
@@ -203,7 +203,7 @@ class StockMinimoResource extends Resource
                         );
                     })
             ])
-            ->recordActions([
+            ->actions([
                 Action::make('view_product')
                     ->label('Ver Producto')
                     ->icon('heroicon-o-eye')
@@ -227,13 +227,13 @@ class StockMinimoResource extends Resource
                         ]);
                     }),
             ])
-            ->toolbarActions([
+            ->bulkActions([
                 BulkAction::make('export_csv')
                     ->label('Exportar CSV')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('success')
                     ->action(function (Collection $records) {
-                        return static::exportToCsv($records);
+                        return $this->exportToCsv($records);
                     })
                     ->deselectRecordsAfterCompletion(),
 
@@ -268,49 +268,20 @@ class StockMinimoResource extends Resource
                     ->label('Exportar Todo')
                     ->icon('heroicon-o-arrow-down-tray')
                     ->color('primary')
-                    ->action(function ($livewire) {
-                        // Obtener los mismos datos que se muestran en la tabla con filtros aplicados
-                        $query = $livewire->getFilteredTableQuery();
-                        return static::exportToCsv($query->get());
+                    ->action(function () {
+                        $query = $this->getFilteredTableQuery();
+                        return $this->exportToCsv($query->get());
                     }),
             ])
-            ->defaultSort('qty', 'asc') // Los más críticos primero
+            ->defaultSort('qty', 'asc')
             ->striped()
             ->paginated([10, 25, 50, 100])
-            ->poll('60s') // Refresh cada minuto para stock crítico
+            ->poll('60s')
             ->deferLoading()
             ->persistFiltersInSession();
     }
 
-    public static function getPages(): array
-    {
-        return [
-            'index' => Pages\ListStockMinimo::route('/'),
-        ];
-    }
-
-
-    public static function canCreate(): bool
-    {
-        return false;
-    }
-
-    public static function canEdit($record): bool
-    {
-        return false;
-    }
-
-    public static function canDelete($record): bool
-    {
-        return false;
-    }
-
-    public static function canDeleteAny(): bool
-    {
-        return false;
-    }
-
-    protected static function exportToCsv($records)
+    protected function exportToCsv($records)
     {
         $filename = 'stock-minimo-' . now()->format('Y-m-d-H-i-s') . '.csv';
 
@@ -322,7 +293,6 @@ class StockMinimoResource extends Resource
         $callback = function() use ($records) {
             $file = fopen('php://output', 'w');
 
-            // Headers CSV
             fputcsv($file, [
                 'Producto',
                 'SKU',
