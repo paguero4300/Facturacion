@@ -41,7 +41,7 @@ class SalesChannelResource extends Resource
 
     protected static ?string $navigationLabel = 'Reporte de Ventas';
 
-    protected static string|UnitEnum|null $navigationGroup = 'Reportes de Ventas';
+    protected static string|UnitEnum|null $navigationGroup = 'Facturación';
 
     protected static ?int $navigationSort = 1;
 
