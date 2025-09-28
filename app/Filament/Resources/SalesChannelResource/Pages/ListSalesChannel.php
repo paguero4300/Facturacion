@@ -23,35 +23,7 @@ class ListSalesChannel extends ListRecords
 
     protected function getHeaderActions(): array
     {
-        return [
-            Actions\Action::make('resumen')
-                ->label('Ver Resumen')
-                ->icon('heroicon-o-chart-pie')
-                ->color('info')
-                ->modalHeading('Resumen de Ventas')
-                ->modalContent(function () {
-                    $query = $this->getFilteredTableQuery();
-                    
-                    $totalVentas = $query->sum('total_amount');
-                    $cantidadComprobantes = $query->count();
-                    
-                    $ventasPorTipo = $query->selectRaw('document_type, COUNT(*) as cantidad, SUM(total_amount) as total')
-                        ->groupBy('document_type')
-                        ->get();
-                    
-                    $ventasPorMetodo = $query->selectRaw('payment_method, COUNT(*) as cantidad, SUM(total_amount) as total')
-                        ->groupBy('payment_method')
-                        ->get();
-
-                    return view('filament.pages.sales-summary', [
-                        'totalVentas' => $totalVentas,
-                        'cantidadComprobantes' => $cantidadComprobantes,
-                        'ventasPorTipo' => $ventasPorTipo,
-                        'ventasPorMetodo' => $ventasPorMetodo,
-                    ]);
-                })
-                ->modalWidth('4xl'),
-        ];
+        return [];
     }
 
     public function getFilteredTableQuery(): Builder

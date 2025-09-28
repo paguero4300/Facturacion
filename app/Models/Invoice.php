@@ -84,6 +84,16 @@ class Invoice extends Model
         return $this->hasMany(PaymentInstallment::class);
     }
 
+    public function createdBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function updatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
     // Scopes
     public function scopePending($query)
     {
