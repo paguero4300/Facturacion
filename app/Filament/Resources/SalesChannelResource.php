@@ -16,12 +16,16 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Enums\FiltersLayout;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Actions\ExportAction;
 use Filament\Actions\BulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Response;
@@ -90,6 +94,11 @@ class SalesChannelResource extends Resource
                     ->orderBy('invoices.issue_date', 'desc')
             )
             ->columns([
+                TextColumn::make('invoice.issue_date')
+                    ->label('Fecha')
+                    ->date('d/m/Y')
+                    ->sortable(),
+
                 TextColumn::make('invoice.document_type')
                     ->label('Tipo Comprobante')
                     ->searchable()
@@ -221,11 +230,6 @@ class SalesChannelResource extends Resource
                     ->weight('bold')
                     ->color('success'),
 
-                TextColumn::make('invoice.issue_date')
-                    ->label('Fecha')
-                    ->date('d/m/Y')
-                    ->sortable()
-                    ->toggleable(),
 
                 TextColumn::make('invoice.client.business_name')
                     ->label('Cliente')
@@ -381,110 +385,30 @@ class SalesChannelResource extends Resource
                     })
                     ->multiple(),
 
-                SelectFilter::make('tax_type')
-                    ->label('Tipo Fiscal')
-                    ->options([
-                        '10' => 'Gravado',
-                        '20' => 'Exonerado',
-                        '30' => 'Inafecto',
-                    ])
-                    ->multiple(),
-
-                SelectFilter::make('created_by')
-                    ->label('Vendedor')
-                    ->relationship('invoice.createdBy', 'name')
-                    ->searchable()
-                    ->preload(),
-
-                SelectFilter::make('payment_method')
-                    ->label('Método Pago')
-                    ->options([
-                        'cash' => 'Efectivo',
-                        'card' => 'Tarjeta',
-                        'transfer' => 'Transferencia',
-                        'credit' => 'Crédito',
-                        'check' => 'Cheque',
-                        'deposit' => 'Depósito',
-                        'other' => 'Otro',
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query->when(
-                            $data['value'],
-                            fn (Builder $query, $method): Builder =>
-                                $query->whereHas('invoice', fn ($q) => $q->where('payment_method', $method))
-                        );
-                    })
-                    ->multiple(),
-
-                Filter::make('margen_rentabilidad')
-                    ->label('Filtro de Rentabilidad')
-                    ->form([
-                        Select::make('nivel')
-                            ->options([
-                                'alto' => 'Alto (>30%)',
-                                'medio' => 'Medio (15-30%)',
-                                'bajo' => 'Bajo (<15%)',
-                            ])
-                            ->placeholder('Todos los márgenes')
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query->when(
-                            $data['nivel'],
-                            function (Builder $query, $nivel) {
-                                return $query->whereHas('product', function ($q) use ($nivel) {
-                                    switch ($nivel) {
-                                        case 'alto':
-                                            return $q->whereRaw('((unit_price - cost_price) / unit_price) > 0.30');
-                                        case 'medio':
-                                            return $q->whereRaw('((unit_price - cost_price) / unit_price) BETWEEN 0.15 AND 0.30');
-                                        case 'bajo':
-                                            return $q->whereRaw('((unit_price - cost_price) / unit_price) < 0.15');
-                                    }
-                                });
-                            }
-                        );
-                    }),
-
-                SelectFilter::make('company_id')
-                    ->label('Empresa')
-                    ->options(Company::pluck('business_name', 'id'))
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query->when(
-                            $data['value'],
-                            fn (Builder $query, $company): Builder => $query->where('company_id', $company)
-                        );
-                    }),
-
-                SelectFilter::make('status')
-                    ->label('Estado')
-                    ->options([
-                        'pending' => 'Pendiente',
-                        'accepted' => 'Aceptado',
-                        'rejected' => 'Rechazado',
-                    ])
-                    ->multiple(),
-
                 Filter::make('issue_date')
                     ->label('Rango de Fechas')
                     ->form([
                         DatePicker::make('desde')
                             ->label('Desde')
-                            ->placeholder('Fecha de inicio'),
+                            ->placeholder('Fecha de inicio')
+                            ->columnSpan(1),
                         DatePicker::make('hasta')
                             ->label('Hasta')
-                            ->placeholder('Fecha de fin'),
+                            ->placeholder('Fecha de fin')
+                            ->columnSpan(1),
                     ])
+                    ->columns(2)
                     ->query(function (Builder $query, array $data): Builder {
                         return $query
                             ->when(
                                 $data['desde'],
                                 fn (Builder $query, $date): Builder =>
-                                    $query->whereHas('invoice', fn ($q) => $q->whereDate('issue_date', '>=', $date)),
+                                    $query->whereDate('invoices.issue_date', '>=', $date),
                             )
                             ->when(
                                 $data['hasta'],
                                 fn (Builder $query, $date): Builder =>
-                                    $query->whereHas('invoice', fn ($q) => $q->whereDate('issue_date', '<=', $date)),
+                                    $query->whereDate('invoices.issue_date', '<=', $date),
                             );
                     })
                     ->indicateUsing(function (array $data): array {
@@ -498,54 +422,30 @@ class SalesChannelResource extends Resource
                         return $indicators;
                     }),
 
-                Filter::make('amount_range')
-                    ->label('Rango de Montos por Línea')
-                    ->form([
-                        Select::make('range')
-                            ->options([
-                                '0-50' => 'S/ 0 - S/ 50',
-                                '50-200' => 'S/ 50 - S/ 200',
-                                '200-500' => 'S/ 200 - S/ 500',
-                                '500-1000' => 'S/ 500 - S/ 1,000',
-                                '1000+' => 'Más de S/ 1,000',
-                            ])
-                            ->placeholder('Todos los montos')
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query->when(
-                            $data['range'],
-                            function (Builder $query, $range) {
-                                switch ($range) {
-                                    case '0-50':
-                                        return $query->whereBetween('line_total', [0, 50]);
-                                    case '50-200':
-                                        return $query->whereBetween('line_total', [50, 200]);
-                                    case '200-500':
-                                        return $query->whereBetween('line_total', [200, 500]);
-                                    case '500-1000':
-                                        return $query->whereBetween('line_total', [500, 1000]);
-                                    case '1000+':
-                                        return $query->where('line_total', '>', 1000);
-                                }
-                            }
-                        );
-                    })
-            ])
+            ], layout: FiltersLayout::AboveContent)
+            ->filtersFormColumns(3)
             ->recordActions([
-                ViewAction::make()
-                    ->label('Ver Comprobante')
-                    ->url(fn (InvoiceDetail $record): string =>
-                        route('filament.admin.resources.invoices.view', $record->invoice))
-                    ->openUrlInNewTab(),
+                ActionGroup::make([
+                    ViewAction::make()
+                        ->label('Ver Comprobante')
+                        ->url(fn (InvoiceDetail $record): string =>
+                            route('filament.admin.resources.invoices.view', $record->invoice))
+                        ->openUrlInNewTab(),
 
-                Action::make('view_product')
-                    ->label('Ver Producto')
-                    ->icon('heroicon-o-cube')
-                    ->color('info')
-                    ->url(fn (InvoiceDetail $record): ?string =>
-                        $record->product_id ? route('filament.admin.resources.products.view', $record->product_id) : null)
-                    ->openUrlInNewTab()
-                    ->visible(fn (InvoiceDetail $record): bool => $record->product_id !== null),
+                    Action::make('view_product')
+                        ->label('Ver Producto')
+                        ->icon('heroicon-o-cube')
+                        ->color('info')
+                        ->url(fn (InvoiceDetail $record): ?string =>
+                            $record->product_id ? route('filament.admin.resources.products.view', $record->product_id) : null)
+                        ->openUrlInNewTab()
+                        ->visible(fn (InvoiceDetail $record): bool => $record->product_id !== null),
+                ])
+                    ->label('Acciones')
+                    ->icon('heroicon-m-ellipsis-vertical')
+                    ->size('sm')
+                    ->color('gray')
+                    ->button(),
             ])
             ->toolbarActions([
                 BulkAction::make('export_csv')
