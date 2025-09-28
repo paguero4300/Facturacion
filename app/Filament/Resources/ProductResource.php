@@ -314,12 +314,15 @@ class ProductResource extends Resource
                         
                     Select::make('warehouse_id')
                         ->label(__('Almacén'))
-                        ->options(fn () => \App\Models\Warehouse::active()->forCompany(auth()->user()->company_id ?? 1)->pluck('name', 'id'))
+                        ->options(fn (callable $get) => \App\Models\Warehouse::active()
+                            ->forCompany($get('company_id') ?? auth()->user()->company_id ?? 1)
+                            ->pluck('name', 'id')
+                        )
                         ->searchable()
                         ->preload()
-                        ->required()
-                        ->helperText(__('Selecciona el almacén donde se registrará el stock inicial'))
-                        ->visible(fn (callable $get) => $get('track_inventory'))
+                        ->helperText(__('Selecciona el almacén para el control de stock'))
+                        ->afterStateUpdated(fn ($state, $livewire) => $livewire->warehouseId = $state)
+                        ->dehydrated(false)
                         ->columnSpan(2),
                         
                     TextInput::make('initial_stock')
@@ -330,9 +333,11 @@ class ProductResource extends Resource
                         ->placeholder(__('0.00'))
                         ->helperText(__('Cantidad inicial en el almacén seleccionado'))
                         ->visible(fn (callable $get) => $get('track_inventory'))
+                        ->afterStateUpdated(fn ($state, $livewire) => $livewire->initialStock = $state)
+                        ->dehydrated(false)
                         ->columnSpan(1),
                         
-                    TextInput::make('minimum_stock')
+                    TextInput::make('minimum_stock_input')
                         ->numeric()
                         ->step(0.01)
                         ->default(0)
@@ -340,6 +345,8 @@ class ProductResource extends Resource
                         ->placeholder(__('0.00'))
                         ->helperText(__('Alerta cuando el stock sea menor a este valor'))
                         ->visible(fn (callable $get) => $get('track_inventory'))
+                        ->afterStateUpdated(fn ($state, $livewire) => $livewire->minimumStockInput = $state)
+                        ->dehydrated(false)
                         ->columnSpan(1),
                 ]),
 

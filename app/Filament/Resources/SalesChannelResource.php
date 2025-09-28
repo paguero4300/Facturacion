@@ -58,40 +58,16 @@ class SalesChannelResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->query(
-                InvoiceDetail::query()
-                    ->join('invoices', 'invoice_details.invoice_id', '=', 'invoices.id')
-                    ->whereIn('invoices.status', ['pending', 'accepted'])
-                    ->with([
-                        'invoice.client',
-                        'invoice.company',
-                        'product.category',
-                        'invoice.createdBy'
-                    ])
-                    ->select([
-                        'invoice_details.id',
-                        'invoice_details.invoice_id',
-                        'invoice_details.product_id',
-                        'invoice_details.description',
-                        'invoice_details.quantity',
-                        'invoice_details.unit_price',
-                        'invoice_details.line_total',
-                        'invoice_details.tax_type',
-                        'invoice_details.igv_amount',
-                        'invoice_details.net_amount',
-                        'invoices.document_type',
-                        'invoices.series',
-                        'invoices.number',
-                        'invoices.issue_date',
-                        'invoices.client_id',
-                        'invoices.company_id',
-                        'invoices.payment_method',
-                        'invoices.currency_code',
-                        'invoices.status',
-                        'invoices.sunat_status',
-                        'invoices.created_by'
-                    ])
-                    ->orderBy('invoices.issue_date', 'desc')
+            ->modifyQueryUsing(fn (Builder $query) => $query
+                ->whereHas('invoice', fn (Builder $q) =>
+                    $q->whereIn('status', ['pending', 'accepted'])
+                )
+                ->with([
+                    'invoice.client',
+                    'invoice.company',
+                    'product.category',
+                    'invoice.createdBy'
+                ])
             )
             ->columns([
                 TextColumn::make('invoice.issue_date')
@@ -380,7 +356,9 @@ class SalesChannelResource extends Resource
                         return $query->when(
                             $data['value'],
                             fn (Builder $query, $type): Builder =>
-                                $query->whereHas('invoice', fn ($q) => $q->where('document_type', $type))
+                                $query->whereHas('invoice', fn (Builder $q) =>
+                                    $q->where('document_type', $type)
+                                )
                         );
                     })
                     ->multiple(),
@@ -403,12 +381,16 @@ class SalesChannelResource extends Resource
                             ->when(
                                 $data['desde'],
                                 fn (Builder $query, $date): Builder =>
-                                    $query->whereDate('invoices.issue_date', '>=', $date),
+                                    $query->whereHas('invoice', fn (Builder $q) =>
+                                        $q->whereDate('issue_date', '>=', $date)
+                                    ),
                             )
                             ->when(
                                 $data['hasta'],
                                 fn (Builder $query, $date): Builder =>
-                                    $query->whereDate('invoices.issue_date', '<=', $date),
+                                    $query->whereHas('invoice', fn (Builder $q) =>
+                                        $q->whereDate('issue_date', '<=', $date)
+                                    ),
                             );
                     })
                     ->indicateUsing(function (array $data): array {
