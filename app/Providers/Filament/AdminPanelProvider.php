@@ -33,14 +33,41 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName(fn () => Company::where('is_active', true)->first()?->commercial_name ?? config('app.name'))
+            ->brandName('') // Ocultar texto del nombre
+            ->brandLogo(asset('logos/logo_horizontal.png'))
+            ->brandLogoHeight('2.5rem') // Altura elegante
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => Color::Rose, // Cambiar a rosa para combinar con el logo
             ])
             ->viteTheme('resources/css/filament/admin/theme.css')
             ->renderHook(
                 'panels::body.end',
                 fn (): string => '<style>' . file_get_contents(resource_path('css/product-image-modal.css')) . '</style>'
+            )
+            ->renderHook(
+                'panels::auth.login.form.before',
+                fn (): string => '
+                <style>
+                    /* Logo más grande solo en login */
+                    .fi-simple-layout .fi-logo {
+                        height: 5rem !important; /* Más grande que el 2.5rem normal */
+                        width: auto !important;
+                        max-width: 300px !important;
+                        margin: 0 auto 2rem auto !important;
+                        display: block !important;
+                    }
+
+                    /* Centrar el logo en login */
+                    .fi-simple-layout .fi-topbar-logo-container {
+                        justify-content: center !important;
+                        margin-bottom: 1.5rem !important;
+                    }
+
+                    /* Mejorar spacing del login */
+                    .fi-simple-layout .fi-simple-page {
+                        padding-top: 2rem !important;
+                    }
+                </style>'
             )
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
