@@ -32,6 +32,12 @@ class CreateProduct extends CreateRecord
     {
         $product = $this->record;
 
+        // Generar código de barras automáticamente si no existe
+        if (empty($product->barcode)) {
+            $product->barcode = $product->generateUniqueBarcode();
+            $product->save();
+        }
+
         // Si se especificó almacén, crear registro en stocks
         if ($this->warehouseId) {
             // Crear registro en tabla stocks

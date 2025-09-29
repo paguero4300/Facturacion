@@ -152,7 +152,50 @@ class Product extends Model
         if ($this->image_path && \Storage::disk('public')->exists($this->image_path)) {
             return \Storage::disk('public')->delete($this->image_path);
         }
-        
+
         return true;
+    }
+
+    // Barcode methods
+    public function generateUniqueBarcode(): string
+    {
+        do {
+            // Generar código EAN-13 like (13 dígitos)
+            $barcode = $this->generateBarcodeNumber();
+        } while (self::where('barcode', $barcode)->exists());
+
+        return $barcode;
+    }
+
+    private function generateBarcodeNumber(): string
+    {
+        // Prefijo de empresa (3 dígitos) + ID del producto (6 dígitos) + checksum (4 dígitos)
+        $prefix = str_pad($this->company_id, 3, '0', STR_PAD_LEFT);
+        $productId = str_pad($this->id ?? rand(100000, 999999), 6, '0', STR_PAD_LEFT);
+        $random = str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
+
+        return $prefix . $productId . $random;
+    }
+
+    public function ensureBarcodeExists(): void
+    {
+        if (empty($this->barcode)) {
+            $this->barcode = $this->generateUniqueBarcode();
+            $this->save();
+        }
+    }
+
+    public function getBarcodeImageSvg(): string
+    {
+        if (!$this->barcode) {
+            return '';
+        }
+
+        try {
+            $generator = new \Picqer\Barcode\BarcodeGeneratorSVG();
+            return $generator->getBarcode($this->barcode, $generator::TYPE_CODE_128);
+        } catch (\Exception $e) {
+            return '<text>Error: ' . $e->getMessage() . '</text>';
+        }
     }
 }

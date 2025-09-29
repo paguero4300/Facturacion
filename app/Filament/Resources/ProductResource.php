@@ -32,6 +32,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use BackedEnum;
 use UnitEnum;
+use App\Forms\Components\BarcodeDisplay;
 
 class ProductResource extends Resource
 {
@@ -374,6 +375,26 @@ class ProductResource extends Resource
                         ->columnSpan(1),
                 ]),
 
+            // 7) Código de Barras
+            Section::make(__('Código de Barras'))
+                ->icon('iconoir-qr-code')
+                ->description(__('Código de barras del producto para identificación'))
+                ->columns(2)
+                ->columnSpanFull()
+                ->schema([
+                    TextInput::make('barcode')
+                        ->label(__('Código de Barras'))
+                        ->maxLength(50)
+                        ->placeholder(__('Se generará automáticamente'))
+                        ->helperText(__('Deja vacío para generar automáticamente'))
+                        ->columnSpan(1),
+
+                    BarcodeDisplay::make('barcode_display')
+                        ->label(__('Vista Previa'))
+                        ->hiddenOn('create')
+                        ->columnSpan(1),
+                ]),
+
             // Hidden audit fields
             Hidden::make('created_by')
                 ->default(fn () => auth()->id())
@@ -412,6 +433,13 @@ class ProductResource extends Resource
                     ->sortable()
                     ->searchable()
                     ->copyable(),
+
+                TextColumn::make('barcode')
+                    ->label(__('Código de Barras'))
+                    ->searchable()
+                    ->copyable()
+                    ->placeholder(__('Sin código'))
+                    ->toggleable(isToggledHiddenByDefault: true),
                     
                 TextColumn::make('name')
                     ->label(__('Nombre'))
