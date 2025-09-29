@@ -298,3 +298,11 @@ DIAGNOSTICO_README.md
 DIAGNOSTICO_README.md
 app/Filament/Resources/SalesChannelResource/Pages/ListSalesChannel.php
 VALIDATION_CHECKLIST.md
+.roo/rules-orchestrator/rules.md
+.roo/system-prompt-orchestrator
+.roo/mcp.json
+docs/analisis-modulo-productos.md
+SALES_CHANNEL_OPTIMIZATIONS.md
+docs/analisis-modulo-productos.md
+database/seeders/StockSeeder.php
+docs/analisis-modulo-productos.md

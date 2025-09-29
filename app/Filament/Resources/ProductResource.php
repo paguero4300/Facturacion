@@ -569,7 +569,22 @@ class ProductResource extends Resource
                         default => 'gray',
                     })
                     ->label(__('Estado')),
-                    
+
+                TextColumn::make('stocks_count')
+                    ->label(__('🔥 DEBUG STOCKS'))
+                    ->counts('stocks')
+                    ->tooltip(function ($record): ?string {
+                        $warehouses = $record->stocks->pluck('warehouse.name')->filter()->unique();
+                        return $warehouses->count() > 1
+                            ? 'Almacenes: ' . $warehouses->join(', ')
+                            : null;
+                    })
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('stocks.warehouse', function (Builder $query) use ($search): Builder {
+                            return $query->where('name', 'like', "%{$search}%");
+                        });
+                    }),
+
                 TextColumn::make('company.business_name')
                     ->searchable()
                     ->sortable()
@@ -617,13 +632,7 @@ class ProductResource extends Resource
                     ->placeholder(__('Todos los productos'))
                     ->trueLabel(__('Con control de stock'))
                     ->falseLabel(__('Sin control de stock')),
-                    
-                SelectFilter::make('company_id')
-                    ->relationship('company', 'business_name')
-                    ->searchable()
-                    ->preload()
-                    ->label(__('Empresa')),
-                    
+
                 Filter::make('low_stock')
                     ->query(fn (Builder $query): Builder => 
                         $query->where('track_inventory', true)
@@ -691,6 +700,7 @@ class ProductResource extends Resource
         return parent::getEloquentQuery()
             ->withoutGlobalScopes([
                 SoftDeletingScope::class,
-            ]);
+            ])
+            ->with(['stocks.warehouse']);
     }
 }

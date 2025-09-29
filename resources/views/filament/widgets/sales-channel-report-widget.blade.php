@@ -26,16 +26,16 @@
                     @forelse($this->getReportData() as $row)
                         <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                             <td class="px-6 py-4 font-medium text-gray-900 dark:text-white">
-                                {{ $this->getDocumentTypeLabel($row->document_type) }}
+                                {{ $this->getDocumentTypeLabel($row->tipo_documento) }}
                             </td>
                             <td class="px-6 py-4">
                                 {{ $this->getPaymentMethodLabel($row->payment_method) }}
                             </td>
                             <td class="px-6 py-4 text-right">
-                                {{ number_format($row->cantidad) }}
+                                {{ number_format($row->total_cantidad) }}
                             </td>
                             <td class="px-6 py-4 text-right">
-                                S/ {{ number_format($row->total, 2) }}
+                                S/ {{ number_format($row->total_venta, 2) }}
                             </td>
                         </tr>
                     @empty

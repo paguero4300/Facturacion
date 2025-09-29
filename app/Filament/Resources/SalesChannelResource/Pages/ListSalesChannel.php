@@ -4,9 +4,6 @@ namespace App\Filament\Resources\SalesChannelResource\Pages;
 
 use App\Filament\Resources\SalesChannelResource;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Actions;
-use App\Models\Invoice;
-use Illuminate\Database\Eloquent\Builder;
 
 class ListSalesChannel extends ListRecords
 {
@@ -26,8 +23,4 @@ class ListSalesChannel extends ListRecords
         return [];
     }
 
-    public function getFilteredTableQuery(): Builder
-    {
-        return $this->getTableQuery();
-    }
 }
