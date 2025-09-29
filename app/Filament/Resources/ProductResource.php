@@ -570,9 +570,23 @@ class ProductResource extends Resource
                     })
                     ->label(__('Estado')),
 
-                TextColumn::make('stocks_count')
-                    ->label(__('🔥 DEBUG STOCKS'))
-                    ->counts('stocks')
+                TextColumn::make('warehouse_names')
+                    ->label(__('Almacenes'))
+                    ->placeholder(__('Sin almacén'))
+                    ->getStateUsing(function ($record): string {
+                        $warehouses = $record->stocks->pluck('warehouse.name')->filter()->unique();
+                        if ($warehouses->isEmpty()) {
+                            return 'Sin almacén';
+                        }
+                        return $warehouses->count() > 1
+                            ? $warehouses->first() . ' (+' . ($warehouses->count() - 1) . ' más)'
+                            : $warehouses->first();
+                    })
+                    ->searchable(query: function ($query, string $search) {
+                        return $query->whereHas('stocks.warehouse', function ($query) use ($search) {
+                            return $query->where('name', 'like', "%{$search}%");
+                        });
+                    })
                     ->tooltip(function ($record): ?string {
                         $warehouses = $record->stocks->pluck('warehouse.name')->filter()->unique();
                         return $warehouses->count() > 1
