@@ -13,9 +13,10 @@
         <h2 class="text-3xl md:text-4xl font-bold" style="color: var(--enlaces-titulos);">Explora Nuestros Productos</h2>
     </div>
     <div class="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-        @if(isset($mainCategories))
-        @forelse($mainCategories as $category)
-            <a href="{{ url('/' . $category->slug) }}" class="rounded-xl overflow-hidden shadow-md hover:shadow-xl transition group" style="background-color: var(--fondo-categorias); border: 1px solid var(--borde-categorias);">
+        @forelse($mainCategories ?? [] as $category)
+            <a href="{{ url('/' . $category->slug) }}" 
+               class="rounded-xl overflow-hidden shadow-md hover:shadow-xl transition group @if($loop->last && $loop->count % 3 != 0) md:col-start-2 @endif" 
+               style="background-color: var(--fondo-categorias); border: 1px solid var(--borde-categorias);">
                 <div class="aspect-[4/3] overflow-hidden">
                     @if($category->image)
                         <img src="{{ asset('storage/' . $category->image) }}"
@@ -40,10 +41,5 @@
                 <p class="text-gray-500">No hay categorías disponibles</p>
             </div>
         @endforelse
-        @else
-            <div class="col-span-full text-center py-8">
-                <p class="text-red-500">Error: Variable mainCategories no está definida</p>
-            </div>
-        @endif
     </div>
 </section>

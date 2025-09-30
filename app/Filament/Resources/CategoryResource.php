@@ -115,7 +115,9 @@ class CategoryResource extends Resource
                     FileUpload::make('image')
                         ->label(__('Imagen'))
                         ->image()
+                        ->disk('public')
                         ->directory('categories')
+                        ->visibility('public')
                         ->maxSize(2048)
                         ->helperText(__('Imagen para mostrar en la web (máx. 2MB)'))
                         ->columnSpan(2),
