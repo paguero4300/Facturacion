@@ -60,14 +60,17 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const totalSlides = {{ ($mainCategories ?? collect())->count() }};
+        
         const swiper = new Swiper('.categoriesSwiper', {
             slidesPerView: 2,
             spaceBetween: 20,
-            loop: {{ ($mainCategories ?? collect())->count() > 3 ? 'true' : 'false' }},
-            autoplay: {
+            loop: totalSlides > 6,
+            centeredSlides: totalSlides <= 4,
+            autoplay: totalSlides > 4 ? {
                 delay: 3000,
                 disableOnInteraction: false,
-            },
+            } : false,
             pagination: {
                 el: '.swiper-pagination',
                 clickable: true,
