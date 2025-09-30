@@ -10,6 +10,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
@@ -106,14 +107,21 @@ class CategoryTreeResource extends Resource
                         ->columnSpan(1),
 
                     Textarea::make('description')
-                        ->maxLength(500)
                         ->label(__('Descripción'))
                         ->placeholder(__('Descripción de la categoría'))
                         ->rows(2)
                         ->columnSpan(2),
 
+                    FileUpload::make('image')
+                        ->label(__('Imagen'))
+                        ->image()
+                        ->directory('categories')
+                        ->maxSize(2048)
+                        ->helperText(__('Imagen para mostrar en la web (máx. 2MB)'))
+                        ->columnSpan(2),
+
                     ColorPicker::make('color')
-                        ->label(__('Color'))
+                        ->label(__('Color de la Categoría'))
                         ->placeholder(__('#3B82F6'))
                         ->columnSpan(1),
 
@@ -123,8 +131,15 @@ class CategoryTreeResource extends Resource
                         ->placeholder(__('heroicon-o-cube'))
                         ->helperText(__('Nombre del icono Heroicon'))
                         ->columnSpan(1),
+
+                    Toggle::make('status')
+                        ->default(true)
+                        ->label(__('Categoría Activa'))
+                        ->helperText(__('Desactivar para ocultar en el menú'))
+                        ->columnSpan(1),
                 ]),
 
+            // Hidden audit fields
             Hidden::make('created_by')
                 ->default(fn () => auth()->id())
                 ->dehydrated(true),

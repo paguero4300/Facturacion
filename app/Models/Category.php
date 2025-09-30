@@ -19,6 +19,7 @@ class Category extends Model
         'description',
         'color',
         'icon',
+        'image',
         'order',
         'status',
         'created_by',

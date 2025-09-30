@@ -10,6 +10,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\ColorPicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
@@ -109,6 +110,14 @@ class CategoryResource extends Resource
                         ->label(__('Descripción'))
                         ->placeholder(__('Descripción detallada de la categoría'))
                         ->rows(3)
+                        ->columnSpan(2),
+
+                    FileUpload::make('image')
+                        ->label(__('Imagen'))
+                        ->image()
+                        ->directory('categories')
+                        ->maxSize(2048)
+                        ->helperText(__('Imagen para mostrar en la web (máx. 2MB)'))
                         ->columnSpan(2),
 
                     ColorPicker::make('color')

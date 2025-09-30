@@ -60,5 +60,16 @@ class AppServiceProvider extends ServiceProvider
             
             $view->with('menuCategories', $menuCategories);
         });
+
+        // Compartir categorías principales para la sección "Nuestras Categorías"
+        View::composer('partials.categories', function ($view) {
+            $mainCategories = Category::query()
+                ->whereNull('parent_id')
+                ->where('status', true)
+                ->orderBy('order')
+                ->get();
+            
+            $view->with('mainCategories', $mainCategories);
+        });
     }
 }
