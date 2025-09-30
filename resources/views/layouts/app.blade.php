@@ -7,6 +7,8 @@
     <title>@yield('title', 'Detalles - Tienda de Regalos')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     @stack('styles')
 </head>
 
@@ -18,6 +20,9 @@
     </main>
     
     @include('partials.footer')
+    
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
     
     @stack('scripts')
     
