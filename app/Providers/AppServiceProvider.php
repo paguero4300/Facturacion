@@ -16,6 +16,8 @@ use App\Observers\InventoryMovementObserver;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
+use App\Models\Category;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -44,5 +46,19 @@ class AppServiceProvider extends ServiceProvider
             fn (): string => request()->routeIs('filament.admin.pages.pos') ? '<style>.fi-header { display: none !important; }</style>' : '',
             scopes: [Pos::class]
         );
+
+        // Compartir categorías del menú con todas las vistas web
+        View::composer('partials.header', function ($view) {
+            $menuCategories = Category::query()
+                ->whereNull('parent_id')
+                ->where('status', true)
+                ->with(['activeChildren' => function ($query) {
+                    $query->orderBy('order');
+                }])
+                ->orderBy('order')
+                ->get();
+            
+            $view->with('menuCategories', $menuCategories);
+        });
     }
 }

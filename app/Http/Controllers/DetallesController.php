@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Category;
+use App\Models\Product;
 
 class DetallesController extends Controller
 {
@@ -14,6 +16,27 @@ class DetallesController extends Controller
     public function index()
     {
         return view('index');
+    }
+    
+    /**
+     * Muestra una categoría específica con sus productos
+     *
+     * @param  string  $categorySlug
+     * @return \Illuminate\View\View
+     */
+    public function showCategory(string $categorySlug)
+    {
+        $category = Category::where('slug', $categorySlug)
+            ->where('status', true)
+            ->with(['products' => function ($query) {
+                $query->where('status', true);
+            }])
+            ->firstOrFail();
+        
+        return view('index', [
+            'category' => $category,
+            'products' => $category->products,
+        ]);
     }
     
     /**

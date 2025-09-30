@@ -15,6 +15,9 @@ Route::prefix('detalles')->name('detalles.')->group(function () {
     Route::post('/contacto', [DetallesController::class, 'submitContact'])->name('contacto.submit');
 });
 
+// Ruta dinámica para categorías (debe estar antes de las rutas específicas)
+Route::get('/{categorySlug}', [DetallesController::class, 'showCategory'])->name('category.show');
+
 // Rutas nombradas para usar en las plantillas Blade
 Route::get('/inicio', function () {
     return redirect()->route('detalles.index');

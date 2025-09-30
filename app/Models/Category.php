@@ -13,10 +13,13 @@ class Category extends Model
 
     protected $fillable = [
         'company_id',
+        'parent_id',
         'name',
+        'slug',
         'description',
         'color',
         'icon',
+        'order',
         'status',
         'created_by',
     ];
@@ -41,6 +44,23 @@ class Category extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(Category::class, 'parent_id')->orderBy('order');
+    }
+
+    public function activeChildren(): HasMany
+    {
+        return $this->hasMany(Category::class, 'parent_id')
+            ->where('status', true)
+            ->orderBy('order');
+    }
+
     // Scopes
     public function scopeActive($query)
     {
@@ -52,9 +72,29 @@ class Category extends Model
         return $query->where('company_id', $companyId);
     }
 
+    public function scopeParents($query)
+    {
+        return $query->whereNull('parent_id')->orderBy('order');
+    }
+
+    public function scopeChildren($query)
+    {
+        return $query->whereNotNull('parent_id')->orderBy('order');
+    }
+
     // Methods
     public function getProductsCount(): int
     {
         return $this->products()->count();
+    }
+
+    public function isParent(): bool
+    {
+        return $this->parent_id === null;
+    }
+
+    public function hasChildren(): bool
+    {
+        return $this->children()->count() > 0;
     }
 }

@@ -69,12 +69,39 @@ class CategoryResource extends Resource
                     // Campo empresa oculto - se asigna automáticamente
                     Hidden::make('company_id'),
 
+                    Select::make('parent_id')
+                        ->relationship('parent', 'name', fn (Builder $query) => $query->whereNull('parent_id')->where('status', true))
+                        ->searchable()
+                        ->preload()
+                        ->label(__('Categoría Principal'))
+                        ->placeholder(__('Seleccionar categoría principal (opcional)'))
+                        ->helperText(__('Dejar vacío si es una categoría principal'))
+                        ->columnSpan(1),
+
                     TextInput::make('name')
                         ->required()
                         ->maxLength(100)
                         ->label(__('Nombre de la Categoría'))
-                        ->placeholder(__('Ej: Electrónicos, Ropa, Alimentos'))
+                        ->placeholder(__('Ej: Ocasiones, Arreglos, Peluches'))
                         ->unique(ignoreRecord: true)
+                        ->reactive()
+                        ->afterStateUpdated(fn ($state, callable $set) => $set('slug', \Illuminate\Support\Str::slug($state)))
+                        ->columnSpan(1),
+
+                    TextInput::make('slug')
+                        ->required()
+                        ->maxLength(150)
+                        ->label(__('Slug (URL)'))
+                        ->placeholder(__('Ej: ocasiones, arreglos, peluches'))
+                        ->helperText(__('Se genera automáticamente del nombre'))
+                        ->unique(ignoreRecord: true)
+                        ->columnSpan(1),
+
+                    TextInput::make('order')
+                        ->numeric()
+                        ->default(0)
+                        ->label(__('Orden'))
+                        ->helperText(__('Orden de aparición en el menú (menor primero)'))
                         ->columnSpan(1),
 
                     Textarea::make('description')
@@ -114,10 +141,32 @@ class CategoryResource extends Resource
     {
         return $table
             ->columns([
+                TextColumn::make('parent.name')
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder(__('Categoría Principal'))
+                    ->badge()
+                    ->color('primary')
+                    ->label(__('Categoría Padre')),
+
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable()
+                    ->weight('bold')
                     ->label(__('Nombre')),
+
+                TextColumn::make('slug')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->copyMessage(__('Slug copiado'))
+                    ->label(__('Slug')),
+
+                TextColumn::make('order')
+                    ->sortable()
+                    ->badge()
+                    ->color('gray')
+                    ->label(__('Orden')),
 
                 TextColumn::make('description')
                     ->limit(50)
@@ -165,7 +214,7 @@ class CategoryResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(__('Creado')),
             ])
-            ->defaultSort('name', 'asc')
+            ->defaultSort('order', 'asc')
             ->filters([
                 TernaryFilter::make('status')
                     ->label(__('Estado'))
