@@ -1,15 +1,13 @@
-<x-filament::page>
-    <x-filament::header :heading="$this->getTitle()" />
-    
-    <x-filament::form wire:submit="save">
+<x-filament-panels::page>
+    <form wire:submit="save">
         {{ $this->form }}
-        
-        <x-filament::actions>
-            <x-filament::action type="submit">
+
+        <div class="mt-4">
+            <x-filament::button type="submit">
                 Guardar Configuración
-            </x-filament::action>
-        </x-filament::actions>
-    </x-filament::form>
+            </x-filament::button>
+        </div>
+    </form>
     
     <!-- Categorías Principales -->
     <x-filament::section heading="Categorías Principales">
@@ -50,10 +48,10 @@
         </div>
         
         <div class="mt-4">
-            <x-filament::action wire:click="addNewCategory('principales')">
+            <x-filament::button wire:click="addNewCategory('principales')">
                 <x-heroicon-o-plus class="h-5 w-5 -ml-1 mr-2" />
                 Agregar Categoría Principal
-            </x-filament::action>
+            </x-filament::button>
         </div>
         
         <!-- Formulario para nuevas categorías principales -->
@@ -143,10 +141,10 @@
         </div>
         
         <div class="mt-4">
-            <x-filament::action wire:click="addNewCategory('secundarias')">
+            <x-filament::button wire:click="addNewCategory('secundarias')">
                 <x-heroicon-o-plus class="h-5 w-5 -ml-1 mr-2" />
                 Agregar Categoría Secundaria
-            </x-filament::action>
+            </x-filament::button>
         </div>
         
         <!-- Formulario para nuevas categorías secundarias -->
@@ -236,10 +234,10 @@
         </div>
         
         <div class="mt-4">
-            <x-filament::action wire:click="addNewCategory('especiales')">
+            <x-filament::button wire:click="addNewCategory('especiales')">
                 <x-heroicon-o-plus class="h-5 w-5 -ml-1 mr-2" />
                 Agregar Categoría Especial
-            </x-filament::action>
+            </x-filament::button>
         </div>
         
         <!-- Formulario para nuevas categorías especiales -->
@@ -289,4 +287,4 @@
             </div>
         @endif
     </x-filament::section>
-</x-filament::page>
+</x-filament-panels::page>

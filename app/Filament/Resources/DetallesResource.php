@@ -12,13 +12,13 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
 use Filament\Resources\Resource;
-use Filament\Tables\Actions\BulkActionGroup;
-use Filament\Tables\Actions\DeleteAction;
-use Filament\Tables\Actions\EditAction;
-use Filament\Tables\Actions\MoveAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\CreateAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\ColorColumn;
@@ -63,7 +63,7 @@ class DetallesResource extends Resource
     {
         return $schema->components([
             Section::make(__('Información de la Categoría Web'))
-                ->icon('heroicon-squares-2x2')
+                ->icon('heroicon-o-squares-2x2')
                 ->description(__('Configuración de la categoría para la web'))
                 ->columns(2)
                 ->columnSpanFull()
@@ -233,7 +233,7 @@ class DetallesResource extends Resource
             ->emptyStateHeading(__('No hay categorías'))
             ->emptyStateDescription(__('Crea categorías para organizar tus productos en la web.'))
             ->emptyStateActions([
-                \Filament\Tables\Actions\CreateAction::make(),
+                CreateAction::make(),
             ]);
     }
 

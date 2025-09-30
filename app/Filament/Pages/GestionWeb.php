@@ -8,19 +8,26 @@ use BackedEnum;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class GestionWeb extends Page
+class GestionWeb extends Page implements HasSchemas
 {
+    use InteractsWithSchemas;
+
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-globe-alt';
     protected static ?string $navigationLabel = 'Gestión Web';
     protected static ?string $title = 'Gestión de Contenido Web';
     protected string $view = 'filament.pages.gestion-web';
-    
+
+    public ?array $data = [];
+
     // Propiedades para almacenar las categorías
     public $mainCategories = [];
     public $regularCategories = [];
@@ -129,12 +136,12 @@ class GestionWeb extends Page
         }
     }
 
-    public function form(Form $form): Form
+    public function form(Schema $schema): Schema
     {
-        return $form
-            ->schema([
+        return $schema
+            ->components([
                 // Sección para la categoría principal
-                \Filament\Forms\Components\Section::make('Categoría Principal')
+                Section::make('Categoría Principal')
                     ->description('Configuración de la categoría principal para la web')
                     ->schema([
                         TextInput::make('main_category_name')
