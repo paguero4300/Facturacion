@@ -367,11 +367,17 @@ class ProductResource extends Resource
                         ->native(false)
                         ->label(__('Estado del Producto'))
                         ->columnSpan(1),
-                        
+
                     Toggle::make('for_sale')
                         ->default(true)
                         ->label(__('Disponible para Venta'))
                         ->helperText(__('Producto visible en ventas'))
+                        ->columnSpan(1),
+
+                    Toggle::make('featured')
+                        ->default(false)
+                        ->label(__('Producto Destacado'))
+                        ->helperText(__('Mostrar en sección de productos destacados'))
                         ->columnSpan(1),
                 ]),
 
@@ -546,7 +552,16 @@ class ProductResource extends Resource
                     ->falseColor('danger')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->label(__('En Venta')),
-                    
+
+                IconColumn::make('featured')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-star')
+                    ->falseIcon('heroicon-o-star')
+                    ->trueColor('warning')
+                    ->falseColor('gray')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->label(__('Destacado')),
+
                 IconColumn::make('track_inventory')
                     ->boolean()
                     ->trueIcon('heroicon-o-archive-box')
@@ -640,6 +655,12 @@ class ProductResource extends Resource
                     ->placeholder(__('Todos los productos'))
                     ->trueLabel(__('Solo en venta'))
                     ->falseLabel(__('No disponibles')),
+
+                TernaryFilter::make('featured')
+                    ->label(__('Productos Destacados'))
+                    ->placeholder(__('Todos los productos'))
+                    ->trueLabel(__('Solo destacados'))
+                    ->falseLabel(__('No destacados')),
                     
                 TernaryFilter::make('track_inventory')
                     ->label(__('Control de Inventario'))
