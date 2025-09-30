@@ -35,7 +35,7 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->brandName('') // Ocultar texto del nombre
             ->brandLogo(asset('logos/logo_horizontal.png'))
-            ->brandLogoHeight('2.5rem') // Altura elegante
+            ->brandLogoHeight('4rem') // Logo más grande y vistoso
             ->colors([
                 'primary' => Color::Rose, // Cambiar a rosa para combinar con el logo
             ])
@@ -66,6 +66,25 @@ class AdminPanelProvider extends PanelProvider
                     /* Mejorar spacing del login */
                     .fi-simple-layout .fi-simple-page {
                         padding-top: 2rem !important;
+                    }
+                </style>'
+            )
+            ->renderHook(
+                'panels::head.start',
+                fn (): string => '
+                <style>
+                    /* Logo en el header */
+                    .fi-topbar .fi-logo {
+                        height: 4rem !important;
+                        width: auto !important;
+                        max-width: none !important;
+                        margin-right: 1rem !important;
+                    }
+
+                    /* Asegurar que el contenedor del logo se ajuste */
+                    .fi-topbar-logo-container {
+                        display: flex !important;
+                        align-items: center !important;
                     }
                 </style>'
             )
