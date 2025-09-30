@@ -13,8 +13,8 @@
             <img src="{{ asset('logos/logo_horizontal.png') }}" alt="Detalles y Más" class="h-12 w-auto object-contain" style="color: var(--naranja);">
         </div>
         <ul class="hidden md:flex gap-6 text-sm font-medium">
-            <li><a href="{{ route('inicio') }}" class="transition" style="color: var(--enlaces-titulos);">INICIO</a></li>
-            <li><a href="{{ route('nosotros') }}" class="transition" style="color: var(--enlaces-titulos);">NOSOTROS</a></li>
+            <li><a href="{{ route('detalles.index') }}" class="transition" style="color: var(--enlaces-titulos);">INICIO</a></li>
+            <li><a href="{{ route('detalles.index') }}#nosotros" class="transition" style="color: var(--enlaces-titulos);">NOSOTROS</a></li>
             
             @if(isset($menuCategories) && $menuCategories->count() > 0)
                 @foreach($menuCategories as $category)
@@ -48,9 +48,9 @@
             @endif
         </ul>
         <div class="flex gap-4 text-sm">
-            <a href="{{ route('buscar') }}" class="transition" style="color: var(--enlaces-titulos);">🔍</a>
-            <a href="{{ route('usuario') }}" class="transition" style="color: var(--enlaces-titulos);">👤</a>
-            <a href="{{ route('carrito') }}" class="transition relative" style="color: var(--enlaces-titulos);">
+            <a href="#buscar" class="transition" style="color: var(--enlaces-titulos);">🔍</a>
+            <a href="#usuario" class="transition" style="color: var(--enlaces-titulos);">👤</a>
+            <a href="#carrito" class="transition relative" style="color: var(--enlaces-titulos);">
                 🛒
                 <span
                     class="absolute -top-2 -right-2 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center" style="background-color: var(--naranja);">0</span>

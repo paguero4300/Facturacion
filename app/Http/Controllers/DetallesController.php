@@ -15,7 +15,14 @@ class DetallesController extends Controller
      */
     public function index()
     {
-        return view('index');
+        $menuCategories = Category::where('status', true)
+            ->parents()
+            ->with('activeChildren')
+            ->get();
+        
+        $mainCategories = $menuCategories;
+        
+        return view('index', compact('menuCategories', 'mainCategories'));
     }
     
     /**
@@ -28,14 +35,41 @@ class DetallesController extends Controller
     {
         $category = Category::where('slug', $categorySlug)
             ->where('status', true)
-            ->with(['products' => function ($query) {
-                $query->where('status', true);
-            }])
+            ->with([
+                'products' => function ($query) {
+                    $query->where('status', 'active')
+                          ->where('for_sale', true)
+                          ->orderBy('name', 'asc');
+                },
+                'parent.activeChildren',
+                'activeChildren'
+            ])
             ->firstOrFail();
         
-        return view('index', [
+        // Si es una categoría padre (tiene subcategorías), cargar todos los productos
+        // incluyendo los de las subcategorías
+        if ($category->hasChildren()) {
+            $categoryIds = $category->activeChildren->pluck('id')->push($category->id);
+            
+            $products = Product::whereIn('category_id', $categoryIds)
+                ->where('status', 'active')
+                ->where('for_sale', true)
+                ->orderBy('name', 'asc')
+                ->get();
+        } else {
+            // Si es una subcategoría, solo mostrar sus productos
+            $products = $category->products;
+        }
+        
+        $menuCategories = Category::where('status', true)
+            ->parents()
+            ->with('activeChildren')
+            ->get();
+        
+        return view('category', [
             'category' => $category,
-            'products' => $category->products,
+            'products' => $products,
+            'menuCategories' => $menuCategories,
         ]);
     }
     

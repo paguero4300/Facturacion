@@ -97,7 +97,7 @@
 
                 <!-- Botones de acción con efectos mejorados -->
                 <div class="flex flex-wrap gap-4">
-                    <a href="{{ route('productos') }}"
+                    <a href="#productos"
                         class="group relative overflow-hidden text-white px-8 py-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                         style="background-color: var(--naranja);">
                         <span class="relative z-10 flex items-center">
@@ -113,7 +113,7 @@
                             style="background: linear-gradient(to right, var(--azul-claro), var(--azul-primario));">
                         </div>
                     </a>
-                    <a href="{{ route('contacto') }}"
+                    <a href="#contacto"
                         class="px-8 py-4 rounded-lg font-semibold transition-all duration-300 border-2 shadow-md hover:shadow-lg transform hover:-translate-y-1"
                         style="color: var(--naranja); background-color: var(--fondo-footer); border-color: var(--naranja);">
                         Contáctanos

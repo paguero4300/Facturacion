@@ -22,30 +22,31 @@
             <div>
                 <h3 class="font-bold mb-4" style="color: var(--enlaces-titulos);">Arreglos</h3>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="{{ route('rosas') }}" class="transition" style="color: var(--texto-principal);">Rosas</a></li>
-                    <li><a href="{{ route('girasoles') }}" class="transition" style="color: var(--texto-principal);">Girasoles</a></li>
-                    <li><a href="{{ route('flores-mixtas') }}" class="transition" style="color: var(--texto-principal);">Flores Mixtas</a></li>
-                    <li><a href="{{ route('lirios') }}" class="transition" style="color: var(--texto-principal);">Lirios</a></li>
-                    <li><a href="{{ route('tulipanes') }}" class="transition" style="color: var(--texto-principal);">Tulipanes</a></li>
+                    <li><a href="{{ url('/rosas-flor') }}" class="transition" style="color: var(--texto-principal);">Rosas</a></li>
+                    <li><a href="{{ url('/girasoles-flor') }}" class="transition" style="color: var(--texto-principal);">Girasoles</a></li>
+                    <li><a href="{{ url('/tulipanes-flor') }}" class="transition" style="color: var(--texto-principal);">Tulipanes</a></li>
+                    <li><a href="{{ url('/boxflor') }}" class="transition" style="color: var(--texto-principal);">Box</a></li>
+                    <li><a href="{{ url('/matrimonioflor') }}" class="transition" style="color: var(--texto-principal);">Matrimonio</a></li>
                 </ul>
             </div>
             <div>
                 <h3 class="font-bold mb-4" style="color: var(--enlaces-titulos);">Ocasiones</h3>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="{{ route('amor') }}" class="transition" style="color: var(--texto-principal);">Amor</a></li>
-                    <li><a href="{{ route('aniversario') }}" class="transition" style="color: var(--texto-principal);">Aniversario</a></li>
-                    <li><a href="{{ route('cumpleanos') }}" class="transition" style="color: var(--texto-principal);">Cumpleaños</a></li>
-                    <li><a href="{{ route('graduacion') }}" class="transition" style="color: var(--texto-principal);">Graduación</a></li>
-                    <li><a href="{{ route('nacimiento') }}" class="transition" style="color: var(--texto-principal);">Nacimiento</a></li>
+                    <li><a href="{{ url('/amor') }}" class="transition" style="color: var(--texto-principal);">Amor</a></li>
+                    <li><a href="{{ url('/aniversario') }}" class="transition" style="color: var(--texto-principal);">Aniversario</a></li>
+                    <li><a href="{{ url('/hello-kitty') }}" class="transition" style="color: var(--texto-principal);">Hello Kitty</a></li>
+                    <li><a href="{{ url('/gato') }}" class="transition" style="color: var(--texto-principal);">Gato</a></li>
+                    <li><a href="{{ url('/perro') }}" class="transition" style="color: var(--texto-principal);">Perro</a></li>
                 </ul>
             </div>
             <div>
-                <h3 class="font-bold mb-4" style="color: var(--enlaces-titulos);">Festivos</h3>
+                <h3 class="font-bold mb-4" style="color: var(--enlaces-titulos);">Regalos</h3>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="{{ route('san-valentin') }}" class="transition" style="color: var(--texto-principal);">San Valentín</a></li>
-                    <li><a href="{{ route('dia-madre') }}" class="transition" style="color: var(--texto-principal);">Día de la Madre</a></li>
-                    <li><a href="{{ route('dia-padre') }}" class="transition" style="color: var(--texto-principal);">Día del Padre</a></li>
-                    <li><a href="{{ route('navidad') }}" class="transition" style="color: var(--texto-principal);">Navidad</a></li>
+                    <li><a href="{{ url('/chocolate') }}" class="transition" style="color: var(--texto-principal);">Chocolates</a></li>
+                    <li><a href="{{ url('/pinguino') }}" class="transition" style="color: var(--texto-principal);">Peluches</a></li>
+                    <li><a href="{{ url('/stich') }}" class="transition" style="color: var(--texto-principal);">Stitch</a></li>
+                    <li><a href="{{ url('/vinera') }}" class="transition" style="color: var(--texto-principal);">Vinera</a></li>
+                    <li><a href="{{ url('/taza') }}" class="transition" style="color: var(--texto-principal);">Tazas</a></li>
                 </ul>
             </div>
         </div>
