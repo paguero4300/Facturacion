@@ -606,12 +606,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
 ---
 
-### 5.5 Featured Products Section
+### 5.5 Featured Products Section (DINÁMICO) 🆕
 **Archivo:** `resources/views/partials/featured-products.blade.php`
 
-#### Estructura (líneas 10-90):
+#### ⚠️ Cambio Importante: Ahora es Dinámico
 
-**Encabezado** (líneas 11-14):
+Esta sección ha sido completamente rediseñada para cargar productos desde la base de datos.
+
+#### Estructura (líneas 11-161):
+
+**Encabezado** (líneas 12-16):
 ```html
 <section class="container mx-auto px-4 py-16">
     <div class="text-center mb-12">
@@ -624,68 +628,164 @@ document.addEventListener('DOMContentLoaded', function () {
     </div>
 ```
 
-**Grid de Productos** (líneas 15-84):
-```html
-<div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
-    <!-- Producto 1: Peluche 20cm -->
-    <div class="product-card">
-        <div class="relative aspect-square">
-            <span class="badge-oferta">OFERTA</span>
-            <img src="[unsplash URL]" alt="Peluche 20cm" class="lazy-load" loading="lazy">
-        </div>
-        <div class="p-4">
-            <h3 class="font-bold">Peluche 20 CM</h3>
-            <p class="font-bold price">S/ 30.00 - S/ 35.00</p>
-            <p class="text-sm description">Peluches adorables</p>
-            <button class="btn-add-cart">Añadir al Carrito</button>
-        </div>
+#### Lógica Condicional:
+
+**1. Si hay ≤4 productos** (líneas 19-54):
+```blade
+@if($featuredProducts->count() <= 4)
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        @foreach($featuredProducts as $product)
+            <div class="product-card">
+                <div class="relative aspect-square">
+                    <span class="badge-destacado">DESTACADO</span>
+
+                    @if($product->image_path && \Storage::disk('public')->exists($product->image_path))
+                        <img src="{{ asset('storage/' . $product->image_path) }}"
+                             alt="{{ $product->name }}"
+                             class="lazy-load">
+                    @else
+                        <img src="{{ asset('images/no-image.png') }}"
+                             alt="{{ $product->name }}">
+                    @endif
+                </div>
+                <div class="p-4">
+                    <h3 class="font-bold truncate">{{ $product->name }}</h3>
+                    <p class="font-bold">S/ {{ number_format($product->sale_price ?? $product->unit_price, 2) }}</p>
+                    <p class="text-sm line-clamp-2">{{ $product->description ?? 'Producto de calidad' }}</p>
+                    <button class="btn-add-cart">Añadir al Carrito</button>
+                </div>
+            </div>
+        @endforeach
     </div>
-
-    <!-- Producto 2: Peluche 30cm -->
-    <div class="product-card">...</div>
-
-    <!-- Producto 3: Peluche 40cm -->
-    <div class="product-card">...</div>
-
-    <!-- Producto 4: Rosas Rojas -->
-    <div class="product-card">...</div>
-</div>
+@endif
 ```
 
-**Botón "Ver Todos"** (líneas 85-89):
-```html
-<div class="text-center mt-10">
-    <button class="btn-outline">Ver Todos los Productos</button>
-</div>
+**2. Si hay >4 productos** (líneas 56-100):
+```blade
+@else
+    <div class="swiper featuredProductsSwiper max-w-6xl mx-auto">
+        <div class="swiper-wrapper">
+            @foreach($featuredProducts as $product)
+                <div class="swiper-slide">
+                    <!-- Misma estructura de tarjeta -->
+                </div>
+            @endforeach
+        </div>
+        <div class="swiper-pagination mt-8"></div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+    </div>
+@endif
 ```
 
-#### Productos Mostrados:
+**3. Si no hay productos** (líneas 108-116):
+```blade
+@else
+    <div class="text-center py-12">
+        <p class="text-gray-500 mb-4">No hay productos destacados disponibles</p>
+        <a href="#productos" class="btn-outline">Ver Catálogo Completo</a>
+    </div>
+@endif
+```
 
-| # | Producto | Precio | Imagen | Descripción |
-|---|----------|--------|--------|-------------|
-| 1 | Peluche 20 CM | S/ 30.00 - S/ 35.00 | [Unsplash] | Peluches adorables |
-| 2 | Peluche 30 CM | S/ 40.00 - S/ 45.00 | [Unsplash] | Peluches medianos |
-| 3 | Peluche 40 CM | S/ 60.00 - S/ 65.00 | [Unsplash] | Peluches grandes |
-| 4 | 6 Rosas Rojas | S/ 75.00 - S/ 80.00 | [Unsplash] | Flores frescas |
+#### Script de Swiper (líneas 119-161):
+```javascript
+document.addEventListener('DOMContentLoaded', function () {
+    const totalSlides = {{ ($featuredProducts ?? collect())->count() }};
 
-#### Características:
-- **Layout:** Grid 2x2 en móvil, 4x1 en desktop
-- **Imágenes:**
-  - Proporción cuadrada (aspect-square)
-  - Fuente: Unsplash (URLs externas)
-  - Lazy loading con fallback a placeholder
-- **Etiqueta "OFERTA":**
-  - Posición absoluta (top-3 left-3)
-  - Fondo rojo intenso
-  - Fuente blanca y bold
-- **Botón "Añadir al Carrito":**
-  - Ancho completo
-  - Fondo naranja
-  - Hover effect
-- **Precios:**
-  - Rango de precios mostrado
-  - Color negro (var(--precio-actual))
-- **Nota:** Productos estáticos (hardcoded), no cargados desde BD
+    if (totalSlides > 4) {
+        const swiper = new Swiper('.featuredProductsSwiper', {
+            slidesPerView: 2,
+            spaceBetween: 20,
+            loop: totalSlides > 6,
+            autoplay: {
+                delay: 3000,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            breakpoints: {
+                640: { slidesPerView: 2, spaceBetween: 20 },
+                768: { slidesPerView: totalSlides >= 3 ? 3 : 2, spaceBetween: 24 },
+                1024: { slidesPerView: totalSlides >= 4 ? 4 : totalSlides, spaceBetween: 24 },
+            },
+        });
+    }
+});
+```
+
+#### Características Dinámicas:
+
+✅ **Productos desde BD:**
+- Query: `Product::where('featured', true)->where('status', 'active')->where('for_sale', true)`
+- Campo nuevo: `featured` (boolean) en tabla `products`
+- Cargados en `DetallesController@index` (líneas 26-30)
+
+✅ **Imágenes Dinámicas:**
+- Desde `storage/` usando campo `image_path`
+- Verificación de existencia con `\Storage::disk('public')->exists()`
+- Fallback a `images/no-image.png`
+- Lazy loading habilitado
+
+✅ **Precios Dinámicos:**
+- Usa `sale_price` si existe, sino `unit_price`
+- Formato: `number_format($precio, 2)`
+- Prefijo: "S/" (soles peruanos)
+
+✅ **Diseño Responsivo:**
+- Grid estático para ≤4 productos (mejor performance)
+- Swiper slider para >4 productos (mejor UX)
+- Responsive breakpoints:
+  - Móvil (<640px): 2 productos
+  - Tablet (640-1024px): 2-3 productos
+  - Desktop (>1024px): 4 productos
+
+✅ **Etiqueta "DESTACADO":**
+- Reemplaza "OFERTA" anterior
+- Badge rojo en esquina superior izquierda
+- Indica productos marcados como destacados
+
+✅ **Truncado Inteligente:**
+- Nombres con `truncate` (una línea)
+- Descripciones con `line-clamp-2` (dos líneas)
+- Evita desbordamiento de texto
+
+✅ **Botón "Ver Todos":**
+- Ahora es anchor link a `#productos`
+- Lleva a sección de categorías
+- Hover effect mejorado
+
+#### Base de Datos:
+
+**Migración:** `2025_09_30_135012_add_featured_to_products_table.php`
+```php
+Schema::table('products', function (Blueprint $table) {
+    $table->boolean('featured')->default(false)->after('for_sale');
+});
+```
+
+**Modelo Product:** Campo agregado a `$fillable` y `$casts`
+```php
+protected $fillable = [..., 'featured', ...];
+protected $casts = [..., 'featured' => 'boolean', ...];
+```
+
+#### Comparación con Versión Anterior:
+
+| Característica | Antes | Ahora |
+|----------------|-------|-------|
+| Productos | 4 hardcoded | Dinámicos desde BD |
+| Imágenes | URLs Unsplash | Storage local |
+| Layout | Solo grid | Grid o Swiper |
+| Etiqueta | "OFERTA" | "DESTACADO" |
+| Precios | Rangos estáticos | Precio real formateado |
+| Fallback | Placeholder externo | Sin productos mensaje |
 
 ---
 
@@ -2086,6 +2186,12 @@ La página `/detalles` es una landing page completa para una tienda de regalos y
 🆕 **Lógica inteligente de productos** - Categorías padre muestran productos de subcategorías
 🆕 **Anchor links** - Navegación interna con #productos, #contacto
 🆕 **URLs dinámicas** - Footer usa `url()` con slugs desde base de datos
+🆕 **Productos destacados dinámicos** - Sistema completo de featured products con:
+  - Campo `featured` en tabla products (migración ejecutada)
+  - Carga dinámica desde BD con filtros
+  - Imágenes desde storage local
+  - Lógica condicional grid/swiper
+  - Precios formateados desde BD
 
 ### Puntos Fuertes:
 
@@ -2101,19 +2207,28 @@ La página `/detalles` es una landing page completa para una tienda de regalos y
 
 ### Áreas de Mejora:
 
-⚠️ Productos destacados hardcoded
 ⚠️ Formulario de contacto sin envío real
 ⚠️ Carrito sin funcionalidad
 ⚠️ Falta menú móvil hamburguesa
 ⚠️ Falta sistema de búsqueda
-⚠️ Falta caché de categorías
+⚠️ Falta caché de categorías y productos
 
 ---
 
-**Última actualización:** 30 de septiembre de 2025 (Revisión 2)
+**Última actualización:** 30 de septiembre de 2025 (Revisión 3)
 **Versión de Laravel:** 11-12
 **Versión de Filament:** 3
-**Cambios en esta revisión:**
+
+**Cambios en Revisión 3:**
+- ✅ **Sistema de Productos Destacados Dinámico**
+  - Migración `add_featured_to_products_table` creada y ejecutada
+  - Campo `featured` (boolean) agregado al modelo Product
+  - Controlador actualizado para cargar productos destacados
+  - Vista completamente rediseñada con lógica grid/swiper
+  - Imágenes dinámicas desde storage con fallback
+  - Precios formateados desde base de datos
+
+**Cambios en Revisión 2:**
 - Actualizado controlador con inyección explícita de datos
 - Agregada lógica inteligente de productos padre/hijo
 - Actualizados enlaces del footer con slugs reales

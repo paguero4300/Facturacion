@@ -36,6 +36,7 @@ class Product extends Model
         'status',
         'taxable',
         'for_sale',
+        'featured',
         'created_by',
     ];
 
@@ -52,6 +53,7 @@ class Product extends Model
         'taxable' => 'boolean',
         'for_sale' => 'boolean',
         'for_purchase' => 'boolean',
+        'featured' => 'boolean',
         'additional_attributes' => 'array',
     ];
 

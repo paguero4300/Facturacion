@@ -19,10 +19,17 @@ class DetallesController extends Controller
             ->parents()
             ->with('activeChildren')
             ->get();
-        
+
         $mainCategories = $menuCategories;
-        
-        return view('index', compact('menuCategories', 'mainCategories'));
+
+        // Cargar productos destacados
+        $featuredProducts = Product::where('featured', true)
+            ->where('status', 'active')
+            ->where('for_sale', true)
+            ->orderBy('name', 'asc')
+            ->get();
+
+        return view('index', compact('menuCategories', 'mainCategories', 'featuredProducts'));
     }
     
     /**
