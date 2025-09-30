@@ -79,8 +79,7 @@ class CategoryTreeResource extends Resource
                         ->label(__('Nombre de la Categoría Principal'))
                         ->placeholder(__('Ej: Ocasiones, Arreglos, Regalos, Festivos'))
                         ->helperText(__('Esta será una categoría del menú principal'))
-                        ->unique(ignoreRecord: true)
-                        ->reactive()
+                        ->live(onBlur: true)
                         ->afterStateUpdated(fn ($state, callable $set) => $set('slug', \Illuminate\Support\Str::slug($state)))
                         ->columnSpan(1),
 
