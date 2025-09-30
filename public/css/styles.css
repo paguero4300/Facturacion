@@ -1,0 +1,41 @@
+/* Estilos personalizados para asegurar que las imágenes carguen correctamente */
+img {
+    background-color: #f0f0f0;
+    /* Color de fondo mientras carga */
+    min-height: 100px;
+    /* Altura mínima mientras carga */
+}
+
+.lazy-load {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.lazy-load.loaded {
+    opacity: 1;
+}
+
+/* Variables de colores personalizados basados en la paleta */
+:root {
+    --fondo-principal: #fff6f7;
+    --texto-principal: #6e6d76;
+    --enlaces-titulos: #5b1f1f;
+    --fondo-footer: #ffffff;
+    --naranja: #ff9900;
+    --azul-claro: #1ea0c3;
+    --rojo-intenso: #cc4545;
+    --azul-primario: #007cba;
+    --borde-input: #cccccc;
+    --borde-activo: #007cba;
+    --fondo-input: #ffffff;
+    --texto-input: #6e6d76;
+    --precio-original: #999999;
+    --precio-actual: #000000;
+    --etiqueta-oferta: #cc4545;
+    --fondo-categorias: #ffffff;
+    --borde-categorias: #dddddd;
+    --texto-categorias: #5b1f1f;
+    --sombra-ligera: rgba(0, 0, 0, 0.1) 0px 0px 20px 0px;
+    --sombra-media: rgba(0, 0, 0, 0.2) 0px 4px 10px -2px;
+    --sombra-fuerte: rgba(0, 0, 0, 0.2) 0px 8px 16px -8px;
+}
