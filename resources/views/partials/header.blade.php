@@ -7,12 +7,13 @@
     - Diseño responsivo que se adapta a diferentes tamaños de pantalla
 -->
 <!-- Header -->
-<header class="bg-white shadow-sm sticky top-0 z-50" style="background-color: var(--fondo-footer);">
-    <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+<header class="bg-white shadow-md sticky top-0 z-50" style="background-color: var(--fondo-footer);">
+    <nav class="container mx-auto px-4 py-3 md:py-4 flex justify-between items-center">
         <!-- Logo -->
         <div class="flex items-center">
-            <a href="{{ route('home') }}">
-                <img src="{{ asset('logos/logo_horizontal.png') }}" alt="Detalles y Más" class="h-16 w-auto object-contain">
+            <a href="{{ route('home') }}" class="logo-container">
+                <img src="{{ asset('logos/logook.png') }}" alt="Detalles y Más Flores"
+                     class="h-20 md:h-24 w-auto object-contain">
             </a>
         </div>
 

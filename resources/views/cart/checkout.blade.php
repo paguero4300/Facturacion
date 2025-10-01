@@ -161,6 +161,62 @@
                             </div>
                         </div>
 
+                        <!-- Delivery Scheduling -->
+                        <div class="bg-white rounded-xl shadow-md p-6">
+                            <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                <svg class="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4M3 12h18M8 12l2 3 4-6M3 21h18a2 2 0 002-2V9a2 2 0 00-2-2H3a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                                Programar Entrega (Opcional)
+                            </h2>
+                            <p class="text-sm text-gray-600 mb-4">
+                                Puedes programar tu entrega para un día y horario específico. Si no seleccionas, te contactaremos para coordinar.
+                            </p>
+
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Fecha de entrega preferida
+                                    </label>
+                                    <input type="date" name="delivery_date" 
+                                        value="{{ old('delivery_date') }}"
+                                        min="{{ $minDeliveryDate }}"
+                                        max="{{ $maxDeliveryDate }}"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                        id="delivery_date"
+                                        onchange="updateAvailableTimeSlots()">
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        Las entregas están disponibles de lunes a sábado
+                                    </p>
+                                </div>
+
+                                <div id="time_slot_container" style="display: none;">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Horario preferido <span class="text-red-500 hidden" id="time_required">*</span>
+                                    </label>
+                                    <div class="space-y-2" id="time_slots">
+                                        @foreach($deliveryTimeSlots as $value => $label)
+                                            <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-pink-300 transition time-slot-option" data-slot="{{ $value }}">
+                                                <input type="radio" name="delivery_time_slot" value="{{ $value }}" 
+                                                    {{ old('delivery_time_slot') == $value ? 'checked' : '' }}
+                                                    class="w-4 h-4 text-pink-600 focus:ring-pink-500">
+                                                <span class="ml-3 font-medium text-gray-900">{{ $label }}</span>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Instrucciones especiales para la entrega
+                                    </label>
+                                    <textarea name="delivery_notes" rows="3"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                        placeholder="Ej: Tocar timbre del edificio, dejar con portería, llamar al llegar...">{{ old('delivery_notes') }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Payment Method -->
                         <div class="bg-white rounded-xl shadow-md p-6">
                             <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -284,5 +340,58 @@
     </div>
 
     @include('partials.footer')
+
+    <script>
+        function updateAvailableTimeSlots() {
+            const dateInput = document.getElementById('delivery_date');
+            const timeSlotContainer = document.getElementById('time_slot_container');
+            const timeRequired = document.getElementById('time_required');
+            const timeSlotOptions = document.querySelectorAll('.time-slot-option');
+            
+            if (!dateInput.value) {
+                timeSlotContainer.style.display = 'none';
+                timeRequired.classList.add('hidden');
+                return;
+            }
+            
+            const selectedDate = new Date(dateInput.value);
+            const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
+            
+            // Show time slot container
+            timeSlotContainer.style.display = 'block';
+            timeRequired.classList.remove('hidden');
+            
+            // Reset all time slots
+            timeSlotOptions.forEach(option => {
+                option.style.display = 'block';
+                option.classList.remove('opacity-50', 'cursor-not-allowed');
+                const radio = option.querySelector('input[type="radio"]');
+                radio.disabled = false;
+            });
+            
+            // Sunday - hide all time slots
+            if (dayOfWeek === 0) {
+                timeSlotContainer.innerHTML = '<p class="text-red-600 text-sm">Las entregas no están disponibles los domingos. Por favor selecciona otro día.</p>';
+                return;
+            }
+            
+            // Saturday - hide evening slot
+            if (dayOfWeek === 6) {
+                const eveningSlot = document.querySelector('.time-slot-option[data-slot="evening"]');
+                if (eveningSlot) {
+                    eveningSlot.style.display = 'none';
+                    const radio = eveningSlot.querySelector('input[type="radio"]');
+                    if (radio.checked) {
+                        radio.checked = false;
+                    }
+                }
+            }
+        }
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateAvailableTimeSlots();
+        });
+    </script>
 </body>
 </html>

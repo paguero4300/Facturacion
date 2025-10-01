@@ -6,6 +6,11 @@ use App\Models\Invoice;
 use App\Models\InvoiceDetail;
 use App\Models\DocumentSeries;
 use App\Models\Product;
+use App\Enums\DeliveryTimeSlot;
+use App\Enums\DeliveryStatus;
+use App\Rules\ValidDeliveryDate;
+use App\Rules\ValidDeliveryTimeSlot;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -24,8 +29,11 @@ class CheckoutController extends Controller
         }
 
         $total = $this->calculateTotal($cart);
+        $deliveryTimeSlots = DeliveryTimeSlot::getOptions();
+        $minDeliveryDate = Carbon::tomorrow()->format('Y-m-d');
+        $maxDeliveryDate = Carbon::now()->addDays(30)->format('Y-m-d');
 
-        return view('cart.checkout', compact('cart', 'total'));
+        return view('cart.checkout', compact('cart', 'total', 'deliveryTimeSlots', 'minDeliveryDate', 'maxDeliveryDate'));
     }
 
     /**
@@ -42,7 +50,40 @@ class CheckoutController extends Controller
             'payment_method' => 'required|in:cash,yape,plin,card,transfer',
             'payment_reference' => 'nullable|string|max:100',
             'observations' => 'nullable|string|max:500',
+            // Delivery validation rules
+            'delivery_date' => 'nullable|date|after:today|before:' . Carbon::now()->addDays(31)->format('Y-m-d'),
+            'delivery_time_slot' => 'nullable|in:morning,afternoon,evening',
+            'delivery_notes' => 'nullable|string|max:500',
         ]);
+
+        // Additional delivery validations
+        if ($request->has('delivery_date') && $request->delivery_date) {
+            $deliveryDate = Carbon::parse($request->delivery_date);
+            
+            // Validate that delivery date is not on Sunday
+            if ($deliveryDate->isSunday()) {
+                return back()->withInput()->withErrors([
+                    'delivery_date' => 'Las entregas no están disponibles los domingos.'
+                ]);
+            }
+            
+            // Validate time slot availability for the selected date
+            if ($request->delivery_time_slot) {
+                $timeSlot = DeliveryTimeSlot::from($request->delivery_time_slot);
+                if (!$timeSlot->isAvailableOnDay($deliveryDate->format('l'))) {
+                    return back()->withInput()->withErrors([
+                        'delivery_time_slot' => 'El horario seleccionado no está disponible para el día elegido.'
+                    ]);
+                }
+            }
+            
+            // If delivery date is provided, time slot is required
+            if (!$request->delivery_time_slot) {
+                return back()->withInput()->withErrors([
+                    'delivery_time_slot' => 'Debe seleccionar un horario de entrega.'
+                ]);
+            }
+        }
 
         $cart = session()->get('cart', []);
 
@@ -75,7 +116,7 @@ class CheckoutController extends Controller
             $total = $subtotal;
 
             // Create invoice (order)
-            $invoice = Invoice::create([
+            $invoiceData = [
                 'company_id' => $company->id,
                 'document_series_id' => $series->id,
                 'client_id' => null, // Pedidos web no requieren cliente registrado
@@ -99,7 +140,17 @@ class CheckoutController extends Controller
                 'status' => 'draft',
                 'observations' => $validated['observations'],
                 'created_by' => Auth::id(),
-            ]);
+            ];
+
+            // Add delivery information if provided
+            if ($request->has('delivery_date') && $request->delivery_date) {
+                $invoiceData['delivery_date'] = $request->delivery_date;
+                $invoiceData['delivery_time_slot'] = DeliveryTimeSlot::from($request->delivery_time_slot);
+                $invoiceData['delivery_notes'] = $request->delivery_notes;
+                $invoiceData['delivery_status'] = DeliveryStatus::PROGRAMADO;
+            }
+
+            $invoice = Invoice::create($invoiceData);
 
             // Create details
             $lineNumber = 1;
@@ -187,5 +238,41 @@ class CheckoutController extends Controller
             $total += $item['price'] * $item['quantity'];
         }
         return $total;
+    }
+
+    /**
+     * Get available delivery time slots for a specific date
+     */
+    public function getAvailableTimeSlots(Request $request)
+    {
+        $request->validate([
+            'date' => 'required|date|after:today'
+        ]);
+
+        $date = Carbon::parse($request->date);
+        
+        // Check if date is Sunday (no deliveries)
+        if ($date->isSunday()) {
+            return response()->json([
+                'available' => false,
+                'message' => 'No hay entregas disponibles los domingos',
+                'slots' => []
+            ]);
+        }
+
+        $availableSlots = DeliveryTimeSlot::availableForDate($date);
+        
+        $slots = collect($availableSlots)->map(function($slot) {
+            return [
+                'value' => $slot->value,
+                'label' => $slot->label(),
+                'time_range' => $slot->timeRange()
+            ];
+        })->values();
+
+        return response()->json([
+            'available' => true,
+            'slots' => $slots
+        ]);
     }
 }

@@ -12,9 +12,9 @@
         <div class="grid md:grid-cols-4 gap-8 mb-8 max-w-6xl mx-auto">
             <div>
                 <div class="mb-4">
-                    <img src="{{ asset('logos/logo_horizontal.png') }}" alt="Detalles y Más" class="h-10 w-auto object-contain" style="color: var(--naranja);">
+                    <img src="{{ asset('logos/logook.png') }}" alt="Detalles y Más Flores" class="h-16 w-auto object-contain" style="background-color: transparent !important; min-height: auto !important;">
                 </div>
-                <h3 class="font-bold mb-3" style="color: var(--enlaces-titulos);">Detalles</h3>
+                <h3 class="font-bold mb-3" style="color: var(--enlaces-titulos);">Detalles y Más</h3>
                 <p class="text-sm mb-2">📞 (+51) 944 492 316</p>
                 <p class="text-sm mb-2">✉️ contacto@detalles.com</p>
                 <p class="text-sm">🕒 Lun - Dom: 9:00 - 20:00</p>

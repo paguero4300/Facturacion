@@ -45,6 +45,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // Redirigir a la página principal después del registro
+        return redirect()->route('home')->with('success', '¡Cuenta creada exitosamente! Bienvenido a Detalles y Más.');
     }
 }

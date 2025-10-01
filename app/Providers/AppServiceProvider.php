@@ -13,6 +13,7 @@ use App\Observers\InvoiceDetailObserver;
 use App\Observers\PaymentInstallmentObserver;
 use App\Observers\ProductObserver;
 use App\Observers\InventoryMovementObserver;
+use App\Observers\InvoiceDeliveryObserver;
 use Filament\Support\Facades\FilamentView;
 use Filament\View\PanelsRenderHook;
 use Illuminate\Support\ServiceProvider;
@@ -35,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Invoice::observe(InvoiceObserver::class);
+        Invoice::observe(InvoiceDeliveryObserver::class);
         InvoiceDetail::observe(InvoiceDetailObserver::class);
         PaymentInstallment::observe(PaymentInstallmentObserver::class);
         Product::observe(ProductObserver::class);

@@ -4,17 +4,22 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\WebOrderResource\Pages;
 use App\Models\Invoice;
+use App\Enums\DeliveryStatus;
+use App\Enums\DeliveryTimeSlot;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\TimePicker;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Actions\ViewAction;
@@ -165,6 +170,57 @@ class WebOrderResource extends Resource
                         ->disabled()
                         ->rows(3),
                 ]),
+
+            Section::make('Productos del Pedido')
+                ->icon('heroicon-o-shopping-bag')
+                ->description('Lista de productos incluidos en este pedido')
+                ->collapsed()
+                ->schema([
+                    TextInput::make('product_summary')
+                        ->label('Resumen de Productos')
+                        ->disabled()
+                        ->default(function ($record) {
+                            if (!$record || !$record->details) {
+                                return 'Sin productos';
+                            }
+                            $count = $record->details->count();
+                            return "{$count} producto(s) - Ver detalles en la pestaña Ver";
+                        })
+                        ->columnSpanFull(),
+                ]),
+
+            Section::make('Información de Entrega')
+                ->icon('heroicon-o-truck')
+                ->description('Programación y estado de la entrega')
+                ->columns(2)
+                ->schema([
+                    DatePicker::make('delivery_date')
+                        ->label('Fecha de Entrega')
+                        ->disabled(fn ($record) => !$record?->hasDeliveryScheduled())
+                        ->placeholder('No programada'),
+                    
+                    Select::make('delivery_time_slot')
+                        ->label('Horario de Entrega')
+                        ->options(DeliveryTimeSlot::getOptions())
+                        ->disabled(fn ($record) => !$record?->hasDeliveryScheduled())
+                        ->placeholder('No programado'),
+                    
+                    Select::make('delivery_status')
+                        ->label('Estado de Entrega')
+                        ->options(DeliveryStatus::getOptions())
+                        ->visible(fn ($record) => $record?->hasDeliveryScheduled()),
+                    
+                    TimePicker::make('delivery_confirmed_at')
+                        ->label('Entregado en')
+                        ->disabled()
+                        ->visible(fn ($record) => $record?->delivery_status === DeliveryStatus::ENTREGADO),
+                    
+                    Textarea::make('delivery_notes')
+                        ->label('Notas de Entrega')
+                        ->disabled(fn ($record) => !$record?->hasDeliveryScheduled())
+                        ->rows(2)
+                        ->columnSpanFull(),
+                ]),
         ]);
     }
 
@@ -236,6 +292,24 @@ class WebOrderResource extends Resource
                         'danger' => 'cancelled',
                     ]),
 
+                TextColumn::make('delivery_date')
+                    ->label('Entrega')
+                    ->date('d/m/Y')
+                    ->placeholder('No programada')
+                    ->toggleable(),
+
+                BadgeColumn::make('delivery_status')
+                    ->label('Estado Entrega')
+                    ->formatStateUsing(fn ($state) => $state?->label())
+                    ->colors([
+                        'info' => DeliveryStatus::PROGRAMADO,
+                        'warning' => DeliveryStatus::EN_RUTA,
+                        'success' => DeliveryStatus::ENTREGADO,
+                        'danger' => DeliveryStatus::REPROGRAMADO,
+                    ])
+                    ->placeholder('Sin programar')
+                    ->toggleable(),
+
                 TextColumn::make('createdBy.name')
                     ->label('Usuario Web')
                     ->toggleable(isToggledHiddenByDefault: true)
@@ -290,6 +364,40 @@ class WebOrderResource extends Resource
                     ->label('Solo Invitados')
                     ->query(fn (Builder $query): Builder => $query->whereNull('created_by'))
                     ->toggle(),
+
+                SelectFilter::make('delivery_status')
+                    ->label('Estado de Entrega')
+                    ->options(DeliveryStatus::getOptions())
+                    ->placeholder('Todos los estados'),
+
+                SelectFilter::make('delivery_time_slot')
+                    ->label('Horario de Entrega')
+                    ->options(DeliveryTimeSlot::getOptions())
+                    ->placeholder('Todos los horarios'),
+
+                Filter::make('delivery_date')
+                    ->form([
+                        DatePicker::make('delivery_from')
+                            ->label('Entrega desde'),
+                        DatePicker::make('delivery_until')
+                            ->label('Entrega hasta'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['delivery_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('delivery_date', '>=', $date),
+                            )
+                            ->when(
+                                $data['delivery_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('delivery_date', '<=', $date),
+                            );
+                    }),
+
+                Filter::make('with_delivery')
+                    ->label('Solo con entrega programada')
+                    ->query(fn (Builder $query): Builder => $query->withDeliveryScheduled())
+                    ->toggle(),
             ])
             ->actions([
                 ActionGroup::make([
@@ -327,6 +435,40 @@ class WebOrderResource extends Resource
                                 ->send();
                         })
                         ->visible(fn (Invoice $record): bool => $record->status === 'draft'),
+
+                    Action::make('mark_in_route')
+                        ->label('Marcar en Ruta')
+                        ->icon('heroicon-o-truck')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->action(function (Invoice $record) {
+                            $record->updateDeliveryStatus(DeliveryStatus::EN_RUTA);
+                            Notification::make()
+                                ->success()
+                                ->title('Estado actualizado')
+                                ->body("El pedido {$record->full_number} está ahora en ruta.")
+                                ->send();
+                        })
+                        ->visible(fn (Invoice $record): bool => 
+                            $record->delivery_status === DeliveryStatus::PROGRAMADO
+                        ),
+
+                    Action::make('mark_delivered')
+                        ->label('Marcar Entregado')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (Invoice $record) {
+                            $record->updateDeliveryStatus(DeliveryStatus::ENTREGADO);
+                            Notification::make()
+                                ->success()
+                                ->title('Entrega confirmada')
+                                ->body("El pedido {$record->full_number} ha sido entregado.")
+                                ->send();
+                        })
+                        ->visible(fn (Invoice $record): bool => 
+                            $record->delivery_status === DeliveryStatus::EN_RUTA
+                        ),
                 ])->label(__('Opciones')),
             ])
             ->bulkActions([

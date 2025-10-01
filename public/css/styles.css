@@ -6,6 +6,69 @@ img {
     /* Altura mínima mientras carga */
 }
 
+/* Estilos elegantes para el logo en el header */
+.logo-container {
+    display: inline-block;
+    padding: 0.75rem 1rem;
+    border-radius: 16px;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logo-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(91, 31, 31, 0.02) 0%, rgba(255, 153, 0, 0.02) 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.logo-container:hover::before {
+    opacity: 1;
+}
+
+.logo-container:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px -4px rgba(91, 31, 31, 0.12);
+}
+
+.logo-container img {
+    background-color: transparent !important;
+    min-height: auto !important;
+    filter: drop-shadow(0 2px 8px rgba(91, 31, 31, 0.12))
+            drop-shadow(0 1px 3px rgba(91, 31, 31, 0.08));
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 1;
+}
+
+.logo-container:hover img {
+    filter: drop-shadow(0 4px 12px rgba(91, 31, 31, 0.18))
+            drop-shadow(0 2px 6px rgba(91, 31, 31, 0.12));
+    transform: scale(1.03);
+}
+
+/* Responsivo para el logo */
+@media (max-width: 768px) {
+    .logo-container {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .logo-container:hover {
+        transform: translateY(-2px);
+    }
+}
+
+/* Forzar transparencia en logos del footer y login */
+footer img,
+.guest-layout img[alt*="Detalles"],
+.guest-layout img[alt*="Logo"] {
+    background-color: transparent !important;
+    min-height: auto !important;
+}
+
 .lazy-load {
     opacity: 0;
     transition: opacity 0.3s;
