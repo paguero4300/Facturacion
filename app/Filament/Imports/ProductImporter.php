@@ -7,9 +7,13 @@ use App\Models\InventoryMovement;
 use App\Models\Stock;
 use App\Models\Category;
 use App\Models\Brand;
+use App\Models\Warehouse;
 use Filament\Actions\Imports\ImportColumn;
 use Filament\Actions\Imports\Importer;
 use Filament\Actions\Imports\Models\Import;
+use Filament\Forms\Components\Select;
+use App\Services\ProductTemplateService;
+use Illuminate\Support\Facades\Log;
 
 class ProductImporter extends Importer
 {
@@ -21,76 +25,131 @@ class ProductImporter extends Importer
     public static function getColumns(): array
     {
         return [
-            // Columnas requeridas
+            // Columnas requeridas - con mapeo español/inglés
             ImportColumn::make('code')
                 ->label('Código')
                 ->requiredMapping()
+                ->guess(['code', 'codigo', 'Código *', 'Código', 'CÓDIGO', 'CODIGO'])
                 ->rules(['required', 'max:50']),
 
             ImportColumn::make('name')
                 ->label('Nombre')
                 ->requiredMapping()
+                ->guess(['name', 'nombre', 'Nombre *', 'Nombre', 'NOMBRE'])
                 ->rules(['required', 'max:500']),
 
             ImportColumn::make('price')
                 ->label('Precio')
                 ->numeric()
+                ->guess(['price', 'precio', 'Precio *', 'Precio', 'PRECIO'])
                 ->rules(['required', 'numeric', 'min:0']),
 
             ImportColumn::make('stock')
                 ->label('Stock')
                 ->numeric()
+                ->guess(['stock', 'Stock *', 'Stock', 'STOCK'])
                 ->rules(['required', 'numeric', 'min:0']),
 
-            // Columnas opcionales
+            // Columnas opcionales - con mapeo español/inglés
             ImportColumn::make('category')
                 ->label('Categoría')
                 ->relationship(resolveUsing: 'name')
+                ->guess(['category', 'categoria', 'Categoría', 'Categoria', 'CATEGORIA'])
                 ->rules(['nullable', 'max:100']),
 
             ImportColumn::make('brand')
                 ->label('Marca')
                 ->relationship(resolveUsing: 'name')
+                ->guess(['brand', 'marca', 'Marca', 'MARCA'])
                 ->rules(['nullable', 'max:100']),
 
             ImportColumn::make('barcode')
                 ->label('Código de Barras')
+                ->guess(['barcode', 'codigo_barras', 'Código de Barras', 'codigo de barras', 'CODIGO DE BARRAS'])
                 ->rules(['nullable', 'max:100']),
 
             ImportColumn::make('description')
                 ->label('Descripción')
+                ->guess(['description', 'descripcion', 'Descripción', 'Descripcion', 'DESCRIPCION'])
                 ->rules(['nullable', 'max:500']),
 
             ImportColumn::make('unit_code')
                 ->label('Unidad de Medida')
+                ->guess(['unit_code', 'unidad_medida', 'Unidad de Medida', 'unidad medida', 'UNIDAD DE MEDIDA'])
                 ->rules(['nullable', 'in:NIU,ZZ,KGM,MTR,LTR,M2,M3,CEN,MIL,DOZ'])
                 ->example('NIU'),
 
             ImportColumn::make('tax_type')
                 ->label('Tipo de IGV')
+                ->guess(['tax_type', 'tipo_igv', 'Tipo de IGV', 'tipo igv', 'TIPO DE IGV'])
                 ->rules(['nullable', 'in:10,20,30'])
                 ->example('10'),
 
             ImportColumn::make('cost_price')
                 ->label('Precio de Costo')
                 ->numeric()
+                ->guess(['cost_price', 'precio_costo', 'Precio de Costo', 'precio costo', 'PRECIO DE COSTO'])
                 ->rules(['nullable', 'numeric', 'min:0']),
 
             ImportColumn::make('sale_price')
                 ->label('Precio de Venta')
                 ->numeric()
+                ->guess(['sale_price', 'precio_venta', 'Precio de Venta', 'precio venta', 'PRECIO DE VENTA'])
                 ->rules(['nullable', 'numeric', 'min:0']),
+        ];
+    }
+
+    public static function getOptionsFormComponents(): array
+    {
+        return [
+            Select::make('warehouse_id')
+                ->label('Almacén de Destino')
+                ->options(function () {
+                    $userCompanyId = auth()->user()->company_id ?? 2;
+                    $options = Warehouse::where('company_id', $userCompanyId)
+                        ->where('is_active', true)
+                        ->pluck('name', 'id')
+                        ->toArray();
+                    if (empty($options)) {
+                        $options = Warehouse::where('is_active', true)
+                            ->pluck('name', 'id')
+                            ->toArray();
+                    }
+                    if (empty($options)) {
+                        $options = Warehouse::pluck('name', 'id')->toArray();
+                    }
+                    return $options;
+                })
+                ->default(1)
+                ->required()
+                ->helperText('Los productos se ingresarán a este almacén'),
         ];
     }
 
     public function resolveRecord(): ?Product
     {
+        // Debug: Verificar qué datos estamos recibiendo
+        Log::channel('carga')->info('=== INICIO PROCESAMIENTO PRODUCTO ===');
+        Log::channel('carga')->info('Datos recibidos del archivo:', $this->data);
+        
+        if (!isset($this->data['code'])) {
+            Log::channel('carga')->error('ERROR: No se encontró el campo code en los datos');
+            return null;
+        }
+        
         $code = $this->data['code'];
-        $companyId = auth()->user()->company_id;
+        $companyId = auth()->user()->company_id ?? 2; // Fallback a company_id 2 si es null
+        
+        Log::channel('carga')->info('Procesando producto:', [
+            'code' => $code,
+            'company_id' => $companyId,
+            'user_id' => auth()->id()
+        ]);
 
         // Validar duplicados en el archivo actual
         $importKey = "{$companyId}_{$code}";
         if (isset(self::$processedCodes[$importKey])) {
+            Log::channel('carga')->warning('Código duplicado detectado:', ['code' => $code]);
             $this->addValidationError('code', "Código duplicado en el archivo: {$code}");
             return null;
         }
@@ -99,15 +158,32 @@ class ProductImporter extends Importer
         self::$processedCodes[$importKey] = true;
 
         // Buscar o crear producto
-        return Product::firstOrNew([
+        $product = Product::firstOrNew([
             'company_id' => $companyId,
             'code' => $code,
         ]);
+        
+        Log::channel('carga')->info('Producto encontrado/creado:', [
+            'id' => $product->id,
+            'exists' => $product->exists,
+            'code' => $product->code,
+            'company_id' => $product->company_id
+        ]);
+        
+        return $product;
     }
 
     protected function beforeSave(): void
     {
-        $companyId = auth()->user()->company_id;
+        Log::channel('carga')->info('=== BEFORE SAVE ===');
+        Log::channel('carga')->info('Datos para guardar:', $this->data);
+        Log::channel('carga')->info('Producto actual:', [
+            'id' => $this->record->id,
+            'code' => $this->record->code ?? 'nuevo',
+            'exists' => $this->record->exists
+        ]);
+        
+        $companyId = auth()->user()->company_id ?? 2; // Fallback a company_id 2 si es null
 
         // Mapeo de descripciones de unidades
         $unitDescriptions = [
@@ -189,7 +265,15 @@ class ProductImporter extends Importer
 
     protected function afterSave(): void
     {
-        $companyId = auth()->user()->company_id;
+        Log::channel('carga')->info('=== AFTER SAVE ===');
+        Log::channel('carga')->info('Producto guardado exitosamente:', [
+            'id' => $this->record->id,
+            'code' => $this->record->code,
+            'name' => $this->record->name,
+            'company_id' => $this->record->company_id
+        ]);
+        
+        $companyId = auth()->user()->company_id ?? 2; // Fallback a company_id 2 si es null
         $warehouseId = $this->options['warehouse_id'] ?? 1;
         $qty = (float) $this->data['stock'];
 
@@ -242,6 +326,13 @@ class ProductImporter extends Importer
         $this->record->update([
             'current_stock' => $totalStock
         ]);
+        
+        Log::channel('carga')->info('Proceso completado exitosamente:', [
+            'producto_id' => $this->record->id,
+            'stock_final' => $totalStock,
+            'warehouse_id' => $warehouseId
+        ]);
+        Log::channel('carga')->info('=== FIN PROCESAMIENTO PRODUCTO ===\n');
     }
 
     public static function getCompletedNotificationBody(Import $import): string
@@ -265,4 +356,5 @@ class ProductImporter extends Importer
     {
         self::$processedCodes = [];
     }
+
 }

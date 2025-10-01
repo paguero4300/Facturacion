@@ -9,6 +9,11 @@ use Filament\Actions;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\FileUpload;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Actions\Action;
+use App\Services\ProductTemplateService;
+use App\Filament\Actions\CustomImportAction;
+use App\Services\ProductBarcodePdfService;
+use Illuminate\Support\Facades\Log;
 
 class ListProducts extends ListRecords
 {
@@ -17,57 +22,58 @@ class ListProducts extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\ImportAction::make()
+            // Botón para descargar PDF de códigos de barras
+            Action::make('downloadBarcodePdf')
+                ->label('PDF Códigos')
+                ->icon('heroicon-o-document-arrow-down')
+                ->color('info')
+                ->action(function () {
+                    Log::channel('pdf')->info('=== BOTÓN PDF CÓDIGOS PRESIONADO ===');
+                    
+                    try {
+                        // Obtener productos del listado actual (respetando filtros)
+                        Log::channel('pdf')->info('Obteniendo query filtrada...');
+                        $tableQuery = parent::getFilteredTableQuery();
+                        Log::channel('pdf')->info('Query obtenida:', ['query_type' => get_class($tableQuery)]);
+                        
+                        Log::channel('pdf')->info('Llamando a getFilteredProducts...');
+                        $products = ProductBarcodePdfService::getFilteredProducts($tableQuery);
+                        
+                        Log::channel('pdf')->info('Productos obtenidos, generando PDF...');
+                        // Generar y descargar PDF
+                        $result = ProductBarcodePdfService::generateBarcodePdf($products);
+                        
+                        Log::channel('pdf')->info('PDF generado, retornando resultado');
+                        return $result;
+                        
+                    } catch (\Exception $e) {
+                        Log::channel('pdf')->error('ERROR en acción del botón:', [
+                            'error' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString()
+                        ]);
+                        
+                        // Mostrar notificación de error al usuario
+                        \Filament\Notifications\Notification::make()
+                            ->title('Error al generar PDF')
+                            ->body('Ocurrió un error: ' . $e->getMessage())
+                            ->danger()
+                            ->send();
+                            
+                        throw $e;
+                    }
+                })
+                ->tooltip('Descargar PDF con códigos de barras de productos'),
+                
+            CustomImportAction::make()
                 ->label('Importar Productos')
                 ->icon('heroicon-o-arrow-up-tray')
                 ->importer(ProductImporter::class)
-                ->options(function (array $data): array {
-                    return [
-                        'warehouse_id' => $data['warehouse_id'] ?? 1,
-                    ];
-                })
-                ->form([
-                    FileUpload::make('file')
-                        ->label('Archivo CSV/Excel')
-                        ->acceptedFileTypes(['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'])
-                        ->required()
-                        ->helperText('Formato: CSV o Excel (XLS, XLSX).
-                            **Requeridas:** code, name, price, stock
-                            **Opcionales:** category, brand, barcode, description, unit_code, tax_type, cost_price, sale_price'),
-
-                    Select::make('warehouse_id')
-                        ->label('Almacén de Destino')
-                        ->options(function () {
-                            // Primero intentar con la empresa del usuario
-                            $userCompanyId = auth()->user()->company_id ?? 2;
-
-                            $options = Warehouse::where('company_id', $userCompanyId)
-                                ->where('is_active', true)
-                                ->pluck('name', 'id')
-                                ->toArray();
-
-                            // Si no hay almacenes activos para esa empresa, incluir todos los activos
-                            if (empty($options)) {
-                                $options = Warehouse::where('is_active', true)
-                                    ->pluck('name', 'id')
-                                    ->toArray();
-                            }
-
-                            // Si aún no hay almacenes activos, incluir TODOS los almacenes
-                            if (empty($options)) {
-                                $options = Warehouse::pluck('name', 'id')->toArray();
-                            }
-
-                            return $options;
-                        })
-                        ->default(1)
-                        ->required()
-                        ->helperText('Los productos se ingresarán a este almacén'),
-                ])
                 ->color('success'),
+                
             Actions\CreateAction::make()
                 ->label('Crear Producto')
                 ->icon('heroicon-o-plus'),
         ];
     }
+
 }

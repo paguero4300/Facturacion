@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InvoicePdfController;
 use App\Http\Controllers\DetallesController;
 use App\Filament\Pages\Pos;
+use App\Services\ProductTemplateService;
 
 Route::get('/', function () {
     return redirect('/admin');
@@ -24,6 +25,11 @@ Route::post('/admin/pos/search-client', function (\Illuminate\Http\Request $requ
     $result = $pos->searchClient($request->input('document_number'));
     return response()->json($result);
 })->middleware(['web', 'auth']);
+
+// Ruta para descargar plantilla de productos Excel
+Route::get('/admin/products/download-template', function () {
+    return ProductTemplateService::generateExcelTemplate();
+})->middleware(['web', 'auth'])->name('products.download-template');
 
 // Rutas para PDFs de facturas
 Route::prefix('invoices')->name('invoices.')->group(function () {
