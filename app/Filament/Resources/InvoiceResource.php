@@ -878,10 +878,13 @@ class InvoiceResource extends Resource
                     ->counts('details')
                     ->label(__('Items')),
                     
-                TextColumn::make('client.business_name')
+                TextColumn::make('client_business_name')
                     ->searchable()
                     ->sortable()
-                    ->label(__('Cliente')),
+                    ->label(__('Cliente'))
+                    ->formatStateUsing(fn ($state, Invoice $record) =>
+                        $record->series === 'NV02' ? 'PEDIDO WEB' : ($state ?? '-')
+                    ),
                     
                 TextColumn::make('total_amount')
                     ->money(fn (Invoice $record): string => $record->currency_code)

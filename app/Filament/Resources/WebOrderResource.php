@@ -173,20 +173,47 @@ class WebOrderResource extends Resource
 
             Section::make('Productos del Pedido')
                 ->icon('heroicon-o-shopping-bag')
-                ->description('Lista de productos incluidos en este pedido')
-                ->collapsed()
+                ->description('Productos incluidos en este pedido')
                 ->schema([
-                    TextInput::make('product_summary')
-                        ->label('Resumen de Productos')
+                    Repeater::make('details')
+                        ->relationship('details')
+                        ->label('')
                         ->disabled()
-                        ->default(function ($record) {
-                            if (!$record || !$record->details) {
-                                return 'Sin productos';
-                            }
-                            $count = $record->details->count();
-                            return "{$count} producto(s) - Ver detalles en la pestaña Ver";
-                        })
-                        ->columnSpanFull(),
+                        ->columns(12)
+                        ->schema([
+                            TextInput::make('description')
+                                ->label('Producto')
+                                ->disabled()
+                                ->columnSpan(5),
+
+                            TextInput::make('product_code')
+                                ->label('Código')
+                                ->disabled()
+                                ->columnSpan(2),
+
+                            TextInput::make('quantity')
+                                ->label('Cant.')
+                                ->disabled()
+                                ->columnSpan(1)
+                                ->formatStateUsing(fn ($state) => number_format($state ?? 0, 2)),
+
+                            TextInput::make('unit_price')
+                                ->label('P. Unit.')
+                                ->disabled()
+                                ->columnSpan(2)
+                                ->formatStateUsing(fn ($state) => 'S/ ' . number_format($state ?? 0, 2)),
+
+                            TextInput::make('line_total')
+                                ->label('Subtotal')
+                                ->disabled()
+                                ->columnSpan(2)
+                                ->formatStateUsing(fn ($state) => 'S/ ' . number_format($state ?? 0, 2)),
+                        ])
+                        ->addable(false)
+                        ->deletable(false)
+                        ->reorderable(false)
+                        ->defaultItems(0)
+                        ->itemLabel(fn (array $state): ?string => $state['description'] ?? 'Producto'),
                 ]),
 
             Section::make('Información de Entrega')

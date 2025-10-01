@@ -86,7 +86,7 @@
                 </div>
             @endguest
 
-            <form action="{{ route('checkout.process') }}" method="POST">
+            <form action="{{ route('checkout.process') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Checkout Form -->
@@ -227,44 +227,165 @@
                             </h2>
 
                             <div class="space-y-3">
-                                <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-pink-300 transition">
+                                <!-- Efectivo contra entrega -->
+                                <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-pink-300 transition payment-method-option" data-method="cash">
                                     <input type="radio" name="payment_method" value="cash" {{ old('payment_method') == 'cash' ? 'checked' : '' }} required
-                                        class="w-4 h-4 text-pink-600 focus:ring-pink-500">
+                                        class="w-4 h-4 text-pink-600 focus:ring-pink-500" onchange="togglePaymentFields()">
                                     <span class="ml-3 font-medium text-gray-900">Efectivo contra entrega</span>
                                 </label>
 
-                                <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-pink-300 transition">
-                                    <input type="radio" name="payment_method" value="yape" {{ old('payment_method') == 'yape' ? 'checked' : '' }} required
-                                        class="w-4 h-4 text-pink-600 focus:ring-pink-500">
-                                    <span class="ml-3 font-medium text-gray-900">Yape</span>
-                                </label>
+                                <!-- Yape -->
+                                <div class="payment-method-container">
+                                    <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-pink-300 transition payment-method-option" data-method="yape">
+                                        <input type="radio" name="payment_method" value="yape" {{ old('payment_method') == 'yape' ? 'checked' : '' }} required
+                                            class="w-4 h-4 text-pink-600 focus:ring-pink-500" onchange="togglePaymentFields()">
+                                        <span class="ml-3 font-medium text-gray-900">Yape</span>
+                                    </label>
+                                    
+                                    <!-- Campos específicos para Yape -->
+                                    <div id="yape-fields" class="payment-fields mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg" style="display: none;">
+                                        <div class="mb-4 p-3 bg-purple-100 rounded-lg">
+                                            <h4 class="font-semibold text-purple-800 mb-2">📱 Datos para Yape:</h4>
+                                            <p class="text-sm text-purple-700">Número: <strong>987-654-321</strong></p>
+                                            <p class="text-sm text-purple-700">Nombre: <strong>Tu Empresa SAC</strong></p>
+                                            <p class="text-xs text-purple-600 mt-1">Realiza el pago y sube tu comprobante</p>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    Número de operación <span class="text-red-500">*</span>
+                                                </label>
+                                                <input type="text" name="payment_operation_number" value="{{ old('payment_operation_number') }}"
+                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                                    placeholder="Ej: OP-123456789">
+                                            </div>
+                                            
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    Tu número de Yape
+                                                </label>
+                                                <input type="text" name="client_payment_phone" value="{{ old('client_payment_phone') }}"
+                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                                    placeholder="Ej: 987654321">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-4">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                Comprobante de pago <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="file" name="payment_evidence" accept=".jpg,.jpeg,.png,.pdf"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500">
+                                            <p class="text-xs text-gray-500 mt-1">Formatos: JPG, PNG, PDF. Máximo 2MB</p>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-pink-300 transition">
-                                    <input type="radio" name="payment_method" value="plin" {{ old('payment_method') == 'plin' ? 'checked' : '' }} required
-                                        class="w-4 h-4 text-pink-600 focus:ring-pink-500">
-                                    <span class="ml-3 font-medium text-gray-900">Plin</span>
-                                </label>
+                                <!-- Plin -->
+                                <div class="payment-method-container">
+                                    <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-pink-300 transition payment-method-option" data-method="plin">
+                                        <input type="radio" name="payment_method" value="plin" {{ old('payment_method') == 'plin' ? 'checked' : '' }} required
+                                            class="w-4 h-4 text-pink-600 focus:ring-pink-500" onchange="togglePaymentFields()">
+                                        <span class="ml-3 font-medium text-gray-900">Plin</span>
+                                    </label>
+                                    
+                                    <!-- Campos específicos para Plin -->
+                                    <div id="plin-fields" class="payment-fields mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg" style="display: none;">
+                                        <div class="mb-4 p-3 bg-blue-100 rounded-lg">
+                                            <h4 class="font-semibold text-blue-800 mb-2">📱 Datos para Plin:</h4>
+                                            <p class="text-sm text-blue-700">Número: <strong>987-654-321</strong></p>
+                                            <p class="text-sm text-blue-700">Nombre: <strong>Tu Empresa SAC</strong></p>
+                                            <p class="text-xs text-blue-600 mt-1">Realiza el pago y sube tu comprobante</p>
+                                        </div>
+                                        
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    Número de operación <span class="text-red-500">*</span>
+                                                </label>
+                                                <input type="text" name="payment_operation_number" value="{{ old('payment_operation_number') }}"
+                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                                    placeholder="Ej: OP-123456789">
+                                            </div>
+                                            
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                    Tu número de Plin
+                                                </label>
+                                                <input type="text" name="client_payment_phone" value="{{ old('client_payment_phone') }}"
+                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                                    placeholder="Ej: 987654321">
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-4">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                Comprobante de pago <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="file" name="payment_evidence" accept=".jpg,.jpeg,.png,.pdf"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500">
+                                            <p class="text-xs text-gray-500 mt-1">Formatos: JPG, PNG, PDF. Máximo 2MB</p>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-pink-300 transition">
-                                    <input type="radio" name="payment_method" value="transfer" {{ old('payment_method') == 'transfer' ? 'checked' : '' }} required
-                                        class="w-4 h-4 text-pink-600 focus:ring-pink-500">
-                                    <span class="ml-3 font-medium text-gray-900">Transferencia Bancaria</span>
-                                </label>
+                                <!-- Transferencia Bancaria -->
+                                <div class="payment-method-container">
+                                    <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-pink-300 transition payment-method-option" data-method="transfer">
+                                        <input type="radio" name="payment_method" value="transfer" {{ old('payment_method') == 'transfer' ? 'checked' : '' }} required
+                                            class="w-4 h-4 text-pink-600 focus:ring-pink-500" onchange="togglePaymentFields()">
+                                        <span class="ml-3 font-medium text-gray-900">Transferencia Bancaria</span>
+                                    </label>
+                                    
+                                    <!-- Campos específicos para Transferencia -->
+                                    <div id="transfer-fields" class="payment-fields mt-4 p-4 bg-green-50 border border-green-200 rounded-lg" style="display: none;">
+                                        <div class="mb-4 p-3 bg-green-100 rounded-lg">
+                                            <h4 class="font-semibold text-green-800 mb-2">🏦 Datos Bancarios:</h4>
+                                            <p class="text-sm text-green-700">Banco: <strong>BCP</strong></p>
+                                            <p class="text-sm text-green-700">Cuenta Corriente: <strong>194-123456789-0-12</strong></p>
+                                            <p class="text-sm text-green-700">CCI: <strong>00219412345678901234</strong></p>
+                                            <p class="text-sm text-green-700">Titular: <strong>Tu Empresa SAC</strong></p>
+                                            <p class="text-xs text-green-600 mt-1">Realiza la transferencia y sube tu comprobante</p>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                Número de operación <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="text" name="payment_operation_number" value="{{ old('payment_operation_number') }}"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                                placeholder="Ej: OP-123456789">
+                                        </div>
+                                        
+                                        <div class="mt-4">
+                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                Comprobante de transferencia <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="file" name="payment_evidence" accept=".jpg,.jpeg,.png,.pdf"
+                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500">
+                                            <p class="text-xs text-gray-500 mt-1">Formatos: JPG, PNG, PDF. Máximo 2MB</p>
+                                        </div>
+                                    </div>
+                                </div>
 
-                                <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-pink-300 transition">
+                                <!-- Tarjeta de Crédito/Débito -->
+                                <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-pink-300 transition payment-method-option" data-method="card">
                                     <input type="radio" name="payment_method" value="card" {{ old('payment_method') == 'card' ? 'checked' : '' }} required
-                                        class="w-4 h-4 text-pink-600 focus:ring-pink-500">
-                                    <span class="ml-3 font-medium text-gray-900">Tarjeta de Crédito/Débito</span>
+                                        class="w-4 h-4 text-pink-600 focus:ring-pink-500" onchange="togglePaymentFields()">
+                                    <span class="ml-3 font-medium text-gray-900">Tarjeta de Crédito/Débito (Próximamente)</span>
+                                    <span class="ml-auto text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Pronto</span>
                                 </label>
                             </div>
 
-                            <div class="mt-4">
+                            <!-- Campo de referencia general (solo visible para efectivo y tarjeta) -->
+                            <div id="general-reference-field" class="mt-4" style="display: none;">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                                    Número de operación / Referencia (opcional)
+                                    Número de referencia (opcional)
                                 </label>
                                 <input type="text" name="payment_reference" value="{{ old('payment_reference') }}"
                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
-                                    placeholder="Ej: OP-123456">
+                                    placeholder="Ej: REF-123456">
                             </div>
                         </div>
 
@@ -391,7 +512,36 @@
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             updateAvailableTimeSlots();
+            togglePaymentFields(); // Initialize payment fields
         });
+        
+        function togglePaymentFields() {
+            const selectedMethod = document.querySelector('input[name="payment_method"]:checked')?.value;
+            
+            // Hide all payment fields
+            document.querySelectorAll('.payment-fields').forEach(field => {
+                field.style.display = 'none';
+            });
+            
+            // Hide general reference field
+            const generalRefField = document.getElementById('general-reference-field');
+            if (generalRefField) {
+                generalRefField.style.display = 'none';
+            }
+            
+            // Show specific fields based on selected method
+            if (selectedMethod) {
+                const specificFields = document.getElementById(selectedMethod + '-fields');
+                if (specificFields) {
+                    specificFields.style.display = 'block';
+                } else if (['cash', 'card'].includes(selectedMethod)) {
+                    // Show general reference field for cash and card
+                    if (generalRefField) {
+                        generalRefField.style.display = 'block';
+                    }
+                }
+            }
+        }
     </script>
 </body>
 </html>

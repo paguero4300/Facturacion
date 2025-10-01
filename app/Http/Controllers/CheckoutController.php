@@ -8,12 +8,17 @@ use App\Models\DocumentSeries;
 use App\Models\Product;
 use App\Enums\DeliveryTimeSlot;
 use App\Enums\DeliveryStatus;
+use App\Enums\PaymentValidationStatus;
+use App\Mail\PaymentReceivedMail;
 use App\Rules\ValidDeliveryDate;
 use App\Rules\ValidDeliveryTimeSlot;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
@@ -54,6 +59,10 @@ class CheckoutController extends Controller
             'delivery_date' => 'nullable|date|after:today|before:' . Carbon::now()->addDays(31)->format('Y-m-d'),
             'delivery_time_slot' => 'nullable|in:morning,afternoon,evening',
             'delivery_notes' => 'nullable|string|max:500',
+            // Payment evidence validation
+            'payment_evidence' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048', // 2MB max
+            'payment_operation_number' => 'nullable|string|max:100',
+            'client_payment_phone' => 'nullable|string|max:15',
         ]);
 
         // Additional delivery validations
@@ -81,6 +90,22 @@ class CheckoutController extends Controller
             if (!$request->delivery_time_slot) {
                 return back()->withInput()->withErrors([
                     'delivery_time_slot' => 'Debe seleccionar un horario de entrega.'
+                ]);
+            }
+        }
+
+        // Validar comprobante para métodos que lo requieren
+        $methodsRequiringEvidence = ['yape', 'plin', 'transfer'];
+        if (in_array($validated['payment_method'], $methodsRequiringEvidence)) {
+            if (!$request->hasFile('payment_evidence')) {
+                return back()->withInput()->withErrors([
+                    'payment_evidence' => 'Debe subir un comprobante de pago para este método.'
+                ]);
+            }
+            
+            if (empty($validated['payment_operation_number'])) {
+                return back()->withInput()->withErrors([
+                    'payment_operation_number' => 'Debe ingresar el número de operación.'
                 ]);
             }
         }
@@ -115,6 +140,14 @@ class CheckoutController extends Controller
             $subtotal = $this->calculateTotal($cart);
             $total = $subtotal;
 
+            // Handle payment evidence upload
+            $paymentEvidencePath = null;
+            if ($request->hasFile('payment_evidence')) {
+                $file = $request->file('payment_evidence');
+                $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
+                $paymentEvidencePath = $file->storeAs('', $fileName, 'payment_evidences');
+            }
+
             // Create invoice (order)
             $invoiceData = [
                 'company_id' => $company->id,
@@ -140,6 +173,10 @@ class CheckoutController extends Controller
                 'status' => 'draft',
                 'observations' => $validated['observations'],
                 'created_by' => Auth::id(),
+                // Payment validation fields
+                'payment_evidence_path' => $paymentEvidencePath,
+                'payment_operation_number' => $validated['payment_operation_number'] ?? null,
+                'client_payment_phone' => $validated['client_payment_phone'] ?? null,
             ];
 
             // Add delivery information if provided
@@ -151,6 +188,24 @@ class CheckoutController extends Controller
             }
 
             $invoice = Invoice::create($invoiceData);
+
+            // Establecer estado de validación de pago
+            $invoice->setPaymentValidationStatus();
+            $invoice->saveQuietly();
+            
+            // Enviar email de confirmación si el cliente proporcionó email y hay evidencia de pago
+            if ($invoice->client_email && ($paymentEvidencePath || $invoice->requiresPaymentValidation())) {
+                try {
+                    Mail::to($invoice->client_email)->send(new PaymentReceivedMail($invoice));
+                } catch (\Exception $e) {
+                    \Log::error('Error sending payment received email', [
+                        'invoice_id' => $invoice->id,
+                        'email' => $invoice->client_email,
+                        'error' => $e->getMessage()
+                    ]);
+                    // No fallar el proceso si el email falla
+                }
+            }
 
             // Create details
             $lineNumber = 1;
@@ -186,6 +241,12 @@ class CheckoutController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            // Limpiar archivo de comprobante si se subió
+            if ($paymentEvidencePath && Storage::disk('payment_evidences')->exists($paymentEvidencePath)) {
+                Storage::disk('payment_evidences')->delete($paymentEvidencePath);
+            }
+            
             return back()->withInput()->with('error', 'Error al procesar el pedido: ' . $e->getMessage());
         }
     }

@@ -4,7 +4,11 @@ namespace App\Models;
 
 use App\Enums\DeliveryTimeSlot;
 use App\Enums\DeliveryStatus;
+use App\Enums\PaymentValidationStatus;
+use App\Mail\PaymentApprovedMail;
+use App\Mail\PaymentRejectedMail;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -50,6 +54,14 @@ class Invoice extends Model
         'delivery_notes',
         'delivery_status',
         'delivery_confirmed_at',
+        // Payment validation fields
+        'payment_evidence_path',
+        'payment_validation_status',
+        'payment_validated_at',
+        'payment_validated_by',
+        'payment_operation_number',
+        'client_payment_phone',
+        'payment_validation_notes',
     ];
 
     protected $casts = [
@@ -72,6 +84,9 @@ class Invoice extends Model
         'delivery_time_slot' => DeliveryTimeSlot::class,
         'delivery_status' => DeliveryStatus::class,
         'delivery_confirmed_at' => 'datetime',
+        // Payment validation casts
+        'payment_validation_status' => PaymentValidationStatus::class,
+        'payment_validated_at' => 'datetime',
     ];
 
     // Relationships
@@ -108,6 +123,11 @@ class Invoice extends Model
     public function updatedBy(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function paymentValidatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'payment_validated_by');
     }
 
     // Scopes
@@ -261,5 +281,154 @@ class Invoice extends Model
         return $query->withDeliveryScheduled()
                     ->where('delivery_date', '<', now()->toDateString())
                     ->where('delivery_status', '!=', DeliveryStatus::ENTREGADO);
+    }
+
+    // Payment Validation Methods
+    public function requiresPaymentValidation(): bool
+    {
+        $methodsRequiringValidation = ['yape', 'plin', 'transfer'];
+        return in_array($this->payment_method, $methodsRequiringValidation);
+    }
+
+    public function hasPaymentEvidence(): bool
+    {
+        return !empty($this->payment_evidence_path) && 
+               \Storage::exists($this->payment_evidence_path);
+    }
+
+    public function getPaymentEvidenceUrl(): ?string
+    {
+        if (!$this->hasPaymentEvidence()) {
+            return null;
+        }
+
+        return \Storage::url($this->payment_evidence_path);
+    }
+
+    public function isPaymentPendingValidation(): bool
+    {
+        return $this->payment_validation_status === PaymentValidationStatus::PENDING_VALIDATION;
+    }
+
+    public function isPaymentApproved(): bool
+    {
+        return $this->payment_validation_status === PaymentValidationStatus::PAYMENT_APPROVED;
+    }
+
+    public function isPaymentRejected(): bool
+    {
+        return $this->payment_validation_status === PaymentValidationStatus::PAYMENT_REJECTED;
+    }
+
+    public function isCashOnDelivery(): bool
+    {
+        return $this->payment_method === 'cash' || 
+               $this->payment_validation_status === PaymentValidationStatus::CASH_ON_DELIVERY;
+    }
+
+    public function approvePayment(?int $validatedBy = null, ?string $notes = null): bool
+    {
+        if (!$this->canChangePaymentStatus(PaymentValidationStatus::PAYMENT_APPROVED)) {
+            return false;
+        }
+
+        $this->payment_validation_status = PaymentValidationStatus::PAYMENT_APPROVED;
+        $this->payment_validated_at = now();
+        $this->payment_validated_by = $validatedBy ?? \Auth::id();
+        $this->status = 'paid'; // Cambiar estado de la factura
+        
+        if ($notes) {
+            $this->payment_validation_notes = $notes;
+        }
+
+        $saved = $this->save();
+        
+        // Enviar email de aprobación
+        if ($saved && $this->client_email) {
+            try {
+                Mail::to($this->client_email)->send(new PaymentApprovedMail($this));
+            } catch (\Exception $e) {
+                \Log::error('Error sending payment approved email', [
+                    'invoice_id' => $this->id,
+                    'email' => $this->client_email,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+        
+        return $saved;
+    }
+
+    public function rejectPayment(?int $validatedBy = null, ?string $notes = null): bool
+    {
+        if (!$this->canChangePaymentStatus(PaymentValidationStatus::PAYMENT_REJECTED)) {
+            return false;
+        }
+
+        $this->payment_validation_status = PaymentValidationStatus::PAYMENT_REJECTED;
+        $this->payment_validated_at = now();
+        $this->payment_validated_by = $validatedBy ?? \Auth::id();
+        
+        if ($notes) {
+            $this->payment_validation_notes = $notes;
+        }
+
+        $saved = $this->save();
+        
+        // Enviar email de rechazo
+        if ($saved && $this->client_email) {
+            try {
+                Mail::to($this->client_email)->send(new PaymentRejectedMail($this, $notes ?? ''));
+            } catch (\Exception $e) {
+                \Log::error('Error sending payment rejected email', [
+                    'invoice_id' => $this->id,
+                    'email' => $this->client_email,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+        
+        return $saved;
+    }
+
+    public function canChangePaymentStatus(PaymentValidationStatus $newStatus): bool
+    {
+        if (!$this->payment_validation_status) {
+            return true;
+        }
+
+        return $this->payment_validation_status->canTransitionTo($newStatus);
+    }
+
+    public function setPaymentValidationStatus(): void
+    {
+        if ($this->isCashOnDelivery()) {
+            $this->payment_validation_status = PaymentValidationStatus::CASH_ON_DELIVERY;
+        } elseif ($this->requiresPaymentValidation()) {
+            $this->payment_validation_status = PaymentValidationStatus::PENDING_VALIDATION;
+        } else {
+            $this->payment_validation_status = PaymentValidationStatus::VALIDATION_NOT_REQUIRED;
+        }
+    }
+
+    // Scopes for payment validation
+    public function scopePendingPaymentValidation($query)
+    {
+        return $query->where('payment_validation_status', PaymentValidationStatus::PENDING_VALIDATION);
+    }
+
+    public function scopeApprovedPayments($query)
+    {
+        return $query->where('payment_validation_status', PaymentValidationStatus::PAYMENT_APPROVED);
+    }
+
+    public function scopeRejectedPayments($query)
+    {
+        return $query->where('payment_validation_status', PaymentValidationStatus::PAYMENT_REJECTED);
+    }
+
+    public function scopeByPaymentValidationStatus($query, PaymentValidationStatus $status)
+    {
+        return $query->where('payment_validation_status', $status);
     }
 }

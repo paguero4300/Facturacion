@@ -6,6 +6,7 @@ use App\Http\Controllers\DetallesController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\PaymentEvidenceController;
 use App\Filament\Pages\Pos;
 use App\Services\ProductTemplateService;
 
@@ -51,6 +52,14 @@ Route::prefix('checkout')->name('checkout.')->group(function () {
 
 // Mis Pedidos (Requiere autenticación)
 Route::middleware('auth')->get('/mis-pedidos', [CheckoutController::class, 'myOrders'])->name('account.orders');
+
+// ====================================
+// RUTAS DE COMPROBANTES DE PAGO (SEGURAS)
+// ====================================
+Route::prefix('payment-evidence')->name('payment.evidence.')->group(function () {
+    Route::get('/{invoice}/view', [PaymentEvidenceController::class, 'show'])->name('view');
+    Route::get('/{invoice}/download', [PaymentEvidenceController::class, 'download'])->name('download');
+});
 
 // ====================================
 // RUTAS DE AUTENTICACIÓN (BREEZE)
