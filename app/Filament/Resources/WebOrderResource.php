@@ -1,0 +1,369 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\WebOrderResource\Pages;
+use App\Models\Invoice;
+use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\DatePicker;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Actions\ViewAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\BulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Support\Enums\FontWeight;
+use Filament\Notifications\Notification;
+use BackedEnum;
+use UnitEnum;
+
+class WebOrderResource extends Resource
+{
+    protected static ?string $model = Invoice::class;
+
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-shopping-bag';
+
+    protected static UnitEnum|string|null $navigationGroup = 'E-Commerce';
+
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $recordTitleAttribute = 'full_number';
+
+    public static function getNavigationLabel(): string
+    {
+        return 'Pedidos Web';
+    }
+
+    public static function getModelLabel(): string
+    {
+        return 'Pedido Web';
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return 'Pedidos Web';
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('series', 'NV02')
+            ->where('status', 'draft')
+            ->count();
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('series', 'NV02')
+            ->orderBy('created_at', 'desc');
+    }
+
+    public static function form(Schema $schema): Schema
+    {
+        return $schema->components([
+            Section::make('Información del Pedido')
+                ->icon('heroicon-o-document-text')
+                ->columns(3)
+                ->schema([
+                    TextInput::make('full_number')
+                        ->label('Número de Pedido')
+                        ->disabled(),
+
+                    TextInput::make('issue_date')
+                        ->label('Fecha')
+                        ->disabled(),
+
+                    Select::make('status')
+                        ->label('Estado')
+                        ->options([
+                            'draft' => 'Pendiente',
+                            'paid' => 'Completado',
+                            'cancelled' => 'Cancelado',
+                        ])
+                        ->required(),
+                ]),
+
+            Section::make('Información del Cliente')
+                ->icon('heroicon-o-user')
+                ->columns(2)
+                ->schema([
+                    TextInput::make('client_business_name')
+                        ->label('Nombre')
+                        ->disabled(),
+
+                    TextInput::make('client_email')
+                        ->label('Email')
+                        ->disabled(),
+
+                    Textarea::make('client_address')
+                        ->label('Dirección')
+                        ->disabled()
+                        ->columnSpanFull(),
+                ]),
+
+            Section::make('Información de Pago')
+                ->icon('heroicon-o-credit-card')
+                ->columns(2)
+                ->schema([
+                    TextInput::make('payment_method')
+                        ->label('Método de Pago')
+                        ->formatStateUsing(function ($state) {
+                            return match ($state) {
+                                'cash' => 'Efectivo',
+                                'yape' => 'Yape',
+                                'plin' => 'Plin',
+                                'card' => 'Tarjeta',
+                                'transfer' => 'Transferencia',
+                                default => $state,
+                            };
+                        })
+                        ->disabled(),
+
+                    TextInput::make('payment_reference')
+                        ->label('Referencia de Pago')
+                        ->disabled(),
+
+                    TextInput::make('total_amount')
+                        ->label('Total')
+                        ->prefix('S/')
+                        ->disabled()
+                        ->numeric(),
+
+                    Select::make('payment_condition')
+                        ->label('Condición de Pago')
+                        ->options([
+                            'immediate' => 'Inmediato',
+                            'credit' => 'Crédito',
+                        ])
+                        ->disabled(),
+                ]),
+
+            Section::make('Observaciones')
+                ->icon('heroicon-o-chat-bubble-left-right')
+                ->schema([
+                    Textarea::make('observations')
+                        ->label('Observaciones del Cliente')
+                        ->disabled()
+                        ->rows(3),
+                ]),
+        ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                TextColumn::make('full_number')
+                    ->label('N° Pedido')
+                    ->searchable()
+                    ->sortable()
+                    ->weight(FontWeight::Bold)
+                    ->color('primary'),
+
+                TextColumn::make('issue_date')
+                    ->label('Fecha')
+                    ->date('d/m/Y')
+                    ->sortable(),
+
+                TextColumn::make('client_business_name')
+                    ->label('Cliente')
+                    ->searchable()
+                    ->limit(30),
+
+                TextColumn::make('client_email')
+                    ->label('Email')
+                    ->searchable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
+                TextColumn::make('payment_method')
+                    ->label('Método')
+                    ->formatStateUsing(function ($state) {
+                        return match ($state) {
+                            'cash' => 'Efectivo',
+                            'yape' => 'Yape',
+                            'plin' => 'Plin',
+                            'card' => 'Tarjeta',
+                            'transfer' => 'Transferencia',
+                            default => $state,
+                        };
+                    })
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'cash' => 'success',
+                        'yape', 'plin' => 'warning',
+                        'card', 'transfer' => 'info',
+                        default => 'gray',
+                    }),
+
+                TextColumn::make('total_amount')
+                    ->label('Total')
+                    ->money('PEN')
+                    ->sortable()
+                    ->weight(FontWeight::Bold),
+
+                BadgeColumn::make('status')
+                    ->label('Estado')
+                    ->formatStateUsing(function ($state) {
+                        return match ($state) {
+                            'draft' => 'Pendiente',
+                            'paid' => 'Completado',
+                            'cancelled' => 'Cancelado',
+                            default => $state,
+                        };
+                    })
+                    ->colors([
+                        'warning' => 'draft',
+                        'success' => 'paid',
+                        'danger' => 'cancelled',
+                    ]),
+
+                TextColumn::make('createdBy.name')
+                    ->label('Usuario Web')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->placeholder('Invitado'),
+
+                TextColumn::make('created_at')
+                    ->label('Creado')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->filters([
+                SelectFilter::make('status')
+                    ->label('Estado')
+                    ->options([
+                        'draft' => 'Pendiente',
+                        'paid' => 'Completado',
+                        'cancelled' => 'Cancelado',
+                    ])
+                    ->default('draft'),
+
+                SelectFilter::make('payment_method')
+                    ->label('Método de Pago')
+                    ->options([
+                        'cash' => 'Efectivo',
+                        'yape' => 'Yape',
+                        'plin' => 'Plin',
+                        'card' => 'Tarjeta',
+                        'transfer' => 'Transferencia',
+                    ]),
+
+                Filter::make('created_at')
+                    ->form([
+                        DatePicker::make('created_from')
+                            ->label('Desde'),
+                        DatePicker::make('created_until')
+                            ->label('Hasta'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when(
+                                $data['created_from'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                            )
+                            ->when(
+                                $data['created_until'],
+                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                            );
+                    }),
+
+                Filter::make('guest_orders')
+                    ->label('Solo Invitados')
+                    ->query(fn (Builder $query): Builder => $query->whereNull('created_by'))
+                    ->toggle(),
+            ])
+            ->actions([
+                ActionGroup::make([
+                    ViewAction::make(),
+                    EditAction::make(),
+
+                    Action::make('complete')
+                        ->label('Completar')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function (Invoice $record) {
+                            $record->update(['status' => 'paid']);
+                            Notification::make()
+                                ->success()
+                                ->title('Pedido completado')
+                                ->body("El pedido {$record->full_number} ha sido marcado como completado.")
+                                ->send();
+                        })
+                        ->visible(fn (Invoice $record): bool => $record->status === 'draft'),
+
+                    Action::make('cancel')
+                        ->label('Cancelar')
+                        ->icon('heroicon-o-x-circle')
+                        ->color('danger')
+                        ->requiresConfirmation()
+                        ->modalHeading('Cancelar Pedido')
+                        ->modalDescription('¿Estás seguro de que deseas cancelar este pedido? Esta acción no se puede deshacer.')
+                        ->action(function (Invoice $record) {
+                            $record->update(['status' => 'cancelled']);
+                            Notification::make()
+                                ->warning()
+                                ->title('Pedido cancelado')
+                                ->body("El pedido {$record->full_number} ha sido cancelado.")
+                                ->send();
+                        })
+                        ->visible(fn (Invoice $record): bool => $record->status === 'draft'),
+                ])->label(__('Opciones')),
+            ])
+            ->bulkActions([
+                BulkActionGroup::make([
+                    BulkAction::make('complete_selected')
+                        ->label('Completar seleccionados')
+                        ->icon('heroicon-o-check-circle')
+                        ->color('success')
+                        ->requiresConfirmation()
+                        ->action(function ($records) {
+                            $records->each->update(['status' => 'paid']);
+                            Notification::make()
+                                ->success()
+                                ->title('Pedidos completados')
+                                ->body("Se han completado {$records->count()} pedidos.")
+                                ->send();
+                        }),
+
+                    DeleteBulkAction::make(),
+                ]),
+            ])
+            ->defaultSort('created_at', 'desc');
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListWebOrders::route('/'),
+            'view' => Pages\ViewWebOrder::route('/{record}'),
+            'edit' => Pages\EditWebOrder::route('/{record}/edit'),
+        ];
+    }
+}

@@ -21,6 +21,19 @@
                 @endif
                 <span class="mx-2">›</span>
                 <span class="font-semibold">{{ $category->name }}</span>
+                
+                <!-- Indicador sutil de filtro de almacén activo -->
+                @if(request()->has('warehouse') && request()->warehouse)
+                    @php
+                        $selectedWarehouse = \App\Models\Warehouse::find(request()->warehouse);
+                    @endphp
+                    @if($selectedWarehouse)
+                        <span class="mx-2">•</span>
+                        <span class="text-blue-200 text-sm">
+                            <i class="fas fa-warehouse mr-1"></i>{{ $selectedWarehouse->name }}
+                        </span>
+                    @endif
+                @endif
             </nav>
             <h1 class="text-3xl md:text-4xl font-bold mb-1">{{ $category->name }}</h1>
             @if($category->description)
@@ -32,6 +45,13 @@
     <!-- Products Grid -->
     <div class="py-8">
         <div class="max-w-7xl mx-auto px-4">
+            <!-- Filter Breadcrumbs -->
+            @include('partials.filter-breadcrumbs', [
+                'filterBreadcrumbs' => $filterBreadcrumbs ?? [],
+                'clearFiltersUrl' => $clearFiltersUrl ?? url('/' . $category->slug),
+                'filteredProductsCount' => $products->count()
+            ])
+            
             @if($products->count() > 0)
                 <p class="text-gray-600 mb-6 text-base">
                     {{ $products->count() }} {{ $products->count() === 1 ? 'producto encontrado' : 'productos encontrados' }}
@@ -65,6 +85,25 @@
                                     <p class="text-sm text-gray-600 mb-3 line-clamp-2">
                                         {{ $product->description }}
                                     </p>
+                                @endif
+                                
+                                <!-- Indicador de Stock si hay filtro de almacén activo -->
+                                @if(request()->has('warehouse') && request()->warehouse)
+                                    @php
+                                        $warehouseStock = $product->stocks->where('warehouse_id', request()->warehouse)->first();
+                                        $stockQty = $warehouseStock ? $warehouseStock->qty : 0;
+                                    @endphp
+                                    <div class="mb-3">
+                                        @if($stockQty > 0)
+                                            <span class="inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
+                                                <i class="fas fa-check-circle mr-1"></i>Stock: {{ number_format($stockQty, 0) }}
+                                            </span>
+                                        @else
+                                            <span class="inline-block px-2 py-1 text-xs font-medium bg-red-100 text-red-700 rounded-full">
+                                                <i class="fas fa-times-circle mr-1"></i>Sin stock
+                                            </span>
+                                        @endif
+                                    </div>
                                 @endif
 
                                 <!-- Price and Add to Cart -->

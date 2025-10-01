@@ -37,8 +37,8 @@ Route::prefix('carrito')->name('cart.')->group(function () {
     Route::delete('/eliminar/{productId}', [CartController::class, 'remove'])->name('remove');
 });
 
-// Checkout (Requiere autenticación)
-Route::middleware('auth')->prefix('checkout')->name('checkout.')->group(function () {
+// Checkout (Permite invitados y usuarios registrados)
+Route::prefix('checkout')->name('checkout.')->group(function () {
     Route::get('/', [CheckoutController::class, 'index'])->name('index');
     Route::post('/procesar', [CheckoutController::class, 'process'])->name('process');
     Route::get('/confirmacion/{invoice}', [CheckoutController::class, 'confirmation'])->name('confirmation');

@@ -57,6 +57,79 @@
             @endif
         </ul>
 
+        <!-- Selector de Almacén Global -->
+        <div class="hidden md:flex items-center">
+            <div class="relative group">
+                <button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium transition hover:border-blue-300 hover:shadow-sm" style="color: var(--enlaces-titulos);">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
+                    <span id="selected-warehouse-name">
+                        @if(request()->has('warehouse'))
+                            @php
+                                $selectedWarehouse = \App\Models\Warehouse::find(request()->warehouse);
+                            @endphp
+                            {{ $selectedWarehouse ? $selectedWarehouse->name : 'Todos los almacenes' }}
+                        @else
+                            Todos los almacenes
+                        @endif
+                    </span>
+                    <svg class="w-4 h-4 group-hover:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </button>
+                
+                <div class="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                    <div class="p-2">
+                        <div class="text-xs text-gray-500 px-2 py-1 border-b mb-2">
+                            <i class="fas fa-warehouse mr-1"></i>Seleccionar Almacén
+                        </div>
+                        <ul class="max-h-64 overflow-y-auto">
+                            <li>
+                                <a href="{{ request()->url() }}{{ request()->has('category') ? '?category=' . request()->category : '' }}" 
+                                   class="block px-3 py-2 text-sm rounded hover:bg-gray-50 transition {{ !request()->has('warehouse') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700' }}">
+                                    <i class="fas fa-globe mr-2"></i>Todos los almacenes
+                                </a>
+                            </li>
+                            @php
+                                $warehouses = \App\Models\Warehouse::where('is_active', true)
+                                    ->orderBy('is_default', 'desc')
+                                    ->orderBy('name')
+                                    ->get();
+                            @endphp
+                            @foreach($warehouses as $warehouse)
+                                <li>
+                                    @php
+                                        $warehouseParams = ['warehouse' => $warehouse->id];
+                                        if (request()->has('category')) {
+                                            $warehouseParams['category'] = request()->category;
+                                        }
+                                    @endphp
+                                    <a href="{{ request()->url() }}?{{ http_build_query($warehouseParams) }}" 
+                                       class="block px-3 py-2 text-sm rounded hover:bg-gray-50 transition {{ request()->warehouse == $warehouse->id ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700' }}">
+                                        <i class="fas fa-warehouse mr-2 {{ $warehouse->is_default ? 'text-yellow-500' : 'text-gray-400' }}"></i>
+                                        {{ $warehouse->name }}
+                                        @if($warehouse->is_default)
+                                            <span class="text-xs text-yellow-600 font-medium">(Principal)</span>
+                                        @endif
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                        
+                        @if(request()->has('warehouse'))
+                            <div class="border-t mt-2 pt-2">
+                                <a href="{{ request()->url() }}{{ request()->has('category') ? '?category=' . request()->category : '' }}" 
+                                   class="block px-3 py-2 text-xs text-gray-500 hover:text-gray-700 transition text-center">
+                                    <i class="fas fa-times mr-1"></i>Limpiar filtro de almacén
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Iconos de Usuario y Carrito -->
         <div class="flex gap-4 text-sm items-center">
             @auth

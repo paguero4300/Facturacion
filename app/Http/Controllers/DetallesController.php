@@ -5,78 +5,99 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Product;
+use App\Traits\GlobalFilters;
 
 class DetallesController extends Controller
 {
+    use GlobalFilters;
     /**
      * Muestra la página principal de Detalles
      *
+     * @param \Illuminate\Http\Request $request
      * @return \Illuminate\View\View
      */
-    public function index()
+    public function index(Request $request)
     {
-        $menuCategories = Category::where('status', true)
-            ->parents()
-            ->with('activeChildren')
-            ->get();
+        // Obtener datos de filtros
+        $filterData = $this->getFilterData();
+        $activeFilters = $this->getActiveFilters($request);
+        $filterBreadcrumbs = $this->getFilterBreadcrumbs($request);
+        $clearFiltersUrl = $this->getClearFiltersUrl($request);
 
+        $menuCategories = $this->getFilteredCategories($request)->get();
         $mainCategories = $menuCategories;
 
-        // Cargar productos destacados
-        $featuredProducts = Product::where('featured', true)
-            ->where('status', 'active')
-            ->where('for_sale', true)
-            ->orderBy('name', 'asc')
-            ->get();
+        // Cargar productos destacados con filtros aplicados
+        $featuredProducts = $this->getFilteredProducts($request, [
+            'featured' => true,
+            'order_by' => 'name',
+            'order_direction' => 'asc'
+        ])->get();
 
-        return view('index', compact('menuCategories', 'mainCategories', 'featuredProducts'));
+        return view('index', compact(
+            'menuCategories', 
+            'mainCategories', 
+            'featuredProducts',
+            'filterData',
+            'activeFilters',
+            'filterBreadcrumbs',
+            'clearFiltersUrl'
+        ));
     }
     
     /**
      * Muestra una categoría específica con sus productos
      *
-     * @param  string  $categorySlug
+     * @param \Illuminate\Http\Request $request
+     * @param string $categorySlug
      * @return \Illuminate\View\View
      */
-    public function showCategory(string $categorySlug)
+    public function showCategory(Request $request, string $categorySlug)
     {
         $category = Category::where('slug', $categorySlug)
             ->where('status', true)
-            ->with([
-                'products' => function ($query) {
-                    $query->where('status', 'active')
-                          ->where('for_sale', true)
-                          ->orderBy('name', 'asc');
-                },
-                'parent.activeChildren',
-                'activeChildren'
-            ])
+            ->with(['parent.activeChildren', 'activeChildren'])
             ->firstOrFail();
         
-        // Si es una categoría padre (tiene subcategorías), cargar todos los productos
-        // incluyendo los de las subcategorías
+        // Obtener datos de filtros
+        $filterData = $this->getFilterData();
+        $activeFilters = $this->getActiveFilters($request);
+        $filterBreadcrumbs = $this->getFilterBreadcrumbs($request);
+        $clearFiltersUrl = $this->getClearFiltersUrl($request);
+
+        // Construir consulta base para los productos de la categoría
+        $query = Product::where('status', 'active')
+            ->where('for_sale', true);
+        
+        // Si es una categoría padre (tiene subcategorías), incluir productos de subcategorías
         if ($category->hasChildren()) {
             $categoryIds = $category->activeChildren->pluck('id')->push($category->id);
-            
-            $products = Product::whereIn('category_id', $categoryIds)
-                ->where('status', 'active')
-                ->where('for_sale', true)
-                ->orderBy('name', 'asc')
-                ->get();
+            $query->whereIn('category_id', $categoryIds);
         } else {
-            // Si es una subcategoría, solo mostrar sus productos
-            $products = $category->products;
+            // Si es una subcategoría, solo productos de esta categoría
+            $query->where('category_id', $category->id);
         }
         
-        $menuCategories = Category::where('status', true)
-            ->parents()
-            ->with('activeChildren')
-            ->get();
+        // Aplicar filtros adicionales (almacén)
+        if ($request->has('warehouse') && $request->warehouse) {
+            $query->whereHas('stocks', function ($q) use ($request) {
+                $q->where('warehouse_id', $request->warehouse)
+                  ->where('qty', '>', 0);
+            });
+        }
+        
+        $products = $query->orderBy('name', 'asc')->get();
+        
+        $menuCategories = $this->getFilteredCategories($request)->get();
         
         return view('category', [
             'category' => $category,
             'products' => $products,
             'menuCategories' => $menuCategories,
+            'filterData' => $filterData,
+            'activeFilters' => $activeFilters,
+            'filterBreadcrumbs' => $filterBreadcrumbs,
+            'clearFiltersUrl' => $clearFiltersUrl,
         ]);
     }
     

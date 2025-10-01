@@ -38,3 +38,13 @@ Route::prefix('factiliza')->group(function () {
     // Consulta genérica
     Route::post('/consultar', [FactilizaController::class, 'consultar']);
 });
+
+// Rutas para el modal de productos por almacén
+Route::prefix('warehouses')->group(function () {
+    // Lista de almacenes disponibles
+    Route::get('/', [\App\Http\Controllers\Api\WarehouseController::class, 'index']);
+    
+    // Productos por almacén específico
+    Route::get('/{warehouse}/products', [\App\Http\Controllers\Api\WarehouseController::class, 'products'])
+        ->where('warehouse', '[0-9]+');
+});

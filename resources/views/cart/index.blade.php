@@ -123,11 +123,11 @@
                                 </div>
                             </div>
 
-                            <button
-                                class="w-full bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-6 rounded-lg transition shadow-md hover:shadow-lg"
+                            <a href="{{ route('checkout.index') }}"
+                                class="block w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-3 px-6 rounded-lg transition shadow-md hover:shadow-lg text-center"
                             >
                                 Proceder al Pago
-                            </button>
+                            </a>
 
                             <div class="mt-4 p-4 bg-gray-50 rounded-lg">
                                 <p class="text-xs text-gray-600 text-center">

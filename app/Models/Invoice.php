@@ -10,7 +10,7 @@ class Invoice extends Model
 {
     protected $fillable = [
         'company_id',
-        'client_id', 
+        'client_id',
         'document_series_id',
         'series',
         'number',
@@ -25,6 +25,7 @@ class Invoice extends Model
         'client_document_number',
         'client_business_name',
         'client_address',
+        'client_email',
         'operation_type',
         'subtotal',
         'igv_amount',
@@ -35,6 +36,7 @@ class Invoice extends Model
         'payment_condition',
         'sunat_status',
         'status',
+        'observations',
         'created_by',
         'updated_by',
         'paid_amount',

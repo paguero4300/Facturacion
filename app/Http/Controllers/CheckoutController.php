@@ -12,11 +12,6 @@ use Illuminate\Support\Facades\Auth;
 
 class CheckoutController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     /**
      * Display checkout form
      */
@@ -83,6 +78,7 @@ class CheckoutController extends Controller
             $invoice = Invoice::create([
                 'company_id' => $company->id,
                 'document_series_id' => $series->id,
+                'client_id' => null, // Pedidos web no requieren cliente registrado
                 'series' => 'NV02',
                 'number' => $number,
                 'full_number' => $fullNumber,
@@ -130,6 +126,11 @@ class CheckoutController extends Controller
             // Clear cart
             session()->forget('cart');
 
+            // Store invoice ID in session for guest users
+            if (!Auth::check()) {
+                session()->put('guest_invoice_id', $invoice->id);
+            }
+
             return redirect()->route('checkout.confirmation', $invoice->id);
 
         } catch (\Exception $e) {
@@ -143,9 +144,21 @@ class CheckoutController extends Controller
      */
     public function confirmation($invoiceId)
     {
-        $invoice = Invoice::with('details.product')
-            ->where('created_by', Auth::id())
-            ->findOrFail($invoiceId);
+        // For authenticated users, verify the invoice belongs to them
+        if (Auth::check()) {
+            $invoice = Invoice::with('details.product')
+                ->where('created_by', Auth::id())
+                ->findOrFail($invoiceId);
+        } else {
+            // For guest users, verify invoice ID matches session
+            $guestInvoiceId = session()->get('guest_invoice_id');
+
+            if ($guestInvoiceId != $invoiceId) {
+                abort(403, 'No tienes permiso para ver este pedido.');
+            }
+
+            $invoice = Invoice::with('details.product')->findOrFail($invoiceId);
+        }
 
         return view('cart.confirmation', compact('invoice'));
     }

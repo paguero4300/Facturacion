@@ -42,6 +42,26 @@
                             <p class="font-bold mb-1" style="color: var(--precio-actual);">
                                 S/ {{ number_format($product->sale_price ?? $product->unit_price, 2) }}
                             </p>
+                            
+                            <!-- Indicador de Stock si hay filtro de almacén activo -->
+                            @if(request()->has('warehouse') && request()->warehouse)
+                                @php
+                                    $warehouseStock = $product->stocks->where('warehouse_id', request()->warehouse)->first();
+                                    $stockQty = $warehouseStock ? $warehouseStock->qty : 0;
+                                @endphp
+                                <div class="mb-2">
+                                    @if($stockQty > 0)
+                                        <span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800">
+                                            <i class="fas fa-check-circle"></i> Stock: {{ number_format($stockQty, 0) }}
+                                        </span>
+                                    @else
+                                        <span class="text-xs px-2 py-1 rounded-full bg-red-100 text-red-800">
+                                            <i class="fas fa-times-circle"></i> Sin stock
+                                        </span>
+                                    @endif
+                                </div>
+                            @endif
+                            
                             <p class="text-sm mb-3 line-clamp-2" style="color: var(--texto-principal);">
                                 {{ $product->description ?? 'Producto de calidad' }}
                             </p>
@@ -85,6 +105,26 @@
                                     <p class="font-bold mb-1" style="color: var(--precio-actual);">
                                         S/ {{ number_format($product->sale_price ?? $product->unit_price, 2) }}
                                     </p>
+                                    
+                                    <!-- Indicador de Stock si hay filtro de almacén activo -->
+                                    @if(request()->has('warehouse') && request()->warehouse)
+                                        @php
+                                            $warehouseStock = $product->stocks->where('warehouse_id', request()->warehouse)->first();
+                                            $stockQty = $warehouseStock ? $warehouseStock->qty : 0;
+                                        @endphp
+                                        <div class="mb-2">
+                                            @if($stockQty > 0)
+                                                <span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800">
+                                                    <i class="fas fa-check-circle"></i> Stock: {{ number_format($stockQty, 0) }}
+                                                </span>
+                                            @else
+                                                <span class="text-xs px-2 py-1 rounded-full bg-red-100 text-red-800">
+                                                    <i class="fas fa-times-circle"></i> Sin stock
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @endif
+                                    
                                     <p class="text-sm mb-3 line-clamp-2" style="color: var(--texto-principal);">
                                         {{ $product->description ?? 'Producto de calidad' }}
                                     </p>
@@ -111,17 +151,35 @@
 
         <!-- Botón Ver Todos los Productos -->
         <div class="text-center mt-10">
-            <a href="{{ route('shop.index') }}" class="inline-block border-2 px-8 py-3 rounded-lg transition font-semibold hover:bg-opacity-10 hover:bg-orange-500" style="color: var(--naranja); border-color: var(--naranja);">
-                Ver Todos los Productos
-            </a>
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+                @php
+                    $currentParams = request()->query();
+                    $shopUrl = route('shop.index') . ($currentParams ? '?' . http_build_query($currentParams) : '');
+                @endphp
+                <a href="{{ $shopUrl }}" class="inline-block border-2 px-8 py-3 rounded-lg transition font-semibold hover:bg-opacity-10 hover:bg-orange-500" style="color: var(--naranja); border-color: var(--naranja);">
+                    Ver Todos los Productos
+                </a>
+                <button id="openWarehouseModal" class="inline-block border-2 px-8 py-3 rounded-lg transition font-semibold hover:bg-opacity-10 hover:bg-blue-500" style="color: #3B82F6; border-color: #3B82F6;">
+                    <i class="fas fa-warehouse mr-2"></i>Ver por Almacén
+                </button>
+            </div>
         </div>
     @else
         <!-- Mensaje cuando no hay productos destacados -->
         <div class="text-center py-12">
             <p class="text-gray-500 mb-4">No hay productos destacados disponibles en este momento</p>
-            <a href="{{ route('shop.index') }}" class="inline-block border-2 px-8 py-3 rounded-lg transition font-semibold hover:bg-opacity-10 hover:bg-orange-500" style="color: var(--naranja); border-color: var(--naranja);">
-                Ver Catálogo Completo
-            </a>
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+                @php
+                    $currentParams = request()->query();
+                    $shopUrl = route('shop.index') . ($currentParams ? '?' . http_build_query($currentParams) : '');
+                @endphp
+                <a href="{{ $shopUrl }}" class="inline-block border-2 px-8 py-3 rounded-lg transition font-semibold hover:bg-opacity-10 hover:bg-orange-500" style="color: var(--naranja); border-color: var(--naranja);">
+                    Ver Catálogo Completo
+                </a>
+                <button id="openWarehouseModalEmpty" class="inline-block border-2 px-8 py-3 rounded-lg transition font-semibold hover:bg-opacity-10 hover:bg-blue-500" style="color: #3B82F6; border-color: #3B82F6;">
+                    <i class="fas fa-warehouse mr-2"></i>Ver por Almacén
+                </button>
+            </div>
         </div>
     @endif
 </section>
