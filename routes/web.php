@@ -9,14 +9,18 @@ use App\Http\Controllers\CheckoutController;
 use App\Filament\Pages\Pos;
 use App\Services\ProductTemplateService;
 
-Route::get('/', function () {
-    return redirect('/detalles');
-});
+// Página principal en la ruta raíz
+Route::get('/', [DetallesController::class, 'index'])->name('home');
 
-// Rutas para la página de Detalles
-Route::prefix('detalles')->name('detalles.')->group(function () {
-    Route::get('/', [DetallesController::class, 'index'])->name('index');
-    Route::post('/contacto', [DetallesController::class, 'submitContact'])->name('contacto.submit');
+// Formulario de contacto
+Route::post('/contacto', [DetallesController::class, 'submitContact'])->name('contact.submit');
+
+// Redirección 301 para compatibilidad con URLs heredadas
+Route::get('/detalles', function () {
+    return redirect('/', 301);
+});
+Route::post('/detalles/contacto', function () {
+    return redirect('/contacto', 301);
 });
 
 // ====================================

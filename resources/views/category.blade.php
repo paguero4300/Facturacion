@@ -14,7 +14,7 @@
     <div class="bg-gradient-to-r from-pink-500 to-rose-500 text-white py-8">
         <div class="max-w-7xl mx-auto px-4">
             <nav class="text-sm mb-3 opacity-90">
-                <a href="{{ route('detalles.index') }}" class="hover:underline hover:opacity-100 transition">Inicio</a>
+                <a href="{{ route('home') }}" class="hover:underline hover:opacity-100 transition">Inicio</a>
                 @if($category->parent)
                     <span class="mx-2">›</span>
                     <a href="{{ url('/' . $category->parent->slug) }}" class="hover:underline hover:opacity-100 transition">{{ $category->parent->name }}</a>
@@ -138,7 +138,7 @@
                     </svg>
                     <h3 class="text-2xl font-semibold text-gray-700 mb-2">No hay productos disponibles</h3>
                     <p class="text-gray-500 mb-8">Aún no tenemos productos en esta categoría.</p>
-                    <a href="{{ route('detalles.index') }}" class="inline-block px-6 py-3 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-lg">
+                    <a href="{{ route('home') }}" class="inline-block px-6 py-3 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-lg">
                         Volver al inicio
                     </a>
                 </div>

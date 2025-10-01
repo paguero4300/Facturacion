@@ -11,15 +11,15 @@
     <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
         <!-- Logo -->
         <div class="flex items-center">
-            <a href="{{ route('detalles.index') }}">
+            <a href="{{ route('home') }}">
                 <img src="{{ asset('logos/logo_horizontal.png') }}" alt="Detalles y Más" class="h-16 w-auto object-contain">
             </a>
         </div>
 
         <!-- Menú de Navegación -->
         <ul class="hidden md:flex gap-6 text-sm font-medium">
-            <li><a href="{{ route('detalles.index') }}" class="transition hover:opacity-80" style="color: var(--enlaces-titulos);">INICIO</a></li>
-            <li><a href="{{ route('detalles.index') }}#nosotros" class="transition hover:opacity-80" style="color: var(--enlaces-titulos);">NOSOTROS</a></li>
+            <li><a href="{{ route('home') }}" class="transition hover:opacity-80" style="color: var(--enlaces-titulos);">INICIO</a></li>
+            <li><a href="{{ route('home') }}#nosotros" class="transition hover:opacity-80" style="color: var(--enlaces-titulos);">NOSOTROS</a></li>
             <li><a href="{{ route('shop.index') }}" class="transition hover:opacity-80" style="color: var(--enlaces-titulos);">TIENDA</a></li>
 
             @if (isset($menuCategories) && $menuCategories->count() > 0)

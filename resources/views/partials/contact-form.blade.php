@@ -21,7 +21,7 @@
                 </h2>
                 <p class="" style="color: var(--texto-principal);">Completa el formulario y te responderemos lo más pronto posible</p>
             </div>
-        <form class="space-y-5 relative z-10" method="POST" action="{{ route('detalles.contacto.submit') }}">
+        <form class="space-y-5 relative z-10" method="POST" action="{{ route('contact.submit') }}">
             @csrf
             <div>
                 <label class="block font-semibold mb-2" style="color: var(--texto-principal);">Nombre *</label>

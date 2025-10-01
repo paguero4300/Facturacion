@@ -161,7 +161,7 @@
                              style="background: radial-gradient(circle, rgba(255,255,255,0.5) 0%, transparent 70%);"></div>
                     </a>
                     
-                    <a href="{{ route('detalles.index') }}#contacto" 
+                    <a href="{{ route('home') }}#contacto" 
                        class="cta-secondary group px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-500 border-2 shadow-md hover:shadow-xl transform hover:-translate-y-2 hover:scale-105 flex items-center justify-center" 
                        style="color: var(--naranja); 
                               background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,249,240,0.9)); 

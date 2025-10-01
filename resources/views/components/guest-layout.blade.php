@@ -63,7 +63,7 @@
 
                     <!-- Back to home -->
                     <div class="text-center mt-6">
-                        <a href="{{ route('detalles.index') }}" class="text-sm hover:underline transition" style="color: var(--enlaces-titulos);">
+                        <a href="{{ route('home') }}" class="text-sm hover:underline transition" style="color: var(--enlaces-titulos);">
                             <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                             </svg>
