@@ -45,9 +45,14 @@
                             <p class="text-sm mb-3 line-clamp-2" style="color: var(--texto-principal);">
                                 {{ $product->description ?? 'Producto de calidad' }}
                             </p>
-                            <button class="w-full text-white py-2 rounded-lg transition font-semibold hover:opacity-90" style="background-color: var(--naranja);">
-                                Añadir al Carrito
-                            </button>
+                            <form action="{{ route('cart.add') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="w-full text-white py-2 rounded-lg transition font-semibold hover:opacity-90" style="background-color: var(--naranja);">
+                                    Añadir al Carrito
+                                </button>
+                            </form>
                         </div>
                     </div>
                 @endforeach
@@ -83,9 +88,14 @@
                                     <p class="text-sm mb-3 line-clamp-2" style="color: var(--texto-principal);">
                                         {{ $product->description ?? 'Producto de calidad' }}
                                     </p>
-                                    <button class="w-full text-white py-2 rounded-lg transition font-semibold hover:opacity-90" style="background-color: var(--naranja);">
-                                        Añadir al Carrito
-                                    </button>
+                                    <form action="{{ route('cart.add') }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="w-full text-white py-2 rounded-lg transition font-semibold hover:opacity-90" style="background-color: var(--naranja);">
+                                            Añadir al Carrito
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -101,7 +111,7 @@
 
         <!-- Botón Ver Todos los Productos -->
         <div class="text-center mt-10">
-            <a href="#productos" class="inline-block border-2 px-8 py-3 rounded-lg transition font-semibold hover:bg-opacity-10 hover:bg-orange-500" style="color: var(--naranja); border-color: var(--naranja);">
+            <a href="{{ route('shop.index') }}" class="inline-block border-2 px-8 py-3 rounded-lg transition font-semibold hover:bg-opacity-10 hover:bg-orange-500" style="color: var(--naranja); border-color: var(--naranja);">
                 Ver Todos los Productos
             </a>
         </div>
@@ -109,7 +119,7 @@
         <!-- Mensaje cuando no hay productos destacados -->
         <div class="text-center py-12">
             <p class="text-gray-500 mb-4">No hay productos destacados disponibles en este momento</p>
-            <a href="#productos" class="inline-block border-2 px-8 py-3 rounded-lg transition font-semibold hover:bg-opacity-10 hover:bg-orange-500" style="color: var(--naranja); border-color: var(--naranja);">
+            <a href="{{ route('shop.index') }}" class="inline-block border-2 px-8 py-3 rounded-lg transition font-semibold hover:bg-opacity-10 hover:bg-orange-500" style="color: var(--naranja); border-color: var(--naranja);">
                 Ver Catálogo Completo
             </a>
         </div>

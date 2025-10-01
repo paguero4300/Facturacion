@@ -20,6 +20,7 @@ return new class extends Migration
             
             // Document type - Catálogo 01 SUNAT
             $table->enum('document_type', [
+                '00', // Nota de Venta (documento interno, no fiscal)
                 '01', // Factura
                 '03', // Boleta de Venta
                 '07', // Nota de Crédito

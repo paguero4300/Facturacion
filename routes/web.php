@@ -3,11 +3,14 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InvoicePdfController;
 use App\Http\Controllers\DetallesController;
+use App\Http\Controllers\ShopController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Filament\Pages\Pos;
 use App\Services\ProductTemplateService;
 
 Route::get('/', function () {
-    return redirect('/admin');
+    return redirect('/detalles');
 });
 
 // Rutas para la página de Detalles
@@ -16,7 +19,41 @@ Route::prefix('detalles')->name('detalles.')->group(function () {
     Route::post('/contacto', [DetallesController::class, 'submitContact'])->name('contacto.submit');
 });
 
+// ====================================
+// RUTAS DEL CARRITO DE COMPRAS (E-COMMERCE)
+// ====================================
+
+// Tienda (Public)
+Route::prefix('tienda')->name('shop.')->group(function () {
+    Route::get('/', [ShopController::class, 'index'])->name('index');
+    Route::get('/producto/{id}', [ShopController::class, 'show'])->name('product');
+});
+
+// Carrito (Public)
+Route::prefix('carrito')->name('cart.')->group(function () {
+    Route::get('/', [CartController::class, 'index'])->name('index');
+    Route::post('/agregar', [CartController::class, 'add'])->name('add');
+    Route::patch('/actualizar', [CartController::class, 'update'])->name('update');
+    Route::delete('/eliminar/{productId}', [CartController::class, 'remove'])->name('remove');
+});
+
+// Checkout (Requiere autenticación)
+Route::middleware('auth')->prefix('checkout')->name('checkout.')->group(function () {
+    Route::get('/', [CheckoutController::class, 'index'])->name('index');
+    Route::post('/procesar', [CheckoutController::class, 'process'])->name('process');
+    Route::get('/confirmacion/{invoice}', [CheckoutController::class, 'confirmation'])->name('confirmation');
+});
+
+// Mis Pedidos (Requiere autenticación)
+Route::middleware('auth')->get('/mis-pedidos', [CheckoutController::class, 'myOrders'])->name('account.orders');
+
+// ====================================
+// RUTAS DE AUTENTICACIÓN (BREEZE)
+// ====================================
+require __DIR__.'/auth.php';
+
 // Ruta dinámica para categorías - maneja todas las URLs de categorías automáticamente
+// IMPORTANTE: Esta debe estar al final para no capturar las rutas específicas
 Route::get('/{categorySlug}', [DetallesController::class, 'showCategory'])->name('category.show');
 
 // Rutas AJAX para búsqueda de clientes en POS

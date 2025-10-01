@@ -14,18 +14,18 @@
 
 <body style="background-color: var(--fondo-principal);">
     @include('partials.header')
-    
+
     <main>
         @yield('content')
     </main>
-    
+
     @include('partials.footer')
-    
+
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    
+
     @stack('scripts')
-    
+
     <!-- Script para manejar la carga diferida de imágenes -->
     @verbatim
     <script>

@@ -41,41 +41,51 @@
                     @foreach($products as $product)
                         <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
                             <!-- Product Image -->
-                            <div class="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
-                                <img 
-                                    src="{{ $product->image_path && file_exists(storage_path('app/public/' . $product->image_path)) ? asset('storage/' . $product->image_path) : asset('images/no-image.png') }}" 
-                                    alt="{{ $product->name }}"
-                                    class="w-full h-full object-cover"
-                                    loading="lazy"
-                                    onerror="this.src='{{ asset('images/no-image.png') }}';"
-                                >
-                            </div>
-                            
+                            <a href="{{ route('shop.product', $product->id) }}" class="block">
+                                <div class="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
+                                    <img
+                                        src="{{ $product->image_path && file_exists(storage_path('app/public/' . $product->image_path)) ? asset('storage/' . $product->image_path) : asset('images/no-image.png') }}"
+                                        alt="{{ $product->name }}"
+                                        class="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                                        loading="lazy"
+                                        onerror="this.src='{{ asset('images/no-image.png') }}';"
+                                    >
+                                </div>
+                            </a>
+
                             <!-- Product Info -->
                             <div class="p-4">
-                                <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 min-h-[3.5rem]">
-                                    {{ $product->name }}
-                                </h3>
-                                
+                                <a href="{{ route('shop.product', $product->id) }}">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 min-h-[3.5rem] hover:text-pink-600 transition">
+                                        {{ $product->name }}
+                                    </h3>
+                                </a>
+
                                 @if($product->description)
                                     <p class="text-sm text-gray-600 mb-3 line-clamp-2">
                                         {{ $product->description }}
                                     </p>
                                 @endif
-                                
-                                <!-- Price -->
+
+                                <!-- Price and Add to Cart -->
                                 <div class="flex items-center justify-between">
                                     <span class="text-2xl font-bold text-pink-600">
-                                        S/ {{ number_format($product->unit_price, 2) }}
+                                        S/ {{ number_format($product->sale_price ?? $product->unit_price, 2) }}
                                     </span>
-                                    <button 
-                                        class="bg-pink-500 hover:bg-pink-600 text-white p-2 rounded-full transition"
-                                        title="Agregar al carrito"
-                                    >
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                        </svg>
-                                    </button>
+                                    <form action="{{ route('cart.add') }}" method="POST" class="inline-block">
+                                        @csrf
+                                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button
+                                            type="submit"
+                                            class="bg-pink-500 hover:bg-pink-600 text-white p-2 rounded-full transition"
+                                            title="Agregar al carrito"
+                                        >
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            </svg>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -98,5 +108,27 @@
     </div>
     
     @include('partials.footer')
+
+    @if(session('success'))
+        <div class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50" id="success-message">
+            {{ session('success') }}
+        </div>
+        <script>
+            setTimeout(() => {
+                document.getElementById('success-message')?.remove();
+            }, 3000);
+        </script>
+    @endif
+
+    @if(session('error'))
+        <div class="fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50" id="error-message">
+            {{ session('error') }}
+        </div>
+        <script>
+            setTimeout(() => {
+                document.getElementById('error-message')?.remove();
+            }, 3000);
+        </script>
+    @endif
 </body>
 </html>

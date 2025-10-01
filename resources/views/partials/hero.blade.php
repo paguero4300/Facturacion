@@ -104,13 +104,13 @@
 
                 <!-- Botones de acción con efectos mejorados -->
                 <div class="flex flex-wrap gap-4">
-                    <a href="#productos"
+                    <a href="{{ route('shop.index') }}"
                         class="group relative overflow-hidden text-white px-8 py-4 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                         style="background-color: var(--naranja);">
                         <span class="relative z-10 flex items-center">
-                            Ver Productos
+                            Ver Tienda
                             <svg class="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none"
-                                stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                             </svg>
@@ -119,39 +119,34 @@
                             style="background: linear-gradient(to right, var(--azul-claro), var(--azul-primario));">
                         </div>
                     </a>
-                    <a href="#contacto"
+                    <a href="{{ route('detalles.index') }}#contacto"
                         class="px-8 py-4 rounded-lg font-semibold transition-all duration-300 border-2 shadow-md hover:shadow-lg transform hover:-translate-y-1"
                         style="color: var(--naranja); background-color: var(--fondo-footer); border-color: var(--naranja);">
                         Contáctanos
                     </a>
                 </div>
 
-                <!-- Redes sociales con diseño mejorado e iconos temáticos -->
+                <!-- Redes sociales con diseño mejorado -->
                 <div class="flex gap-4">
-                    <a href="#"
-                        class="group w-12 h-12 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                    <a href="https://instagram.com" target="_blank"
+                        class="group w-12 h-12 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-110"
                         title="Instagram" style="background-color: var(--fondo-footer);">
-                        <span class="text-xl transition-colors" style="color: var(--enlaces-titulos);">🌸</span>
+                        <img src="{{ asset('storage/icons/instagram.png') }}" alt="Instagram" class="h-6 w-6 object-contain group-hover:scale-110 transition-transform">
                     </a>
-                    <a href="#"
-                        class="group w-12 h-12 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                    <a href="https://facebook.com" target="_blank"
+                        class="group w-12 h-12 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-110"
                         title="Facebook" style="background-color: var(--fondo-footer);">
-                        <span class="text-xl transition-colors" style="color: var(--enlaces-titulos);">🌺</span>
+                        <img src="{{ asset('storage/icons/facebook.png') }}" alt="Facebook" class="h-6 w-6 object-contain group-hover:scale-110 transition-transform">
                     </a>
-                    <a href="#"
-                        class="group w-12 h-12 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                    <a href="https://wa.me/51944492316" target="_blank"
+                        class="group w-12 h-12 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-110"
                         title="WhatsApp" style="background-color: var(--fondo-footer);">
-                        <span class="text-xl transition-colors" style="color: var(--enlaces-titulos);">💐</span>
+                        <img src="{{ asset('storage/icons/whatsapp.png') }}" alt="WhatsApp" class="h-6 w-6 object-contain group-hover:scale-110 transition-transform">
                     </a>
-                    <a href="#"
-                        class="group w-12 h-12 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
-                        title="Pinterest" style="background-color: var(--fondo-footer);">
-                        <span class="text-xl transition-colors" style="color: var(--enlaces-titulos);">🌻</span>
-                    </a>
-                    <a href="#"
-                        class="group w-12 h-12 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
-                        title="Ubicación" style="background-color: var(--fondo-footer);">
-                        <span class="text-xl transition-colors" style="color: var(--enlaces-titulos);">📍</span>
+                    <a href="https://tiktok.com" target="_blank"
+                        class="group w-12 h-12 rounded-full flex items-center justify-center shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:scale-110"
+                        title="TikTok" style="background-color: var(--fondo-footer);">
+                        <img src="{{ asset('storage/icons/tik-tok.png') }}" alt="TikTok" class="h-6 w-6 object-contain group-hover:scale-110 transition-transform">
                     </a>
                 </div>
             </div>
