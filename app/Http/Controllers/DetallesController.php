@@ -79,9 +79,16 @@ class DetallesController extends Controller
         }
         
         // Aplicar filtros adicionales (almacén)
-        if ($request->has('warehouse') && $request->warehouse) {
-            $query->whereHas('stocks', function ($q) use ($request) {
-                $q->where('warehouse_id', $request->warehouse)
+        // Si no hay warehouse seleccionado, usar el warehouse principal por defecto
+        $warehouseId = $request->warehouse;
+        if (!$warehouseId) {
+            $defaultWarehouse = \App\Models\Warehouse::where('is_default', true)->first();
+            $warehouseId = $defaultWarehouse?->id;
+        }
+
+        if ($warehouseId) {
+            $query->whereHas('stocks', function ($q) use ($warehouseId) {
+                $q->where('warehouse_id', $warehouseId)
                   ->where('qty', '>', 0);
             });
         }

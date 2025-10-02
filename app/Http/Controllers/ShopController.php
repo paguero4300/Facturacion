@@ -54,10 +54,17 @@ class ShopController extends Controller
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id);
         
-        // Apply warehouse filter to related products if present
-        if ($request->has('warehouse') && $request->warehouse) {
-            $relatedQuery->whereHas('stocks', function ($q) use ($request) {
-                $q->where('warehouse_id', $request->warehouse)
+        // Apply warehouse filter to related products
+        // Si no hay warehouse seleccionado, usar el warehouse principal por defecto
+        $warehouseId = $request->warehouse;
+        if (!$warehouseId) {
+            $defaultWarehouse = \App\Models\Warehouse::where('is_default', true)->first();
+            $warehouseId = $defaultWarehouse?->id;
+        }
+
+        if ($warehouseId) {
+            $relatedQuery->whereHas('stocks', function ($q) use ($warehouseId) {
+                $q->where('warehouse_id', $warehouseId)
                   ->where('qty', '>', 0);
             });
         }

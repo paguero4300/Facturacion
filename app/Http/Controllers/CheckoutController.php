@@ -156,7 +156,7 @@ class CheckoutController extends Controller
                 'series' => 'NV02',
                 'number' => $number,
                 'full_number' => $fullNumber,
-                'document_type' => '00', // Nota de Venta
+                'document_type' => '09', // Nota de Venta
                 'issue_date' => now()->toDateString(),
                 'issue_time' => now()->toTimeString(),
                 'currency_code' => 'PEN',

@@ -56,10 +56,7 @@ Route::middleware('auth')->get('/mis-pedidos', [CheckoutController::class, 'myOr
 // ====================================
 // RUTAS DE COMPROBANTES DE PAGO (SEGURAS)
 // ====================================
-Route::prefix('payment-evidence')->name('payment.evidence.')->group(function () {
-    Route::get('/{invoice}/view', [PaymentEvidenceController::class, 'show'])->name('view');
-    Route::get('/{invoice}/download', [PaymentEvidenceController::class, 'download'])->name('download');
-});
+Route::get('/payment-evidence/{invoice}', [PaymentEvidenceController::class, 'show'])->name('payment-evidence.show');
 
 // ====================================
 // RUTAS DE AUTENTICACIÓN (BREEZE)

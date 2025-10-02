@@ -23,9 +23,16 @@ trait GlobalFilters
         }
 
         // Filtro por almacén
-        if ($request->has('warehouse') && $request->warehouse) {
-            $query->whereHas('stocks', function ($q) use ($request) {
-                $q->where('warehouse_id', $request->warehouse)
+        // Si no hay warehouse seleccionado, usar el warehouse principal por defecto
+        $warehouseId = $request->warehouse;
+        if (!$warehouseId) {
+            $defaultWarehouse = Warehouse::where('is_default', true)->first();
+            $warehouseId = $defaultWarehouse?->id;
+        }
+
+        if ($warehouseId) {
+            $query->whereHas('stocks', function ($q) use ($warehouseId) {
+                $q->where('warehouse_id', $warehouseId)
                   ->where('qty', '>', 0);
             });
         }
@@ -84,6 +91,7 @@ trait GlobalFilters
             }
         }
 
+        // Si hay warehouse seleccionado explícitamente, mostrarlo
         if ($request->has('warehouse') && $request->warehouse) {
             $warehouse = Warehouse::find($request->warehouse);
             if ($warehouse) {
@@ -91,6 +99,18 @@ trait GlobalFilters
                     'id' => $warehouse->id,
                     'name' => $warehouse->name,
                     'url_param' => 'warehouse=' . $warehouse->id,
+                    'is_default' => false,
+                ];
+            }
+        } else {
+            // Si no hay warehouse seleccionado, mostrar el principal como activo
+            $defaultWarehouse = Warehouse::where('is_default', true)->first();
+            if ($defaultWarehouse) {
+                $filters['warehouse'] = [
+                    'id' => $defaultWarehouse->id,
+                    'name' => $defaultWarehouse->name,
+                    'url_param' => 'warehouse=' . $defaultWarehouse->id,
+                    'is_default' => true,
                 ];
             }
         }
@@ -157,13 +177,20 @@ trait GlobalFilters
     {
         $query = Category::where('status', true)->parents();
 
-        // Si hay filtro de almacén, solo mostrar categorías que tienen productos con stock
-        if ($request->has('warehouse') && $request->warehouse) {
-            $query->whereHas('products', function ($q) use ($request) {
+        // Determinar warehouse a filtrar (explícito o principal por defecto)
+        $warehouseId = $request->warehouse;
+        if (!$warehouseId) {
+            $defaultWarehouse = Warehouse::where('is_default', true)->first();
+            $warehouseId = $defaultWarehouse?->id;
+        }
+
+        // Si hay warehouse (explícito o por defecto), filtrar categorías con productos con stock
+        if ($warehouseId) {
+            $query->whereHas('products', function ($q) use ($warehouseId) {
                 $q->where('status', 'active')
                   ->where('for_sale', true)
-                  ->whereHas('stocks', function ($stockQuery) use ($request) {
-                      $stockQuery->where('warehouse_id', $request->warehouse)
+                  ->whereHas('stocks', function ($stockQuery) use ($warehouseId) {
+                      $stockQuery->where('warehouse_id', $warehouseId)
                                  ->where('qty', '>', 0);
                   });
             });

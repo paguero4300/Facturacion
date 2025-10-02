@@ -6,6 +6,7 @@ use App\Filament\Resources\WebOrderResource\Pages;
 use App\Models\Invoice;
 use App\Enums\DeliveryStatus;
 use App\Enums\DeliveryTimeSlot;
+use App\Enums\PaymentValidationStatus;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
@@ -15,6 +16,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
+use Filament\Forms\Components\Placeholder;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
@@ -31,7 +33,6 @@ use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Support\Enums\FontWeight;
 use Filament\Notifications\Notification;
 use BackedEnum;
 use UnitEnum;
@@ -40,215 +41,263 @@ class WebOrderResource extends Resource
 {
     protected static ?string $model = Invoice::class;
 
-    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-shopping-bag';
-
-    protected static UnitEnum|string|null $navigationGroup = 'E-Commerce';
-
-    protected static ?int $navigationSort = 1;
-
-    protected static ?string $recordTitleAttribute = 'full_number';
-
-    public static function getNavigationLabel(): string
-    {
-        return 'Pedidos Web';
-    }
-
-    public static function getModelLabel(): string
-    {
-        return 'Pedido Web';
-    }
-
-    public static function getPluralModelLabel(): string
-    {
-        return 'Pedidos Web';
-    }
-
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::where('series', 'NV02')
-            ->where('status', 'draft')
-            ->count();
-    }
-
-    public static function getNavigationBadgeColor(): ?string
-    {
-        return 'warning';
-    }
+    protected static BackedEnum|string|null $navigationIcon = 'heroicon-o-shopping-cart';
+    protected static ?string $navigationLabel = 'Pedidos Web';
+    protected static UnitEnum|string|null $navigationGroup = 'Ventas';
+    protected static ?int $navigationSort = 2;
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()
-            ->where('series', 'NV02')
-            ->orderBy('created_at', 'desc');
+        return static::getModel()::where('series', 'NV02')
+            ->with(['details.product', 'client']);
+    }
+
+    public static function canCreate(): bool
+    {
+        return false;
     }
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->components([
-            Section::make('Información del Pedido')
-                ->icon('heroicon-o-document-text')
-                ->columns(3)
-                ->schema([
-                    TextInput::make('full_number')
-                        ->label('Número de Pedido')
-                        ->disabled(),
+        return $schema
+            ->columns(1)
+            ->schema([
+                Section::make('Información del Pedido')
+                    ->icon('heroicon-o-document-text')
+                    ->columns(3)
+                    ->schema([
+                        TextInput::make('full_number')
+                            ->label('N° Pedido')
+                            ->disabled()
+                            ->columnSpan(1),
 
-                    TextInput::make('issue_date')
-                        ->label('Fecha')
-                        ->disabled(),
+                        DatePicker::make('issue_date')
+                            ->label('Fecha')
+                            ->disabled()
+                            ->columnSpan(1),
 
-                    Select::make('status')
-                        ->label('Estado')
-                        ->options([
-                            'draft' => 'Pendiente',
-                            'paid' => 'Completado',
-                            'cancelled' => 'Cancelado',
-                        ])
-                        ->required(),
-                ]),
+                        Select::make('status')
+                            ->label('Estado')
+                            ->options([
+                                'draft' => 'Pendiente',
+                                'paid' => 'Completado',
+                                'cancelled' => 'Cancelado',
+                            ])
+                            ->required()
+                            ->columnSpan(1),
+                    ]),
 
-            Section::make('Información del Cliente')
-                ->icon('heroicon-o-user')
-                ->columns(2)
-                ->schema([
-                    TextInput::make('client_business_name')
-                        ->label('Nombre')
-                        ->disabled(),
+                Section::make('Datos del Cliente')
+                    ->icon('heroicon-o-user')
+                    ->collapsed()
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('client_business_name')
+                            ->label('Nombre')
+                            ->disabled(),
 
-                    TextInput::make('client_email')
-                        ->label('Email')
-                        ->disabled(),
+                        TextInput::make('client_email')
+                            ->label('Email')
+                            ->disabled(),
 
-                    Textarea::make('client_address')
-                        ->label('Dirección')
-                        ->disabled()
-                        ->columnSpanFull(),
-                ]),
+                        Textarea::make('client_address')
+                            ->label('Dirección')
+                            ->disabled()
+                            ->rows(2)
+                            ->columnSpanFull(),
+                    ]),
 
-            Section::make('Información de Pago')
-                ->icon('heroicon-o-credit-card')
-                ->columns(2)
-                ->schema([
-                    TextInput::make('payment_method')
-                        ->label('Método de Pago')
-                        ->formatStateUsing(function ($state) {
-                            return match ($state) {
-                                'cash' => 'Efectivo',
-                                'yape' => 'Yape',
-                                'plin' => 'Plin',
-                                'card' => 'Tarjeta',
-                                'transfer' => 'Transferencia',
-                                default => $state,
-                            };
-                        })
-                        ->disabled(),
+                Section::make('Productos del Pedido')
+                    ->icon('heroicon-o-shopping-bag')
+                    ->schema([
+                        Repeater::make('details')
+                            ->relationship('details')
+                            ->label('')
+                            ->disabled()
+                            ->columns(12)
+                            ->schema([
+                                TextInput::make('description')
+                                    ->label('Producto')
+                                    ->disabled()
+                                    ->columnSpan(5),
 
-                    TextInput::make('payment_reference')
-                        ->label('Referencia de Pago')
-                        ->disabled(),
+                                TextInput::make('product_code')
+                                    ->label('Código')
+                                    ->disabled()
+                                    ->columnSpan(2),
 
-                    TextInput::make('total_amount')
-                        ->label('Total')
-                        ->prefix('S/')
-                        ->disabled()
-                        ->numeric(),
+                                TextInput::make('quantity')
+                                    ->label('Cant.')
+                                    ->disabled()
+                                    ->columnSpan(1)
+                                    ->formatStateUsing(fn ($state) => number_format($state ?? 0, 2)),
 
-                    Select::make('payment_condition')
-                        ->label('Condición de Pago')
-                        ->options([
-                            'immediate' => 'Inmediato',
-                            'credit' => 'Crédito',
-                        ])
-                        ->disabled(),
-                ]),
+                                TextInput::make('unit_price')
+                                    ->label('P. Unit.')
+                                    ->disabled()
+                                    ->columnSpan(2)
+                                    ->formatStateUsing(fn ($state) => 'S/ ' . number_format($state ?? 0, 2)),
 
-            Section::make('Observaciones')
-                ->icon('heroicon-o-chat-bubble-left-right')
-                ->schema([
-                    Textarea::make('observations')
-                        ->label('Observaciones del Cliente')
-                        ->disabled()
-                        ->rows(3),
-                ]),
+                                TextInput::make('line_total')
+                                    ->label('Subtotal')
+                                    ->disabled()
+                                    ->columnSpan(2)
+                                    ->formatStateUsing(fn ($state) => 'S/ ' . number_format($state ?? 0, 2)),
+                            ])
+                            ->addable(false)
+                            ->deletable(false)
+                            ->reorderable(false)
+                            ->defaultItems(0)
+                            ->itemLabel(fn (array $state): ?string => $state['description'] ?? 'Producto'),
+                    ]),
 
-            Section::make('Productos del Pedido')
-                ->icon('heroicon-o-shopping-bag')
-                ->description('Productos incluidos en este pedido')
-                ->schema([
-                    Repeater::make('details')
-                        ->relationship('details')
-                        ->label('')
-                        ->disabled()
-                        ->columns(12)
-                        ->schema([
-                            TextInput::make('description')
-                                ->label('Producto')
-                                ->disabled()
-                                ->columnSpan(5),
+                Section::make('Información de Pago')
+                    ->icon('heroicon-o-credit-card')
+                    ->collapsed()
+                    ->columns(3)
+                    ->schema([
+                        TextInput::make('payment_method')
+                            ->label('Método de Pago')
+                            ->formatStateUsing(function ($state) {
+                                return match ($state) {
+                                    'cash' => 'Efectivo contra entrega',
+                                    'yape' => 'Yape',
+                                    'plin' => 'Plin',
+                                    'card' => 'Tarjeta',
+                                    'transfer' => 'Transferencia Bancaria',
+                                    default => $state,
+                                };
+                            })
+                            ->disabled()
+                            ->columnSpan(1),
 
-                            TextInput::make('product_code')
-                                ->label('Código')
-                                ->disabled()
-                                ->columnSpan(2),
+                        TextInput::make('total_amount')
+                            ->label('Monto Total')
+                            ->formatStateUsing(fn ($state) => 'S/ ' . number_format($state ?? 0, 2))
+                            ->disabled()
+                            ->columnSpan(1),
 
-                            TextInput::make('quantity')
-                                ->label('Cant.')
-                                ->disabled()
-                                ->columnSpan(1)
-                                ->formatStateUsing(fn ($state) => number_format($state ?? 0, 2)),
+                        Select::make('payment_validation_status')
+                            ->label('Estado de Validación')
+                            ->options(PaymentValidationStatus::getOptions())
+                            ->disabled()
+                            ->visible(fn ($record) => $record?->requiresPaymentValidation())
+                            ->columnSpan(1),
 
-                            TextInput::make('unit_price')
-                                ->label('P. Unit.')
-                                ->disabled()
-                                ->columnSpan(2)
-                                ->formatStateUsing(fn ($state) => 'S/ ' . number_format($state ?? 0, 2)),
+                        TextInput::make('payment_operation_number')
+                            ->label('N° de Operación')
+                            ->disabled()
+                            ->visible(fn ($record) => !empty($record?->payment_operation_number))
+                            ->columnSpan(1),
 
-                            TextInput::make('line_total')
-                                ->label('Subtotal')
-                                ->disabled()
-                                ->columnSpan(2)
-                                ->formatStateUsing(fn ($state) => 'S/ ' . number_format($state ?? 0, 2)),
-                        ])
-                        ->addable(false)
-                        ->deletable(false)
-                        ->reorderable(false)
-                        ->defaultItems(0)
-                        ->itemLabel(fn (array $state): ?string => $state['description'] ?? 'Producto'),
-                ]),
+                        TextInput::make('client_payment_phone')
+                            ->label('Teléfono Yape/Plin')
+                            ->disabled()
+                            ->visible(fn ($record) => !empty($record?->client_payment_phone))
+                            ->columnSpan(1),
 
-            Section::make('Información de Entrega')
-                ->icon('heroicon-o-truck')
-                ->description('Programación y estado de la entrega')
-                ->columns(2)
-                ->schema([
-                    DatePicker::make('delivery_date')
-                        ->label('Fecha de Entrega')
-                        ->disabled(fn ($record) => !$record?->hasDeliveryScheduled())
-                        ->placeholder('No programada'),
-                    
-                    Select::make('delivery_time_slot')
-                        ->label('Horario de Entrega')
-                        ->options(DeliveryTimeSlot::getOptions())
-                        ->disabled(fn ($record) => !$record?->hasDeliveryScheduled())
-                        ->placeholder('No programado'),
-                    
-                    Select::make('delivery_status')
-                        ->label('Estado de Entrega')
-                        ->options(DeliveryStatus::getOptions())
-                        ->visible(fn ($record) => $record?->hasDeliveryScheduled()),
-                    
-                    TimePicker::make('delivery_confirmed_at')
-                        ->label('Entregado en')
-                        ->disabled()
-                        ->visible(fn ($record) => $record?->delivery_status === DeliveryStatus::ENTREGADO),
-                    
-                    Textarea::make('delivery_notes')
-                        ->label('Notas de Entrega')
-                        ->disabled(fn ($record) => !$record?->hasDeliveryScheduled())
-                        ->rows(2)
-                        ->columnSpanFull(),
-                ]),
-        ]);
+                        TextInput::make('payment_reference')
+                            ->label('Referencia')
+                            ->disabled()
+                            ->visible(fn ($record) => !empty($record?->payment_reference))
+                            ->columnSpan(1),
+
+                        Placeholder::make('payment_evidence_viewer')
+                            ->label('Comprobante de Pago')
+                            ->content(function ($record) {
+                                if (!$record?->payment_evidence_path) {
+                                    return new \Illuminate\Support\HtmlString('<p class="text-sm text-gray-500">No se subió comprobante</p>');
+                                }
+
+                                $url = route('payment-evidence.show', $record->id);
+                                $extension = pathinfo($record->payment_evidence_path, PATHINFO_EXTENSION);
+
+                                if (in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif'])) {
+                                    return new \Illuminate\Support\HtmlString(
+                                        '<div class="space-y-2">
+                                            <a href="' . $url . '" target="_blank" class="inline-block">
+                                                <img src="' . $url . '" class="w-48 rounded-lg border-2 border-gray-300 hover:border-blue-500 hover:scale-105 transition cursor-pointer shadow-sm" alt="Comprobante de pago">
+                                            </a>
+                                            <p class="text-xs text-gray-500">Clic para ver en tamaño completo</p>
+                                        </div>'
+                                    );
+                                } else {
+                                    return new \Illuminate\Support\HtmlString(
+                                        '<a href="' . $url . '" target="_blank" class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition shadow-sm">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            Descargar Comprobante PDF
+                                        </a>'
+                                    );
+                                }
+                            })
+                            ->visible(fn ($record) => !empty($record?->payment_evidence_path))
+                            ->columnSpanFull(),
+
+                        Textarea::make('payment_validation_notes')
+                            ->label('Notas de Validación')
+                            ->disabled()
+                            ->rows(2)
+                            ->visible(fn ($record) => !empty($record?->payment_validation_notes))
+                            ->columnSpanFull(),
+
+                        TextInput::make('paymentValidatedBy.name')
+                            ->label('Validado por')
+                            ->disabled()
+                            ->visible(fn ($record) => $record?->payment_validated_by)
+                            ->columnSpan(1),
+
+                        TextInput::make('payment_validated_at')
+                            ->label('Fecha de Validación')
+                            ->formatStateUsing(fn ($state) => $state ? $state->format('d/m/Y H:i') : '-')
+                            ->disabled()
+                            ->visible(fn ($record) => $record?->payment_validated_at)
+                            ->columnSpan(1),
+                    ]),
+
+                Section::make('Entrega Programada')
+                    ->icon('heroicon-o-truck')
+                    ->collapsed()
+                    ->visible(fn ($record) => $record?->hasDeliveryScheduled())
+                    ->columns(2)
+                    ->schema([
+                        DatePicker::make('delivery_date')
+                            ->label('Fecha de Entrega')
+                            ->disabled(),
+
+                        Select::make('delivery_time_slot')
+                            ->label('Horario')
+                            ->options(DeliveryTimeSlot::getOptions())
+                            ->disabled(),
+
+                        Select::make('delivery_status')
+                            ->label('Estado de Entrega')
+                            ->options(DeliveryStatus::getOptions()),
+
+                        TimePicker::make('delivery_confirmed_at')
+                            ->label('Entregado en')
+                            ->disabled()
+                            ->visible(fn ($record) => $record?->delivery_status === DeliveryStatus::ENTREGADO),
+
+                        Textarea::make('delivery_notes')
+                            ->label('Notas de Entrega')
+                            ->disabled()
+                            ->rows(2)
+                            ->columnSpanFull(),
+                    ]),
+
+                Section::make('Observaciones')
+                    ->icon('heroicon-o-chat-bubble-left-right')
+                    ->collapsed()
+                    ->visible(fn ($record) => !empty($record?->observations))
+                    ->schema([
+                        Textarea::make('observations')
+                            ->label('')
+                            ->disabled()
+                            ->rows(3),
+                    ]),
+            ]);
     }
 
     public static function table(Table $table): Table
@@ -258,13 +307,6 @@ class WebOrderResource extends Resource
                 TextColumn::make('full_number')
                     ->label('N° Pedido')
                     ->searchable()
-                    ->sortable()
-                    ->weight(FontWeight::Bold)
-                    ->color('primary'),
-
-                TextColumn::make('issue_date')
-                    ->label('Fecha')
-                    ->date('d/m/Y')
                     ->sortable(),
 
                 TextColumn::make('client_business_name')
@@ -272,82 +314,42 @@ class WebOrderResource extends Resource
                     ->searchable()
                     ->limit(30),
 
-                TextColumn::make('client_email')
-                    ->label('Email')
-                    ->searchable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-
-                TextColumn::make('payment_method')
-                    ->label('Método')
-                    ->formatStateUsing(function ($state) {
-                        return match ($state) {
-                            'cash' => 'Efectivo',
-                            'yape' => 'Yape',
-                            'plin' => 'Plin',
-                            'card' => 'Tarjeta',
-                            'transfer' => 'Transferencia',
-                            default => $state,
-                        };
-                    })
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'cash' => 'success',
-                        'yape', 'plin' => 'warning',
-                        'card', 'transfer' => 'info',
-                        default => 'gray',
-                    }),
+                TextColumn::make('issue_date')
+                    ->label('Fecha')
+                    ->date('d/m/Y')
+                    ->sortable(),
 
                 TextColumn::make('total_amount')
                     ->label('Total')
                     ->money('PEN')
-                    ->sortable()
-                    ->weight(FontWeight::Bold),
+                    ->sortable(),
+
+                BadgeColumn::make('payment_validation_status')
+                    ->label('Estado Pago')
+                    ->formatStateUsing(fn ($state) => $state?->label() ?? '-')
+                    ->colors([
+                        'warning' => 'pending_validation',
+                        'success' => 'payment_approved',
+                        'danger' => 'payment_rejected',
+                        'info' => 'cash_on_delivery',
+                        'gray' => 'validation_not_required',
+                    ]),
 
                 BadgeColumn::make('status')
-                    ->label('Estado')
-                    ->formatStateUsing(function ($state) {
-                        return match ($state) {
-                            'draft' => 'Pendiente',
-                            'paid' => 'Completado',
-                            'cancelled' => 'Cancelado',
-                            default => $state,
-                        };
+                    ->label('Estado Pedido')
+                    ->formatStateUsing(fn ($state) => match($state) {
+                        'draft' => 'Pendiente',
+                        'paid' => 'Completado',
+                        'cancelled' => 'Cancelado',
+                        default => $state,
                     })
                     ->colors([
                         'warning' => 'draft',
                         'success' => 'paid',
                         'danger' => 'cancelled',
                     ]),
-
-                TextColumn::make('delivery_date')
-                    ->label('Entrega')
-                    ->date('d/m/Y')
-                    ->placeholder('No programada')
-                    ->toggleable(),
-
-                BadgeColumn::make('delivery_status')
-                    ->label('Estado Entrega')
-                    ->formatStateUsing(fn ($state) => $state?->label())
-                    ->colors([
-                        'info' => DeliveryStatus::PROGRAMADO,
-                        'warning' => DeliveryStatus::EN_RUTA,
-                        'success' => DeliveryStatus::ENTREGADO,
-                        'danger' => DeliveryStatus::REPROGRAMADO,
-                    ])
-                    ->placeholder('Sin programar')
-                    ->toggleable(),
-
-                TextColumn::make('createdBy.name')
-                    ->label('Usuario Web')
-                    ->toggleable(isToggledHiddenByDefault: true)
-                    ->placeholder('Invitado'),
-
-                TextColumn::make('created_at')
-                    ->label('Creado')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('issue_date', 'desc')
             ->filters([
                 SelectFilter::make('status')
                     ->label('Estado')
@@ -355,176 +357,8 @@ class WebOrderResource extends Resource
                         'draft' => 'Pendiente',
                         'paid' => 'Completado',
                         'cancelled' => 'Cancelado',
-                    ])
-                    ->default('draft'),
-
-                SelectFilter::make('payment_method')
-                    ->label('Método de Pago')
-                    ->options([
-                        'cash' => 'Efectivo',
-                        'yape' => 'Yape',
-                        'plin' => 'Plin',
-                        'card' => 'Tarjeta',
-                        'transfer' => 'Transferencia',
                     ]),
-
-                Filter::make('created_at')
-                    ->form([
-                        DatePicker::make('created_from')
-                            ->label('Desde'),
-                        DatePicker::make('created_until')
-                            ->label('Hasta'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['created_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
-                            )
-                            ->when(
-                                $data['created_until'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
-                            );
-                    }),
-
-                Filter::make('guest_orders')
-                    ->label('Solo Invitados')
-                    ->query(fn (Builder $query): Builder => $query->whereNull('created_by'))
-                    ->toggle(),
-
-                SelectFilter::make('delivery_status')
-                    ->label('Estado de Entrega')
-                    ->options(DeliveryStatus::getOptions())
-                    ->placeholder('Todos los estados'),
-
-                SelectFilter::make('delivery_time_slot')
-                    ->label('Horario de Entrega')
-                    ->options(DeliveryTimeSlot::getOptions())
-                    ->placeholder('Todos los horarios'),
-
-                Filter::make('delivery_date')
-                    ->form([
-                        DatePicker::make('delivery_from')
-                            ->label('Entrega desde'),
-                        DatePicker::make('delivery_until')
-                            ->label('Entrega hasta'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['delivery_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('delivery_date', '>=', $date),
-                            )
-                            ->when(
-                                $data['delivery_until'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('delivery_date', '<=', $date),
-                            );
-                    }),
-
-                Filter::make('with_delivery')
-                    ->label('Solo con entrega programada')
-                    ->query(fn (Builder $query): Builder => $query->withDeliveryScheduled())
-                    ->toggle(),
-            ])
-            ->actions([
-                ActionGroup::make([
-                    ViewAction::make(),
-                    EditAction::make(),
-
-                    Action::make('complete')
-                        ->label('Completar')
-                        ->icon('heroicon-o-check-circle')
-                        ->color('success')
-                        ->requiresConfirmation()
-                        ->action(function (Invoice $record) {
-                            $record->update(['status' => 'paid']);
-                            Notification::make()
-                                ->success()
-                                ->title('Pedido completado')
-                                ->body("El pedido {$record->full_number} ha sido marcado como completado.")
-                                ->send();
-                        })
-                        ->visible(fn (Invoice $record): bool => $record->status === 'draft'),
-
-                    Action::make('cancel')
-                        ->label('Cancelar')
-                        ->icon('heroicon-o-x-circle')
-                        ->color('danger')
-                        ->requiresConfirmation()
-                        ->modalHeading('Cancelar Pedido')
-                        ->modalDescription('¿Estás seguro de que deseas cancelar este pedido? Esta acción no se puede deshacer.')
-                        ->action(function (Invoice $record) {
-                            $record->update(['status' => 'cancelled']);
-                            Notification::make()
-                                ->warning()
-                                ->title('Pedido cancelado')
-                                ->body("El pedido {$record->full_number} ha sido cancelado.")
-                                ->send();
-                        })
-                        ->visible(fn (Invoice $record): bool => $record->status === 'draft'),
-
-                    Action::make('mark_in_route')
-                        ->label('Marcar en Ruta')
-                        ->icon('heroicon-o-truck')
-                        ->color('warning')
-                        ->requiresConfirmation()
-                        ->action(function (Invoice $record) {
-                            $record->updateDeliveryStatus(DeliveryStatus::EN_RUTA);
-                            Notification::make()
-                                ->success()
-                                ->title('Estado actualizado')
-                                ->body("El pedido {$record->full_number} está ahora en ruta.")
-                                ->send();
-                        })
-                        ->visible(fn (Invoice $record): bool => 
-                            $record->delivery_status === DeliveryStatus::PROGRAMADO
-                        ),
-
-                    Action::make('mark_delivered')
-                        ->label('Marcar Entregado')
-                        ->icon('heroicon-o-check-circle')
-                        ->color('success')
-                        ->requiresConfirmation()
-                        ->action(function (Invoice $record) {
-                            $record->updateDeliveryStatus(DeliveryStatus::ENTREGADO);
-                            Notification::make()
-                                ->success()
-                                ->title('Entrega confirmada')
-                                ->body("El pedido {$record->full_number} ha sido entregado.")
-                                ->send();
-                        })
-                        ->visible(fn (Invoice $record): bool => 
-                            $record->delivery_status === DeliveryStatus::EN_RUTA
-                        ),
-                ])->label(__('Opciones')),
-            ])
-            ->bulkActions([
-                BulkActionGroup::make([
-                    BulkAction::make('complete_selected')
-                        ->label('Completar seleccionados')
-                        ->icon('heroicon-o-check-circle')
-                        ->color('success')
-                        ->requiresConfirmation()
-                        ->action(function ($records) {
-                            $records->each->update(['status' => 'paid']);
-                            Notification::make()
-                                ->success()
-                                ->title('Pedidos completados')
-                                ->body("Se han completado {$records->count()} pedidos.")
-                                ->send();
-                        }),
-
-                    DeleteBulkAction::make(),
-                ]),
-            ])
-            ->defaultSort('created_at', 'desc');
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
+            ]);
     }
 
     public static function getPages(): array
@@ -532,7 +366,6 @@ class WebOrderResource extends Resource
         return [
             'index' => Pages\ListWebOrders::route('/'),
             'view' => Pages\ViewWebOrder::route('/{record}'),
-            'edit' => Pages\EditWebOrder::route('/{record}/edit'),
         ];
     }
 }

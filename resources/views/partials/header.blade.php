@@ -61,35 +61,42 @@
         <!-- Selector de Almacén Global -->
         <div class="hidden md:flex items-center">
             <div class="relative group">
-                <button class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium transition hover:border-blue-300 hover:shadow-sm" style="color: var(--enlaces-titulos);">
+                <button onclick="markWarehouseSelectorSeen()" class="flex items-center gap-2 px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium transition hover:border-blue-300 hover:shadow-sm relative" style="color: var(--enlaces-titulos);" title="Ver productos disponibles por local">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                     </svg>
                     <span id="selected-warehouse-name">
-                        @if(request()->has('warehouse'))
-                            @php
-                                $selectedWarehouse = \App\Models\Warehouse::find(request()->warehouse);
-                            @endphp
-                            {{ $selectedWarehouse ? $selectedWarehouse->name : 'Todos los almacenes' }}
-                        @else
-                            Todos los almacenes
-                        @endif
+                        @php
+                            $currentWarehouse = null;
+                            if(request()->has('warehouse')) {
+                                $currentWarehouse = \App\Models\Warehouse::find(request()->warehouse);
+                            } else {
+                                $currentWarehouse = \App\Models\Warehouse::where('is_default', true)->first();
+                            }
+                        @endphp
+                        {{ $currentWarehouse ? $currentWarehouse->name : 'LOCALES' }}
                     </span>
                     <svg class="w-4 h-4 group-hover:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
+
+                    <!-- Badge Pulsante (se oculta con JavaScript si ya fue visto) -->
+                    <span id="warehouse-badge" class="absolute -top-1 -right-1 flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                    </span>
                 </button>
                 
                 <div class="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                     <div class="p-2">
                         <div class="text-xs text-gray-500 px-2 py-1 border-b mb-2">
-                            <i class="fas fa-warehouse mr-1"></i>Seleccionar Almacén
+                            <i class="fas fa-warehouse mr-1"></i>Seleccionar LOCAL
                         </div>
                         <ul class="max-h-64 overflow-y-auto">
                             <li>
-                                <a href="{{ request()->url() }}{{ request()->has('category') ? '?category=' . request()->category : '' }}" 
+                                <a href="{{ request()->url() }}{{ request()->has('category') ? '?category=' . request()->category : '' }}"
                                    class="block px-3 py-2 text-sm rounded hover:bg-gray-50 transition {{ !request()->has('warehouse') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-700' }}">
-                                    <i class="fas fa-globe mr-2"></i>Todos los almacenes
+                                    <i class="fas fa-globe mr-2"></i>LOCALES
                                 </a>
                             </li>
                             @php
@@ -120,9 +127,9 @@
                         
                         @if(request()->has('warehouse'))
                             <div class="border-t mt-2 pt-2">
-                                <a href="{{ request()->url() }}{{ request()->has('category') ? '?category=' . request()->category : '' }}" 
+                                <a href="{{ request()->url() }}{{ request()->has('category') ? '?category=' . request()->category : '' }}"
                                    class="block px-3 py-2 text-xs text-gray-500 hover:text-gray-700 transition text-center">
-                                    <i class="fas fa-times mr-1"></i>Limpiar filtro de almacén
+                                    <i class="fas fa-times mr-1"></i>Limpiar filtro de local
                                 </a>
                             </div>
                         @endif
@@ -195,3 +202,31 @@
         </div>
     </nav>
 </header>
+
+<!-- Script para marcar selector de warehouse como visto -->
+<script>
+    function markWarehouseSelectorSeen() {
+        // Marcar en sessionStorage
+        sessionStorage.setItem('warehouse_selector_seen', 'true');
+
+        // Ocultar badge
+        const badge = document.getElementById('warehouse-badge');
+        if (badge) {
+            badge.style.transition = 'opacity 0.3s ease';
+            badge.style.opacity = '0';
+            setTimeout(() => {
+                badge.style.display = 'none';
+            }, 300);
+        }
+    }
+
+    // Ocultar badge si ya fue visto en esta sesión
+    document.addEventListener('DOMContentLoaded', function() {
+        if (sessionStorage.getItem('warehouse_selector_seen') === 'true') {
+            const badge = document.getElementById('warehouse-badge');
+            if (badge) {
+                badge.style.display = 'none';
+            }
+        }
+    });
+</script>

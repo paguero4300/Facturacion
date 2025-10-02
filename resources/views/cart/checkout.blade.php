@@ -517,23 +517,31 @@
         
         function togglePaymentFields() {
             const selectedMethod = document.querySelector('input[name="payment_method"]:checked')?.value;
-            
-            // Hide all payment fields
+
+            // Hide all payment fields and DISABLE their inputs
             document.querySelectorAll('.payment-fields').forEach(field => {
                 field.style.display = 'none';
+                // Disable all inputs inside hidden payment fields
+                field.querySelectorAll('input, textarea, select').forEach(input => {
+                    input.disabled = true;
+                });
             });
-            
+
             // Hide general reference field
             const generalRefField = document.getElementById('general-reference-field');
             if (generalRefField) {
                 generalRefField.style.display = 'none';
             }
-            
-            // Show specific fields based on selected method
+
+            // Show specific fields based on selected method and ENABLE their inputs
             if (selectedMethod) {
                 const specificFields = document.getElementById(selectedMethod + '-fields');
                 if (specificFields) {
                     specificFields.style.display = 'block';
+                    // Enable all inputs inside visible payment fields
+                    specificFields.querySelectorAll('input, textarea, select').forEach(input => {
+                        input.disabled = false;
+                    });
                 } else if (['cash', 'card'].includes(selectedMethod)) {
                     // Show general reference field for cash and card
                     if (generalRefField) {
