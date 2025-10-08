@@ -166,9 +166,10 @@ class GreenterXmlService
         $ruc = $companyModel->ruc;
         $serie = $data['serie'];
         $correlativo = $data['correlativo']; // Sin padding, como en Postman: "10417844398-01-F001-17"
+        $tipoDoc = $data['tipoDoc']; // Usar el tipo de documento correcto
         
         // QPse espera el formato: RUC-TIPODOC-SERIE-CORRELATIVO (sin .xml)
-        return "{$ruc}-01-{$serie}-{$correlativo}";
+        return "{$ruc}-{$tipoDoc}-{$serie}-{$correlativo}";
     }
 
     public function getExampleInvoiceData(): array

@@ -12,9 +12,9 @@ return [
     | Default Log Channel
     |--------------------------------------------------------------------------
     |
-    | This option defines the default log channel that is utilized to write
-    | messages to your logs. The value provided here should match one of
-    | the channels present in the list of "channels" configured below.
+    | This option defines the default log channel that gets used when writing
+    | messages to the logs. The name specified in this option should match
+    | one of the channels defined in the "channels" configuration array.
     |
     */
 
@@ -41,12 +41,13 @@ return [
     | Log Channels
     |--------------------------------------------------------------------------
     |
-    | Here you may configure the log channels for your application. Laravel
-    | utilizes the Monolog PHP logging library, which includes a variety
-    | of powerful log handlers and formatters that you're free to use.
+    | Here you may configure the log channels for your application. Out of
+    | the box, Laravel uses the Monolog PHP logging library. This gives
+    | you a variety of powerful log handlers / formatters to utilize.
     |
-    | Available drivers: "single", "daily", "slack", "syslog",
-    |                    "errorlog", "monolog", "custom", "stack"
+    | Available Drivers: "single", "daily", "slack", "syslog",
+    |                    "errorlog", "monolog",
+    |                    "custom", "stack"
     |
     */
 
@@ -54,7 +55,7 @@ return [
 
         'stack' => [
             'driver' => 'stack',
-            'channels' => explode(',', (string) env('LOG_STACK', 'single')),
+            'channels' => explode(',', env('LOG_STACK', 'single')),
             'ignore_exceptions' => false,
         ],
 
@@ -98,10 +99,10 @@ return [
             'driver' => 'monolog',
             'level' => env('LOG_LEVEL', 'debug'),
             'handler' => StreamHandler::class,
-            'handler_with' => [
+            'formatter' => env('LOG_STDERR_FORMATTER'),
+            'with' => [
                 'stream' => 'php://stderr',
             ],
-            'formatter' => env('LOG_STDERR_FORMATTER'),
             'processors' => [PsrLogMessageProcessor::class],
         ],
 
@@ -127,17 +128,12 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
-        'carga' => [
-            'driver' => 'single',
-            'path' => storage_path('logs/carga.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
-            'replace_placeholders' => true,
-        ],
-
-        'pdf' => [
-            'driver' => 'single',
-            'path' => storage_path('logs/pdf.log'),
-            'level' => env('LOG_LEVEL', 'debug'),
+        // ===== CANAL PERSONALIZADO PARA QPSE =====
+        'envioqpse' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/envioqpse.log'),
+            'level' => 'debug',
+            'days' => 30,
             'replace_placeholders' => true,
         ],
 

@@ -93,23 +93,59 @@ class QpseGreenterAdapter
      */
     protected function generateXmlWithGreenter(string $type, array $data): string
     {
+        // Log del inicio de generación
+        Log::channel('envioqpse')->info('🏗️ Generando XML con Greenter', [
+            'type' => $type,
+            'data_keys' => array_keys($data),
+            'serie' => $data['serie'] ?? null,
+            'correlativo' => $data['correlativo'] ?? null,
+        ]);
+        
         // Obtener la empresa desde los datos si está disponible
         $companyModel = null;
         if (isset($data['company']['ruc'])) {
             $companyModel = \App\Models\Company::where('ruc', $data['company']['ruc'])->first();
+            
+            Log::channel('envioqpse')->info('🏢 Empresa encontrada para XML', [
+                'company_id' => $companyModel?->id,
+                'company_ruc' => $companyModel?->ruc,
+                'company_name' => $companyModel?->business_name,
+            ]);
         }
         
-        switch ($type) {
-            case 'invoice':
-                return $this->greenterService->generateInvoiceXml($data, $companyModel);
-            case 'credit':
-                return $this->greenterService->generateCreditNoteXml($data);
-            case 'debit':
-                return $this->greenterService->generateDebitNoteXml($data);
-            case 'despatch':
-                throw new \Exception("Guías de remisión requieren implementación especial");
-            default:
-                throw new \Exception("Tipo de documento no soportado: $type");
+        try {
+            switch ($type) {
+                case 'invoice':
+                    $xml = $this->greenterService->generateInvoiceXml($data, $companyModel);
+                    break;
+                case 'credit':
+                    $xml = $this->greenterService->generateCreditNoteXml($data);
+                    break;
+                case 'debit':
+                    $xml = $this->greenterService->generateDebitNoteXml($data);
+                    break;
+                case 'despatch':
+                    throw new \Exception("Guías de remisión requieren implementación especial");
+                default:
+                    throw new \Exception("Tipo de documento no soportado: $type");
+            }
+            
+            Log::channel('envioqpse')->info('✅ XML generado exitosamente', [
+                'type' => $type,
+                'xml_length' => strlen($xml),
+                'xml_preview' => substr($xml, 0, 200) . '...',
+            ]);
+            
+            return $xml;
+            
+        } catch (\Exception $e) {
+            Log::channel('envioqpse')->error('❌ Error generando XML con Greenter', [
+                'type' => $type,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            
+            throw $e;
         }
     }
 
@@ -200,14 +236,31 @@ class QpseGreenterAdapter
      */
     protected function generateFileName(string $type, array $data): string
     {
+        Log::channel('envioqpse')->info('📝 Generando nombre de archivo', [
+            'type' => $type,
+            'data_keys' => array_keys($data),
+        ]);
+        
         // Obtener la empresa desde los datos si está disponible
         $companyModel = null;
         if (isset($data['company']['ruc'])) {
             $companyModel = \App\Models\Company::where('ruc', $data['company']['ruc'])->first();
+            
+            Log::channel('envioqpse')->info('🏢 Empresa para nombre de archivo', [
+                'company_ruc' => $data['company']['ruc'],
+                'company_found' => $companyModel ? 'SI' : 'NO',
+                'company_id' => $companyModel?->id,
+            ]);
         }
         
         if ($type === 'invoice') {
-            return $this->greenterService->getInvoiceFileName($data, $companyModel);
+            $fileName = $this->greenterService->getInvoiceFileName($data, $companyModel);
+            
+            Log::channel('envioqpse')->info('✅ Nombre de archivo generado (Invoice)', [
+                'filename' => $fileName,
+            ]);
+            
+            return $fileName;
         }
         
         // Para otros tipos de documento, usar el RUC de la empresa actual
@@ -215,17 +268,34 @@ class QpseGreenterAdapter
             $companyModel = \App\Models\Company::where('status', 'active')->first();
             
             if (!$companyModel) {
+                Log::channel('envioqpse')->error('❌ No se encontró empresa activa para archivo');
                 throw new \Exception('No se encontró ninguna empresa activa para generar el nombre del archivo');
             }
+            
+            Log::channel('envioqpse')->info('🏢 Usando empresa activa por defecto', [
+                'company_id' => $companyModel->id,
+                'company_ruc' => $companyModel->ruc,
+            ]);
         }
         
         $ruc = $companyModel->ruc;
         $serie = $data['serie'] ?? 'DOC001';
         $numero = $data['correlativo'] ?? $data['numero'] ?? 1; // Sin padding, como en Postman
-        $typeCode = config("qpse.document_types.$type", '01');
+        $typeCode = $data['tipoDoc'] ?? '01'; // Usar el tipo de documento de los datos
         
         // QPse espera formato: RUC-TIPODOC-SERIE-CORRELATIVO (sin .xml)
-        return "{$ruc}-{$typeCode}-{$serie}-{$numero}";
+        $fileName = "{$ruc}-{$typeCode}-{$serie}-{$numero}";
+        
+        Log::channel('envioqpse')->info('✅ Nombre de archivo generado (Otro)', [
+            'type' => $type,
+            'type_code' => $typeCode,
+            'ruc' => $ruc,
+            'serie' => $serie,
+            'numero' => $numero,
+            'filename' => $fileName,
+        ]);
+        
+        return $fileName;
     }
 
     /**

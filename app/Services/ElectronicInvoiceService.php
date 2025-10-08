@@ -58,9 +58,25 @@ class ElectronicInvoiceService
      */
     protected function processElectronicDocument(Invoice $invoice, string $documentType): array
     {
+        Log::channel('envioqpse')->info('🚀 ==== INICIANDO ENVÍO DE DOCUMENTO ELECTRÓNICO ====', [
+            'invoice_id' => $invoice->id,
+            'full_number' => $invoice->full_number,
+            'document_type' => $invoice->document_type,
+            'qpse_document_type' => $documentType,
+            'client_name' => $invoice->client_business_name,
+            'total_amount' => $invoice->total_amount,
+            'currency' => $invoice->currency_code,
+            'company_ruc' => $invoice->company->ruc,
+        ]);
+        
         try {
             // Verificar que la factura no haya sido enviada ya
             if ($invoice->sunat_status === 'accepted') {
+                Log::channel('envioqpse')->warning('⚠️ Documento ya aceptado por SUNAT', [
+                    'invoice_id' => $invoice->id,
+                    'current_status' => $invoice->sunat_status,
+                ]);
+                
                 return [
                     'success' => false,
                     'error' => [
@@ -71,20 +87,30 @@ class ElectronicInvoiceService
             }
 
             // Configurar QPse con credenciales de la empresa
+            Log::channel('envioqpse')->info('⚙️ Configurando QPse para empresa', [
+                'company_id' => $invoice->company->id,
+                'company_ruc' => $invoice->company->ruc,
+            ]);
+            
             $this->configureQpseForCompany($invoice->company);
 
             // Convertir Invoice model a formato compatible con QPse
+            Log::channel('envioqpse')->info('🔄 Construyendo datos del documento', [
+                'invoice_id' => $invoice->id,
+            ]);
+            
             $documentData = $this->buildDocumentData($invoice);
 
             // Log de los datos que se van a enviar
-            Log::info('Datos preparados para envío a QPse', [
+            Log::channel('envioqpse')->info('📦 Datos preparados para envío a QPse', [
                 'invoice_id' => $invoice->id,
                 'full_number' => $invoice->full_number,
                 'document_data_keys' => array_keys($documentData),
                 'serie' => $documentData['serie'] ?? null,
                 'correlativo' => $documentData['correlativo'] ?? null,
                 'client_doc' => $documentData['client']['numDoc'] ?? null,
-                'total' => $documentData['mtoImpVenta'] ?? null
+                'total' => $documentData['mtoImpVenta'] ?? null,
+                'company_ruc' => $documentData['company']['ruc'] ?? null,
             ]);
 
             // Registrar inicio del envío
@@ -99,6 +125,10 @@ class ElectronicInvoiceService
             $invoice->update(['sunat_status' => 'sent']);
 
             // Enviar a QPse
+            Log::channel('envioqpse')->info('🚀 Enviando a QPse vía adaptador', [
+                'document_type' => $documentType,
+            ]);
+            
             $result = match($documentType) {
                 'invoice' => $this->adapter->sendInvoice($documentData),
                 'credit' => $this->adapter->sendCreditNote($documentData),
@@ -107,7 +137,7 @@ class ElectronicInvoiceService
             };
 
             // Log detallado del resultado de QPse
-            Log::info('Resultado de QPse para documento', [
+            Log::channel('envioqpse')->info('📨 Resultado de QPse recibido', [
                 'invoice_id' => $invoice->id,
                 'full_number' => $invoice->full_number,
                 'result' => $result,
@@ -118,9 +148,26 @@ class ElectronicInvoiceService
             ]);
 
             // Procesar resultado
-            return $this->processResult($invoice, $result);
+            $finalResult = $this->processResult($invoice, $result);
+            
+            Log::channel('envioqpse')->info('✅ ==== ENVÍO COMPLETADO ====', [
+                'invoice_id' => $invoice->id,
+                'final_success' => $finalResult['success'] ?? false,
+                'final_message' => $finalResult['message'] ?? null,
+            ]);
+            
+            return $finalResult;
 
         } catch (\Exception $e) {
+            Log::channel('envioqpse')->error('❌ ==== ERROR EN ENVÍO DE DOCUMENTO ====', [
+                'invoice_id' => $invoice->id,
+                'error_message' => $e->getMessage(),
+                'error_code' => $e->getCode(),
+                'error_file' => $e->getFile(),
+                'error_line' => $e->getLine(),
+                'stack_trace' => $e->getTraceAsString(),
+            ]);
+            
             Log::error('Error al enviar documento electrónico', [
                 'invoice_id' => $invoice->id,
                 'error' => $e->getMessage(),
@@ -167,32 +214,39 @@ class ElectronicInvoiceService
         $company = $invoice->company;
         $client = $invoice->client;
         
-        // Construir datos básicos del documento
+        Log::channel('envioqpse')->info('🏗️ Construyendo datos de documento', [
+            'invoice_id' => $invoice->id,
+            'company_ruc' => $company->ruc,
+            'client_doc' => $client->document_number,
+            'details_count' => $invoice->details->count(),
+        ]);
+        
+        // Construir datos básicos del documento en formato Greenter
         $data = [
-            // Emisor
+            // Datos básicos del documento
+            'ublVersion' => '2.1',
+            'tipoOperacion' => $invoice->operation_type ?? '0101',
+            'tipoDoc' => $invoice->document_type,
+            'serie' => $invoice->series,
+            'correlativo' => (string) $invoice->number, // Sin padding, como esperado por QPse
+            'fechaEmision' => $invoice->issue_date->format('Y-m-d'),
+            'fechaVencimiento' => $invoice->due_date?->format('Y-m-d'),
+            'tipoMoneda' => $invoice->currency_code,
+            'tipoCambio' => (float) $invoice->exchange_rate,
+
+            // Emisor (empresa)
             'company' => [
                 'ruc' => $company->ruc,
                 'razonSocial' => $company->business_name,
-                'nombreComercial' => $company->commercial_name,
+                'nombreComercial' => $company->commercial_name ?: $company->business_name,
                 'address' => [
                     'direccion' => $company->address,
                     'distrito' => $company->district,
                     'provincia' => $company->province,
                     'departamento' => $company->department,
-                    'ubigeo' => $company->ubigeo
+                    'ubigeo' => $company->ubigeo ?: '150101'
                 ]
             ],
-
-            // Documento
-            'tipoDoc' => $invoice->document_type,
-            'serie' => $invoice->series,
-            'correlativo' => (string) $invoice->number, // Sin padding, como esperado por QPse
-            'fechaEmision' => $invoice->issue_date->format('Y-m-d'),
-            'horaEmision' => $invoice->issue_time ?? now()->format('H:i:s'),
-            'fechaVencimiento' => $invoice->due_date?->format('Y-m-d'),
-            'tipoMoneda' => $invoice->currency_code,
-            'tipoCambio' => (float) $invoice->exchange_rate,
-            'tipoOperacion' => $invoice->operation_type ?? '0101',
 
             // Cliente
             'client' => [
@@ -204,23 +258,28 @@ class ElectronicInvoiceService
                 'telephone' => $client->phone
             ],
 
-            // Detalle de productos/servicios
-            'details' => $this->buildInvoiceDetails($invoice),
+            // Detalle de productos/servicios en formato Greenter
+            'details' => $this->buildGreenterInvoiceDetails($invoice),
 
             // Totales
             'mtoOperGravadas' => (float) $invoice->subtotal,
             'mtoIGV' => (float) $invoice->igv_amount,
-            'valorVenta' => (float) $invoice->subtotal,
             'totalImpuestos' => (float) $invoice->igv_amount,
-            'subTotal' => (float) $invoice->subtotal,
+            'valorVenta' => (float) $invoice->subtotal,
+            'subTotal' => (float) $invoice->total_amount,
             'mtoImpVenta' => (float) $invoice->total_amount,
 
-            // Leyendas
+            // Leyendas en formato Greenter
             'legends' => [
                 [
                     'code' => '1000',
                     'value' => $this->numberToWords($invoice->total_amount, $invoice->currency_code)
                 ]
+            ],
+
+            // Forma de pago
+            'formaPago' => [
+                'tipo' => $invoice->payment_condition === 'immediate' ? 'Contado' : 'Credito'
             ],
 
             // Condición de pago
@@ -238,14 +297,22 @@ class ElectronicInvoiceService
                 ];
             })->toArray();
         }
+        
+        Log::channel('envioqpse')->info('✅ Datos de documento construidos', [
+            'data_keys' => array_keys($data),
+            'company_ruc' => $data['company']['ruc'],
+            'client_doc' => $data['client']['numDoc'],
+            'total' => $data['mtoImpVenta'],
+            'details_count' => count($data['details']),
+        ]);
 
         return $data;
     }
 
     /**
-     * Construir detalle de la factura
+     * Construir detalle de la factura en formato Greenter
      */
-    protected function buildInvoiceDetails(Invoice $invoice): array
+    protected function buildGreenterInvoiceDetails(Invoice $invoice): array
     {
         return $invoice->details->map(function ($detail, $index) {
             return [
@@ -256,7 +323,7 @@ class ElectronicInvoiceService
                 'mtoValorUnitario' => (float) $detail->unit_value,
                 'mtoValorVenta' => (float) $detail->net_amount,
                 'mtoBaseIgv' => (float) $detail->igv_base_amount,
-                'porcentajeIgv' => (float) $detail->igv_rate * 100, // Convertir a porcentaje
+                'porcentajeIgv' => (float) ($detail->igv_rate * 100), // Convertir a porcentaje
                 'igv' => (float) $detail->igv_amount,
                 'tipAfeIgv' => $detail->tax_type ?: '10',
                 'totalImpuestos' => (float) $detail->total_taxes,
