@@ -808,6 +808,12 @@ class CompanyResource extends Resource
             ->actions([
                 ViewAction::make(),
                 EditAction::make(),
+                \Filament\Tables\Actions\Action::make('web_config')
+                    ->label('Configuración Web')
+                    ->icon('heroicon-o-globe-alt')
+                    ->color('info')
+                    ->url(fn ($record): string => route('filament.admin.resources.web-configurations.index', ['company_id' => $record->id]))
+                    ->openUrlInNewTab(false),
                 DeleteAction::make()
                     ->hidden(fn () => true),
             ])

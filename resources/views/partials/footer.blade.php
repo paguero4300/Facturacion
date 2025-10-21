@@ -15,9 +15,21 @@
                     <img src="{{ asset('logos/logook.png') }}" alt="Detalles y Más Flores" class="h-16 w-auto object-contain" style="background-color: transparent !important; min-height: auto !important;">
                 </div>
                 <h3 class="font-bold mb-3" style="color: var(--enlaces-titulos);">Detalles y Más</h3>
-                <p class="text-sm mb-2">📞 (+51) 944 492 316</p>
-                <p class="text-sm mb-2">✉️ contacto@detalles.com</p>
-                <p class="text-sm">🕒 Lun - Dom: 9:00 - 20:00</p>
+                <p class="text-sm mb-2">📞 {{ $webConfig->telefono_huancayo ?? '(+51) 944 492 316' }}</p>
+                <p class="text-sm mb-2">📞 {{ $webConfig->telefono_lima ?? '(+51) 944 492 317' }}</p>
+                <p class="text-sm mb-2">✉️ {{ $webConfig->email ?? 'contacto@detalles.com' }}</p>
+                <p class="text-sm">🕒 {{ $webConfig->horario_atencion ?? 'Lun - Dom: 9:00 - 20:00' }}</p>
+                <div class="flex space-x-3 mt-4">
+                    <a href="{{ $webConfig->facebook ?? 'https://facebook.com' }}" target="_blank" rel="noopener noreferrer">
+                        <img src="{{ asset('logos/face.png') }}" alt="Facebook" class="h-8 w-8 object-contain transition hover:opacity-80">
+                    </a>
+                    <a href="{{ $webConfig->instagram ?? 'https://instagram.com' }}" target="_blank" rel="noopener noreferrer">
+                        <img src="{{ asset('logos/inst.png') }}" alt="Instagram" class="h-8 w-8 object-contain transition hover:opacity-80">
+                    </a>
+                    <a href="{{ $webConfig->tiktok ?? 'https://tiktok.com' }}" target="_blank" rel="noopener noreferrer">
+                        <img src="{{ asset('logos/tik-tok.png') }}" alt="TikTok" class="h-8 w-8 object-contain transition hover:opacity-80">
+                    </a>
+                </div>
             </div>
             <div>
                 <h3 class="font-bold mb-4" style="color: var(--enlaces-titulos);">Arreglos</h3>

@@ -65,6 +65,16 @@ class Company extends Model
         return $this->hasMany(Invoice::class);
     }
 
+    public function webConfiguration(): HasMany
+    {
+        return $this->hasMany(WebConfiguration::class);
+    }
+
+    public function webConfig()
+    {
+        return $this->hasOne(WebConfiguration::class)->latest();
+    }
+
     // Scopes
     public function scopeActive($query)
     {

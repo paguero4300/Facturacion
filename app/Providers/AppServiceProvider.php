@@ -2,23 +2,9 @@
 
 namespace App\Providers;
 
-use App\Filament\Pages\Pos;
-use App\Models\Invoice;
-use App\Models\InvoiceDetail;
-use App\Models\PaymentInstallment;
-use App\Models\Product;
-use App\Models\InventoryMovement;
-use App\Observers\InvoiceObserver;
-use App\Observers\InvoiceDetailObserver;
-use App\Observers\PaymentInstallmentObserver;
-use App\Observers\ProductObserver;
-use App\Observers\InventoryMovementObserver;
-use App\Observers\InvoiceDeliveryObserver;
-use Filament\Support\Facades\FilamentView;
-use Filament\View\PanelsRenderHook;
-use Illuminate\Support\ServiceProvider;
+use App\Models\WebConfiguration;
 use Illuminate\Support\Facades\View;
-use App\Models\Category;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -35,43 +21,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Invoice::observe(InvoiceObserver::class);
-        Invoice::observe(InvoiceDeliveryObserver::class);
-        InvoiceDetail::observe(InvoiceDetailObserver::class);
-        PaymentInstallment::observe(PaymentInstallmentObserver::class);
-        Product::observe(ProductObserver::class);
-        InventoryMovement::observe(InventoryMovementObserver::class);
-        
-        // Ocultar header completo en la página POS
-        FilamentView::registerRenderHook(
-            PanelsRenderHook::PAGE_HEADER_WIDGETS_BEFORE,
-            fn (): string => request()->routeIs('filament.admin.pages.pos') ? '<style>.fi-header { display: none !important; }</style>' : '',
-            scopes: [Pos::class]
-        );
-
-        // Compartir categorías del menú con todas las vistas web
-        View::composer('partials.header', function ($view) {
-            $menuCategories = Category::query()
-                ->whereNull('parent_id')
-                ->where('status', true)
-                ->with(['activeChildren' => function ($query) {
-                    $query->orderBy('order');
-                }])
-                ->orderBy('order')
-                ->get();
+        // Compartir configuración web con todas las vistas
+        View::composer('partials.footer', function ($view) {
+            // Por ahora, tomar la primera configuración disponible
+            // Luego se puede modificar para tomar según la empresa activa
+            $webConfig = WebConfiguration::first();
             
-            $view->with('menuCategories', $menuCategories);
-        });
-
-        // Compartir categorías principales para la sección "Nuestras Categorías"
-        View::composer('partials.categories', function ($view) {
-            $mainCategories = Category::query()
-                ->whereNull('parent_id')
-                ->where('status', true)
-                ->orderBy('order')
-                ->get();
-            
-            $view->with('mainCategories', $mainCategories);
+            $view->with('webConfig', $webConfig);
         });
     }
 }
