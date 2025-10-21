@@ -39,6 +39,7 @@ class WebConfigurationResource extends Resource
                     ->relationship('company', 'commercial_name')
                     ->required()
                     ->label('Empresa')
+                    ->columnSpanFull()
                     ->default(function () {
                         $companyId = request()->get('company_id');
                         if ($companyId) {
@@ -48,49 +49,60 @@ class WebConfigurationResource extends Resource
                     }),
                 
                 \Filament\Schemas\Components\Section::make('Información de Contacto')
+                    ->description('Configura los datos principales de contacto para tus clientes')
                     ->schema([
-                        \Filament\Forms\Components\TextInput::make('telefono_huancayo')
-                            ->label('Teléfono Huancayo')
-                            ->placeholder('Ej: (+51) 944 492 316')
-                            ->required(),
-                        
-                        \Filament\Forms\Components\TextInput::make('telefono_lima')
-                            ->label('Teléfono Lima')
-                            ->placeholder('Ej: (+51) 944 492 317')
-                            ->required(),
-                        
                         \Filament\Forms\Components\TextInput::make('email')
-                            ->label('Email')
+                            ->label('Correo Electrónico')
                             ->email()
-                            ->placeholder('Ej: contacto@detalles.com')
-                            ->required(),
+                            ->placeholder('Ej: contacto@empresa.com')
+                            ->required()
+                            ->prefixIcon('heroicon-o-envelope')
+                            ->columnSpanFull(),
                         
                         \Filament\Forms\Components\TextInput::make('horario_atencion')
                             ->label('Horario de Atención')
                             ->placeholder('Ej: Lun - Dom: 9:00 - 20:00')
-                            ->required(),
+                            ->required()
+                            ->prefixIcon('heroicon-o-clock')
+                            ->columnSpanFull(),
+                        
+                        \Filament\Forms\Components\TextInput::make('telefono_huancayo')
+                            ->label('Teléfono Huancayo')
+                            ->placeholder('Ej: (+51) 944 492 316')
+                            ->required()
+                            ->prefixIcon('heroicon-o-phone'),
+                        
+                        \Filament\Forms\Components\TextInput::make('telefono_lima')
+                            ->label('Teléfono Lima')
+                            ->placeholder('Ej: (+51) 944 492 317')
+                            ->required()
+                            ->prefixIcon('heroicon-o-phone'),
                     ])
                     ->columns(2),
                 
                 \Filament\Schemas\Components\Section::make('Redes Sociales')
+                    ->description('Enlaza tus perfiles de redes sociales para que los clientes puedan seguirte')
                     ->schema([
                         \Filament\Forms\Components\TextInput::make('facebook')
-                            ->label('Facebook URL')
+                            ->label('Facebook')
                             ->url()
                             ->placeholder('https://facebook.com/tu-pagina')
-                            ->required(),
+                            ->required()
+                            ->prefixIcon('heroicon-o-globe-alt'),
                         
                         \Filament\Forms\Components\TextInput::make('instagram')
-                            ->label('Instagram URL')
+                            ->label('Instagram')
                             ->url()
                             ->placeholder('https://instagram.com/tu-perfil')
-                            ->required(),
+                            ->required()
+                            ->prefixIcon('heroicon-o-camera'),
                         
                         \Filament\Forms\Components\TextInput::make('tiktok')
-                            ->label('TikTok URL')
+                            ->label('TikTok')
                             ->url()
                             ->placeholder('https://tiktok.com/@tu-usuario')
-                            ->required(),
+                            ->required()
+                            ->prefixIcon('heroicon-o-video-camera'),
                     ])
                     ->columns(1),
             ]);
