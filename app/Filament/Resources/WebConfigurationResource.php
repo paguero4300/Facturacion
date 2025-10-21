@@ -118,11 +118,11 @@ class WebConfigurationResource extends Resource
                     ->sortable(),
                 
                 TextColumn::make('telefono_huancayo')
-                    ->label('Teléfono Huancayo')
+                    ->label('Teléfono 1')
                     ->searchable(),
                 
                 TextColumn::make('telefono_lima')
-                    ->label('Teléfono Lima')
+                    ->label('Teléfono 2')
                     ->searchable(),
                 
                 TextColumn::make('email')
