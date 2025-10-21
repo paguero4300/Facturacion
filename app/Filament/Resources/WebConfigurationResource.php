@@ -67,13 +67,13 @@ class WebConfigurationResource extends Resource
                             ->columnSpanFull(),
                         
                         \Filament\Forms\Components\TextInput::make('telefono_huancayo')
-                            ->label('Teléfono Huancayo')
+                            ->label('Teléfono 1')
                             ->placeholder('Ej: (+51) 944 492 316')
                             ->required()
                             ->prefixIcon('heroicon-o-phone'),
                         
                         \Filament\Forms\Components\TextInput::make('telefono_lima')
-                            ->label('Teléfono Lima')
+                            ->label('Teléfono 2')
                             ->placeholder('Ej: (+51) 944 492 317')
                             ->required()
                             ->prefixIcon('heroicon-o-phone'),
