@@ -16,6 +16,8 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use BackedEnum;
+use UnitEnum;
 
 class WebConfigurationResource extends Resource
 {
@@ -26,6 +28,8 @@ class WebConfigurationResource extends Resource
     protected static ?string $modelLabel = 'Configuración Web';
 
     protected static ?string $pluralModelLabel = 'Configuraciones Web';
+
+    protected static string|UnitEnum|null $navigationGroup = 'Administración';
 
     public static function form(Schema $schema): Schema
     {
