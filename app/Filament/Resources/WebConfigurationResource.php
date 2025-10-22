@@ -105,6 +105,111 @@ class WebConfigurationResource extends Resource
                             ->prefixIcon('heroicon-o-video-camera'),
                     ])
                     ->columns(1),
+                 
+                 \Filament\Schemas\Components\Section::make('Banners del Sitio Web')
+                     ->description('Configura los banners para el carrusel principal. Si solo cargas un banner, se mostrará estático. Si cargas varios, se mostrarán como carrusel.')
+                     ->schema([
+                         \Filament\Schemas\Components\Section::make('Banner 1')
+                             ->schema([
+                                 \Filament\Forms\Components\FileUpload::make('banner_1_imagen')
+                                     ->label('Imagen del Banner 1')
+                                     ->image()
+                                     ->imageEditor()
+                                     ->directory('banners')
+                                     ->disk('public')
+                                     ->maxSize(2048)
+                                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                     ->helperText('Dimensiones recomendadas: 1200x600px'),
+                                 
+                                 \Filament\Forms\Components\TextInput::make('banner_1_titulo')
+                                     ->label('Título del Banner 1')
+                                     ->placeholder('Ej: Ofertas Especiales')
+                                     ->maxLength(100),
+                                 
+                                 \Filament\Forms\Components\Textarea::make('banner_1_texto')
+                                     ->label('Texto del Banner 1')
+                                     ->placeholder('Ej: Descubre nuestras promociones de temporada')
+                                     ->rows(2)
+                                     ->maxLength(200),
+                                 
+                                 \Filament\Forms\Components\TextInput::make('banner_1_link')
+                                     ->label('Enlace del Banner 1')
+                                     ->url()
+                                     ->placeholder('https://ejemplo.com')
+                                     ->prefixIcon('heroicon-o-link'),
+                             ])
+                             ->columns(2)
+                             ->collapsible()
+                             ->collapsed(fn ($get) => !$get('banner_1_imagen')),
+                         
+                         \Filament\Schemas\Components\Section::make('Banner 2')
+                             ->schema([
+                                 \Filament\Forms\Components\FileUpload::make('banner_2_imagen')
+                                     ->label('Imagen del Banner 2')
+                                     ->image()
+                                     ->imageEditor()
+                                     ->directory('banners')
+                                     ->disk('public')
+                                     ->maxSize(2048)
+                                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                     ->helperText('Dimensiones recomendadas: 1200x600px'),
+                                 
+                                 \Filament\Forms\Components\TextInput::make('banner_2_titulo')
+                                     ->label('Título del Banner 2')
+                                     ->placeholder('Ej: Nuevos Productos')
+                                     ->maxLength(100),
+                                 
+                                 \Filament\Forms\Components\Textarea::make('banner_2_texto')
+                                     ->label('Texto del Banner 2')
+                                     ->placeholder('Ej: Conoce las últimas novedades')
+                                     ->rows(2)
+                                     ->maxLength(200),
+                                 
+                                 \Filament\Forms\Components\TextInput::make('banner_2_link')
+                                     ->label('Enlace del Banner 2')
+                                     ->url()
+                                     ->placeholder('https://ejemplo.com')
+                                     ->prefixIcon('heroicon-o-link'),
+                             ])
+                             ->columns(2)
+                             ->collapsible()
+                             ->collapsed(fn ($get) => !$get('banner_2_imagen')),
+                         
+                         \Filament\Schemas\Components\Section::make('Banner 3')
+                             ->schema([
+                                 \Filament\Forms\Components\FileUpload::make('banner_3_imagen')
+                                     ->label('Imagen del Banner 3')
+                                     ->image()
+                                     ->imageEditor()
+                                     ->directory('banners')
+                                     ->disk('public')
+                                     ->maxSize(2048)
+                                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                     ->helperText('Dimensiones recomendadas: 1200x600px'),
+                                 
+                                 \Filament\Forms\Components\TextInput::make('banner_3_titulo')
+                                     ->label('Título del Banner 3')
+                                     ->placeholder('Ej: Servicios Premium')
+                                     ->maxLength(100),
+                                 
+                                 \Filament\Forms\Components\Textarea::make('banner_3_texto')
+                                     ->label('Texto del Banner 3')
+                                     ->placeholder('Ej: Calidad garantizada en todos nuestros productos')
+                                     ->rows(2)
+                                     ->maxLength(200),
+                                 
+                                 \Filament\Forms\Components\TextInput::make('banner_3_link')
+                                     ->label('Enlace del Banner 3')
+                                     ->url()
+                                     ->placeholder('https://ejemplo.com')
+                                     ->prefixIcon('heroicon-o-link'),
+                             ])
+                             ->columns(2)
+                             ->collapsible()
+                             ->collapsed(fn ($get) => !$get('banner_3_imagen')),
+                     ])
+                     ->columns(1)
+                     ->collapsible(),
             ]);
     }
 

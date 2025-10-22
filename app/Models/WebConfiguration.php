@@ -18,6 +18,18 @@ class WebConfiguration extends Model
         'tiktok',
         'instagram',
         'facebook',
+        'banner_1_imagen',
+        'banner_1_titulo',
+        'banner_1_texto',
+        'banner_1_link',
+        'banner_2_imagen',
+        'banner_2_titulo',
+        'banner_2_texto',
+        'banner_2_link',
+        'banner_3_imagen',
+        'banner_3_titulo',
+        'banner_3_texto',
+        'banner_3_link',
     ];
 
     protected $casts = [

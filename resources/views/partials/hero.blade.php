@@ -10,6 +10,29 @@
 -->
 <!-- Hero Section Rediseñada -->
 <section class="hero-modern relative overflow-hidden min-h-screen flex items-center" aria-label="Sección principal de bienvenida">
+<?php
+// Obtener la configuración web específica para el ID 1
+$webConfig = \App\Models\WebConfiguration::find(1);
+
+// Crear array de banners activos
+$banners = [];
+if ($webConfig) {
+    for ($i = 1; $i <= 3; $i++) {
+        $imagen = $webConfig->{"banner_{$i}_imagen"} ?? null;
+        if ($imagen) {
+            $banners[] = [
+                'imagen' => $imagen,
+                'titulo' => $webConfig->{"banner_{$i}_titulo"} ?? '',
+                'texto' => $webConfig->{"banner_{$i}_texto"} ?? '',
+                'link' => $webConfig->{"banner_{$i}_link"} ?? '#'
+            ];
+        }
+    }
+}
+
+$hasBanners = count($banners) > 0;
+$isCarousel = count($banners) > 1;
+?>
     <!-- Fondo dinámico con gradiente animado -->
     <div class="hero-background absolute inset-0" 
          style="background: linear-gradient(135deg, var(--fondo-principal) 0%, #f8f9ff 50%, var(--fondo-principal) 100%);"></div>
@@ -233,63 +256,191 @@
                 </div>
             </div>
 
-            <!-- Columna visual mejorada -->
+            <!-- Columna visual mejorada con banners dinámicos -->
             <div class="hero-visual order-1 lg:order-2 animate-fade-in-up animation-delay-300">
-                <div class="image-container relative group">
-                    <!-- Efectos de fondo dinámicos -->
-                    <div class="absolute -inset-8 rounded-3xl opacity-20 blur-2xl transition-all duration-700 group-hover:opacity-30" 
-                         style="background: conic-gradient(from 0deg, var(--naranja), var(--azul-claro), var(--azul-primario), var(--naranja)); animation: rotate-gradient 10s linear infinite;"></div>
-                    
-                    <!-- Contenedor principal de imagen -->
-                    <div class="relative bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden transition-all duration-700 group-hover:scale-[1.02] group-hover:shadow-3xl" 
-                         style="border: 1px solid rgba(255, 153, 0, 0.2);">
-                        <div class="aspect-[4/3] relative overflow-hidden">
-                            <!-- Imagen principal -->
-                            <img src="{{ asset('logos/herosection.png') }}" 
-                                 alt="Hermosos arreglos florales y regalos únicos de Detalles y Más" 
-                                 class="hero-image w-full h-full object-cover transition-all duration-700 group-hover:scale-110" 
-                                 loading="eager"
-                                 onerror="this.src='https://via.placeholder.com/800x600/ff9900/ffffff?text=Detalles+y+M%C3%A1s'">
-                            
-                            <!-- Overlay con gradiente sutil -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            
-                            <!-- Efectos de partículas en la imagen -->
-                            <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="background: radial-gradient(circle at 30% 70%, rgba(255, 153, 0, 0.1) 0%, transparent 50%), radial-gradient(circle at 70% 30%, rgba(30, 160, 195, 0.1) 0%, transparent 50%);"></div>
-                        </div>
+                
+                @if($hasBanners)
+                    <!-- Slider de Banners -->
+                    <div class="banner-slider relative group">
+                        <!-- Efectos de fondo dinámicos -->
+                        <div class="absolute -inset-8 rounded-3xl opacity-20 blur-2xl transition-all duration-700 group-hover:opacity-30"
+                             style="background: conic-gradient(from 0deg, var(--naranja), var(--azul-claro), var(--azul-primario), var(--naranja)); animation: rotate-gradient 10s linear infinite;"></div>
                         
-                        <!-- Badge flotante de calidad -->
-                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg border transition-all duration-300 hover:scale-105" 
-                             style="border-color: var(--naranja);">
-                            <div class="flex items-center gap-2">
-                                <span class="text-xl">⭐</span>
-                                <div class="text-sm">
-                                    <div class="font-bold" style="color: var(--naranja);">Calidad Premium</div>
-                                    <div class="text-xs opacity-75" style="color: var(--texto-principal);">Desde 2020</div>
+                        <div class="relative bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden transition-all duration-700 group-hover:scale-[1.02] group-hover:shadow-3xl"
+                             style="border: 1px solid rgba(255, 153, 0, 0.2);">
+                            <div class="aspect-[4/3] relative overflow-hidden">
+                                @if($isCarousel)
+                                    <!-- Carrusel -->
+                                    <div class="carousel-container relative w-full h-full" id="bannerCarousel">
+                                        @foreach($banners as $index => $banner)
+                                            <div class="carousel-slide absolute inset-0 transition-opacity duration-1000 {{ $index == 0 ? 'opacity-100' : 'opacity-0' }}"
+                                                 data-slide="{{ $index }}">
+                                                @if($banner['link'] && $banner['link'] != '#')
+                                                    <a href="{{ $banner['link'] }}" class="block w-full h-full">
+                                                @endif
+                                                        
+                                                        <img src="{{ asset('storage/' . $banner['imagen']) }}"
+                                                             alt="{{ $banner['titulo'] ?: 'Banner ' . ($index + 1) }}"
+                                                             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                                             loading="eager"
+                                                             onerror="this.src='https://via.placeholder.com/800x600/ff9900/ffffff?text=Banner+{{ $index + 1 }}'">
+                                                        
+                                                        <!-- Overlay con contenido del banner -->
+                                                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end">
+                                                            <div class="p-6 text-white">
+                                                                @if($banner['titulo'])
+                                                                    <h3 class="text-xl lg:text-2xl font-bold mb-2">{{ $banner['titulo'] }}</h3>
+                                                                @endif
+                                                                @if($banner['texto'])
+                                                                    <p class="text-sm lg:text-base opacity-90">{{ $banner['texto'] }}</p>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                        
+                                                @if($banner['link'] && $banner['link'] != '#')
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                        
+                                        <!-- Controles del carrusel -->
+                                        <button class="carousel-prev absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 rounded-full w-10 h-10 flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110"
+                                                onclick="changeSlide(-1)">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                            </svg>
+                                        </button>
+                                        
+                                        <button class="carousel-next absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 rounded-full w-10 h-10 flex items-center justify-center shadow-lg transition-all duration-300 hover:scale-110"
+                                                onclick="changeSlide(1)">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                        </button>
+                                        
+                                        <!-- Indicadores -->
+                                        <div class="carousel-indicators absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                                            @foreach($banners as $index => $banner)
+                                                <button class="indicator w-2 h-2 rounded-full transition-all duration-300 {{ $index == 0 ? 'bg-white w-8' : 'bg-white/50' }}"
+                                                        onclick="goToSlide({{ $index }})"
+                                                        data-indicator="{{ $index }}"></button>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @else
+                                    <!-- Banner único -->
+                                    @php($banner = $banners[0]) ?>
+                                    <div class="single-banner relative w-full h-full">
+                                        @if($banner['link'] && $banner['link'] != '#')
+                                            <a href="{{ $banner['link'] }}" class="block w-full h-full">
+                                        @endif
+                                                
+                                            <img src="{{ asset('storage/' . $banner['imagen']) }}"
+                                                 alt="{{ $banner['titulo'] ?: 'Banner Principal' }}"
+                                                 class="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+                                                 loading="eager"
+                                                 onerror="this.src='https://via.placeholder.com/800x600/ff9900/ffffff?text=Banner+Principal'">
+                                            
+                                            <!-- Overlay con contenido del banner -->
+                                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent flex items-end">
+                                                <div class="p-6 text-white">
+                                                    @if($banner['titulo'])
+                                                        <h3 class="text-xl lg:text-2xl font-bold mb-2">{{ $banner['titulo'] }}</h3>
+                                                    @endif
+                                                    @if($banner['texto'])
+                                                        <p class="text-sm lg:text-base opacity-90">{{ $banner['texto'] }}</p>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            
+                                        @if($banner['link'] && $banner['link'] != '#')
+                                            </a>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+                            
+                            <!-- Badge flotante de calidad -->
+                            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg border transition-all duration-300 hover:scale-105"
+                                 style="border-color: var(--naranja);">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xl">⭐</span>
+                                    <div class="text-sm">
+                                        <div class="font-bold" style="color: var(--naranja);">Calidad Premium</div>
+                                        <div class="text-xs opacity-75" style="color: var(--texto-principal);">Desde 2020</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <!-- Indicador de confianza -->
-                        <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg border transition-all duration-300 hover:scale-105" 
-                             style="border-color: var(--azul-claro);">
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
-                                <span class="text-sm font-semibold" style="color: var(--texto-principal);">500+ clientes felices</span>
-                            </div>
+                        <!-- Elementos decorativos flotantes -->
+                        <div class="floating-elements absolute inset-0 pointer-events-none" aria-hidden="true">
+                            <div class="absolute -top-6 -left-6 w-12 h-12 rounded-full opacity-60 transition-all duration-500 group-hover:scale-125"
+                                 style="background: radial-gradient(circle, var(--naranja), rgba(255, 153, 0, 0.3)); animation: float-gentle 6s ease-in-out infinite;"></div>
+                            <div class="absolute -bottom-8 -right-8 w-16 h-16 rounded-full opacity-40 transition-all duration-500 group-hover:scale-125"
+                                 style="background: radial-gradient(circle, var(--azul-claro), rgba(30, 160, 195, 0.3)); animation: float-gentle 8s ease-in-out infinite reverse;"></div>
+                            <div class="absolute top-1/4 -right-4 w-8 h-8 rounded-full opacity-50 transition-all duration-500 group-hover:scale-125"
+                                 style="background: radial-gradient(circle, var(--azul-primario), rgba(0, 124, 186, 0.3)); animation: float-gentle 10s ease-in-out infinite;"></div>
                         </div>
                     </div>
-                    
-                    <!-- Elementos decorativos flotantes -->
-                    <div class="floating-elements absolute inset-0 pointer-events-none" aria-hidden="true">
-                        <div class="absolute -top-6 -left-6 w-12 h-12 rounded-full opacity-60 transition-all duration-500 group-hover:scale-125" 
-                             style="background: radial-gradient(circle, var(--naranja), rgba(255, 153, 0, 0.3)); animation: float-gentle 6s ease-in-out infinite;"></div>
-                        <div class="absolute -bottom-8 -right-8 w-16 h-16 rounded-full opacity-40 transition-all duration-500 group-hover:scale-125" 
-                             style="background: radial-gradient(circle, var(--azul-claro), rgba(30, 160, 195, 0.3)); animation: float-gentle 8s ease-in-out infinite reverse;"></div>
-                        <div class="absolute top-1/4 -right-4 w-8 h-8 rounded-full opacity-50 transition-all duration-500 group-hover:scale-125" 
-                             style="background: radial-gradient(circle, var(--azul-primario), rgba(0, 124, 186, 0.3)); animation: float-gentle 10s ease-in-out infinite;"></div>
+                @else
+                    <!-- Imagen por defecto original cuando no hay banners -->
+                    <div class="image-container relative group">
+                        <!-- Efectos de fondo dinámicos -->
+                        <div class="absolute -inset-8 rounded-3xl opacity-20 blur-2xl transition-all duration-700 group-hover:opacity-30"
+                             style="background: conic-gradient(from 0deg, var(--naranja), var(--azul-claro), var(--azul-primario), var(--naranja)); animation: rotate-gradient 10s linear infinite;"></div>
+                        
+                        <!-- Contenedor principal de imagen -->
+                        <div class="relative bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden transition-all duration-700 group-hover:scale-[1.02] group-hover:shadow-3xl"
+                             style="border: 1px solid rgba(255, 153, 0, 0.2);">
+                            <div class="aspect-[4/3] relative overflow-hidden">
+                                <!-- Imagen principal -->
+                                <img src="{{ asset('logos/herosection.png') }}"
+                                     alt="Hermosos arreglos florales y regalos únicos de Detalles y Más"
+                                     class="hero-image w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+                                     loading="eager"
+                                     onerror="this.src='https://via.placeholder.com/800x600/ff9900/ffffff?text=Detalles+y+M%C3%A1s'">
+                                
+                                <!-- Overlay con gradiente sutil -->
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                
+                                <!-- Efectos de partículas en la imagen -->
+                                <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style="background: radial-gradient(circle at 30% 70%, rgba(255, 153, 0, 0.1) 0%, transparent 50%), radial-gradient(circle at 70% 30%, rgba(30, 160, 195, 0.1) 0%, transparent 50%);"></div>
+                            </div>
+                            
+                            <!-- Badge flotante de calidad -->
+                            <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg border transition-all duration-300 hover:scale-105"
+                                 style="border-color: var(--naranja);">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xl">⭐</span>
+                                    <div class="text-sm">
+                                        <div class="font-bold" style="color: var(--naranja);">Calidad Premium</div>
+                                        <div class="text-xs opacity-75" style="color: var(--texto-principal);">Desde 2020</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Indicador de confianza -->
+                            <div class="absolute bottom-4 right-4 bg-white/90 backdrop-blur-sm rounded-xl px-4 py-2 shadow-lg border transition-all duration-300 hover:scale-105"
+                                 style="border-color: var(--azul-claro);">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                                    <span class="text-sm font-semibold" style="color: var(--texto-principal);">500+ clientes felices</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Elementos decorativos flotantes -->
+                        <div class="floating-elements absolute inset-0 pointer-events-none" aria-hidden="true">
+                            <div class="absolute -top-6 -left-6 w-12 h-12 rounded-full opacity-60 transition-all duration-500 group-hover:scale-125"
+                                 style="background: radial-gradient(circle, var(--naranja), rgba(255, 153, 0, 0.3)); animation: float-gentle 6s ease-in-out infinite;"></div>
+                            <div class="absolute -bottom-8 -right-8 w-16 h-16 rounded-full opacity-40 transition-all duration-500 group-hover:scale-125"
+                                 style="background: radial-gradient(circle, var(--azul-claro), rgba(30, 160, 195, 0.3)); animation: float-gentle 8s ease-in-out infinite reverse;"></div>
+                            <div class="absolute top-1/4 -right-4 w-8 h-8 rounded-full opacity-50 transition-all duration-500 group-hover:scale-125"
+                                 style="background: radial-gradient(circle, var(--azul-primario), rgba(0, 124, 186, 0.3)); animation: float-gentle 10s ease-in-out infinite;"></div>
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -310,3 +461,80 @@
         </svg>
     </div>
 </section>
+
+<!-- JavaScript para el carrusel de banners -->
+@if($isCarousel)
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const slides = document.querySelectorAll('.carousel-slide');
+    const indicators = document.querySelectorAll('.indicator');
+    let currentSlide = 0;
+    let slideInterval;
+    
+    function showSlide(index) {
+        // Ocultar todos los slides
+        slides.forEach(slide => slide.classList.remove('opacity-100'));
+        slides.forEach(slide => slide.classList.add('opacity-0'));
+        
+        // Mostrar slide actual
+        slides[index].classList.remove('opacity-0');
+        slides[index].classList.add('opacity-100');
+        
+        // Actualizar indicadores
+        indicators.forEach(indicator => {
+            indicator.classList.remove('bg-white', 'w-8');
+            indicator.classList.add('bg-white/50');
+        });
+        indicators[index].classList.remove('bg-white/50');
+        indicators[index].classList.add('bg-white', 'w-8');
+        
+        currentSlide = index;
+    }
+    
+    function nextSlide() {
+        const nextIndex = (currentSlide + 1) % slides.length;
+        showSlide(nextIndex);
+    }
+    
+    function prevSlide() {
+        const prevIndex = (currentSlide - 1 + slides.length) % slides.length;
+        showSlide(prevIndex);
+    }
+    
+    function startAutoSlide() {
+        slideInterval = setInterval(nextSlide, 5000); // Cambiar cada 5 segundos
+    }
+    
+    function stopAutoSlide() {
+        clearInterval(slideInterval);
+    }
+    
+    // Hacer funciones globales para los botones
+    window.changeSlide = function(direction) {
+        stopAutoSlide();
+        if (direction === 1) {
+            nextSlide();
+        } else {
+            prevSlide();
+        }
+        startAutoSlide();
+    };
+    
+    window.goToSlide = function(index) {
+        stopAutoSlide();
+        showSlide(index);
+        startAutoSlide();
+    };
+    
+    // Iniciar carrusel automático
+    startAutoSlide();
+    
+    // Pausar al pasar el mouse
+    const carousel = document.getElementById('bannerCarousel');
+    if (carousel) {
+        carousel.addEventListener('mouseenter', stopAutoSlide);
+        carousel.addEventListener('mouseleave', startAutoSlide);
+    }
+});
+</script>
+@endif
