@@ -329,7 +329,7 @@
                                         <input type="radio" name="payment_method" value="card" {{ old('payment_method') == 'card' ? 'checked' : '' }} required
                                             class="w-4 h-4 text-pink-600 focus:ring-pink-500" onchange="togglePaymentFields()">
                                         <div class="ml-3 flex-1">
-                                            <span class="font-medium text-gray-900">Tarjeta de Crédito/Débito (Próximamente)</span>
+                                            <span class="font-medium text-gray-900">Tarjeta de Crédito/Débito</span>
                                             <p class="text-xs text-gray-600 mt-1">Solicitar link de pago al WhatsApp: <a href="https://wa.me/51941492316" target="_blank" class="text-pink-600 hover:text-pink-700 font-semibold">941 492 316</a></p>
                                         </div>
                                         <span class="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Pronto</span>
