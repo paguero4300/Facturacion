@@ -329,7 +329,7 @@ $isCarousel = count($banners) > 1;
                                     </div>
                                 @else
                                     <!-- Banner único -->
-                                    @php($banner = $banners[0]) ?>
+                                    @php($banner = $banners[0])
                                     <div class="single-banner relative w-full h-full">
                                         @if($banner['link'] && $banner['link'] != '#')
                                             <a href="{{ $banner['link'] }}" class="block w-full h-full">
