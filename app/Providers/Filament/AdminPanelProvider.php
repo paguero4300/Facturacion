@@ -30,23 +30,27 @@ class AdminPanelProvider extends PanelProvider
     {
         return $panel
             ->default()
-            ->id('admin')
-            ->path('admin')
+            ->id("admin")
+            ->path("admin")
             ->login()
-            ->brandName('') // Ocultar texto del nombre
-            ->brandLogo(asset('logos/logo_horizontal.png'))
-            ->brandLogoHeight('4rem') // Logo más grande y vistoso
+            ->brandName("") // Ocultar texto del nombre
+            ->brandLogo(asset("logos/logopanel.png"))
+            ->brandLogoHeight("4rem") // Logo más grande y vistoso
             ->colors([
-                'primary' => Color::Rose, // Cambiar a rosa para combinar con el logo
+                "primary" => Color::Rose, // Cambiar a rosa para combinar con el logo
             ])
-            ->viteTheme('resources/css/filament/admin/theme.css')
+            ->viteTheme("resources/css/filament/admin/theme.css")
             ->renderHook(
-                'panels::body.end',
-                fn (): string => '<style>' . file_get_contents(resource_path('css/product-image-modal.css')) . '</style>'
+                "panels::body.end",
+                fn(): string => "<style>" .
+                    file_get_contents(
+                        resource_path("css/product-image-modal.css"),
+                    ) .
+                    "</style>",
             )
             ->renderHook(
-                'panels::auth.login.form.before',
-                fn (): string => '
+                "panels::auth.login.form.before",
+                fn(): string => '
                 <style>
                     /* Logo más grande solo en login */
                     .fi-simple-layout .fi-logo {
@@ -67,11 +71,11 @@ class AdminPanelProvider extends PanelProvider
                     .fi-simple-layout .fi-simple-page {
                         padding-top: 2rem !important;
                     }
-                </style>'
+                </style>',
             )
             ->renderHook(
-                'panels::head.start',
-                fn (): string => '
+                "panels::head.start",
+                fn(): string => '
                 <style>
                     /* Logo en el header */
                     .fi-topbar .fi-logo {
@@ -86,40 +90,47 @@ class AdminPanelProvider extends PanelProvider
                         display: flex !important;
                         align-items: center !important;
                     }
-                </style>'
+                </style>',
             )
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
-            ->pages([
-                Dashboard::class,
-            ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
+            ->discoverResources(
+                in: app_path("Filament/Resources"),
+                for: "App\Filament\Resources",
+            )
+            ->discoverPages(
+                in: app_path("Filament/Pages"),
+                for: "App\Filament\Pages",
+            )
+            ->pages([Dashboard::class])
+            ->discoverWidgets(
+                in: app_path("Filament/Widgets"),
+                for: "App\Filament\Widgets",
+            )
             ->widgets([
                 \App\Filament\Widgets\PosStatsOverview::class,
                 AccountWidget::class,
             ])
             ->globalSearch(true)
-            ->globalSearchKeyBindings(['command+k', 'ctrl+k'])
+            ->globalSearchKeyBindings(["command+k", "ctrl+k"])
             ->sidebarCollapsibleOnDesktop()
             ->navigationGroups([
-                NavigationGroup::make('Gestión Comercial')
-                    ->icon('iconoir-shop')
+                NavigationGroup::make("Gestión Comercial")
+                    ->icon("iconoir-shop")
                     ->collapsible()
                     ->collapsed(),
-                NavigationGroup::make('Inventario')
-                    ->icon('iconoir-packages')
+                NavigationGroup::make("Inventario")
+                    ->icon("iconoir-packages")
                     ->collapsible()
                     ->collapsed(),
-                NavigationGroup::make('Facturación')
-                    ->icon('iconoir-credit-card')
+                NavigationGroup::make("Facturación")
+                    ->icon("iconoir-credit-card")
                     ->collapsible()
                     ->collapsed(),
-                NavigationGroup::make('Administración')
-                    ->icon('iconoir-settings')
+                NavigationGroup::make("Administración")
+                    ->icon("iconoir-settings")
                     ->collapsible()
                     ->collapsed(),
-                NavigationGroup::make('Sistema')
-                    ->icon('iconoir-system-restart')
+                NavigationGroup::make("Sistema")
+                    ->icon("iconoir-system-restart")
                     ->collapsible()
                     ->collapsed(),
             ])
@@ -127,10 +138,10 @@ class AdminPanelProvider extends PanelProvider
                 IconoirIcons::make()->regular(), // Set Iconoir icons as default
                 BriskTheme::make(),
                 FilamentLogViewer::make()
-                    ->authorize(fn () => auth()->check())
-                    ->navigationGroup(__('Sistema'))
-                    ->navigationIcon('iconoir-page')
-                    ->navigationLabel(__('Visor de Logs'))
+                    ->authorize(fn() => auth()->check())
+                    ->navigationGroup(__("Sistema"))
+                    ->navigationIcon("iconoir-page")
+                    ->navigationLabel(__("Visor de Logs"))
                     ->navigationSort(100)
                     ->pollingTime(null), // Disable auto-refresh
             ])
@@ -145,8 +156,6 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
-            ->authMiddleware([
-                Authenticate::class,
-            ]);
+            ->authMiddleware([Authenticate::class]);
     }
 }
