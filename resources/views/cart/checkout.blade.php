@@ -178,7 +178,7 @@
                                     <label class="block text-sm font-medium text-gray-700 mb-2">
                                         Fecha de entrega preferida
                                     </label>
-                                    <input type="date" name="delivery_date" 
+                                    <input type="date" name="delivery_date"
                                         value="{{ old('delivery_date') }}"
                                         min="{{ $minDeliveryDate }}"
                                         max="{{ $maxDeliveryDate }}"
@@ -197,7 +197,7 @@
                                     <div class="space-y-2" id="time_slots">
                                         @foreach($deliveryTimeSlots as $value => $label)
                                             <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-pink-300 transition time-slot-option" data-slot="{{ $value }}">
-                                                <input type="radio" name="delivery_time_slot" value="{{ $value }}" 
+                                                <input type="radio" name="delivery_time_slot" value="{{ $value }}"
                                                     {{ old('delivery_time_slot') == $value ? 'checked' : '' }}
                                                     class="w-4 h-4 text-pink-600 focus:ring-pink-500">
                                                 <span class="ml-3 font-medium text-gray-900">{{ $label }}</span>
@@ -241,7 +241,7 @@
                                             class="w-4 h-4 text-pink-600 focus:ring-pink-500" onchange="togglePaymentFields()">
                                         <span class="ml-3 font-medium text-gray-900">Yape</span>
                                     </label>
-                                    
+
                                     <!-- Campos específicos para Yape -->
                                     <div id="yape-fields" class="payment-fields mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg" style="display: none;">
                                         <div class="mb-4 p-3 bg-purple-100 rounded-lg">
@@ -250,7 +250,7 @@
                                             <p class="text-sm text-purple-700">Nombre: <strong>Tu Empresa SAC</strong></p>
                                             <p class="text-xs text-purple-600 mt-1">Realiza el pago y sube tu comprobante</p>
                                         </div>
-                                        
+
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -260,7 +260,7 @@
                                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
                                                     placeholder="Ej: OP-123456789">
                                             </div>
-                                            
+
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                                     Tu número de Yape
@@ -270,7 +270,7 @@
                                                     placeholder="Ej: 987654321">
                                             </div>
                                         </div>
-                                        
+
                                         <div class="mt-4">
                                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                                 Comprobante de pago <span class="text-red-500">*</span>
@@ -289,7 +289,7 @@
                                             class="w-4 h-4 text-pink-600 focus:ring-pink-500" onchange="togglePaymentFields()">
                                         <span class="ml-3 font-medium text-gray-900">Plin</span>
                                     </label>
-                                    
+
                                     <!-- Campos específicos para Plin -->
                                     <div id="plin-fields" class="payment-fields mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg" style="display: none;">
                                         <div class="mb-4 p-3 bg-blue-100 rounded-lg">
@@ -298,7 +298,7 @@
                                             <p class="text-sm text-blue-700">Nombre: <strong>Tu Empresa SAC</strong></p>
                                             <p class="text-xs text-blue-600 mt-1">Realiza el pago y sube tu comprobante</p>
                                         </div>
-                                        
+
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">
@@ -308,7 +308,7 @@
                                                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
                                                     placeholder="Ej: OP-123456789">
                                             </div>
-                                            
+
                                             <div>
                                                 <label class="block text-sm font-medium text-gray-700 mb-2">
                                                     Tu número de Plin
@@ -318,7 +318,7 @@
                                                     placeholder="Ej: 987654321">
                                             </div>
                                         </div>
-                                        
+
                                         <div class="mt-4">
                                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                                 Comprobante de pago <span class="text-red-500">*</span>
@@ -337,7 +337,7 @@
                                             class="w-4 h-4 text-pink-600 focus:ring-pink-500" onchange="togglePaymentFields()">
                                         <span class="ml-3 font-medium text-gray-900">Transferencia Bancaria</span>
                                     </label>
-                                    
+
                                     <!-- Campos específicos para Transferencia -->
                                     <div id="transfer-fields" class="payment-fields mt-4 p-4 bg-green-50 border border-green-200 rounded-lg" style="display: none;">
                                         <div class="mb-4 p-3 bg-green-100 rounded-lg">
@@ -348,7 +348,7 @@
                                             <p class="text-sm text-green-700">Titular: <strong>Tu Empresa SAC</strong></p>
                                             <p class="text-xs text-green-600 mt-1">Realiza la transferencia y sube tu comprobante</p>
                                         </div>
-                                        
+
                                         <div>
                                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                                 Número de operación <span class="text-red-500">*</span>
@@ -357,7 +357,7 @@
                                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
                                                 placeholder="Ej: OP-123456789">
                                         </div>
-                                        
+
                                         <div class="mt-4">
                                             <label class="block text-sm font-medium text-gray-700 mb-2">
                                                 Comprobante de transferencia <span class="text-red-500">*</span>
@@ -391,7 +391,7 @@
 
                         <!-- Additional Notes -->
                         <div class="bg-white rounded-xl shadow-md p-6">
-                            <h2 class="text-xl font-bold text-gray-900 mb-4">Observaciones (opcional)</h2>
+                            <h2 class="text-xl font-bold text-gray-900 mb-4">Dedicatoria</h2>
                             <textarea name="observations" rows="3"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
                                 placeholder="Agrega cualquier nota o instrucción especial para tu pedido...">{{ old('observations') }}</textarea>
@@ -468,20 +468,20 @@
             const timeSlotContainer = document.getElementById('time_slot_container');
             const timeRequired = document.getElementById('time_required');
             const timeSlotOptions = document.querySelectorAll('.time-slot-option');
-            
+
             if (!dateInput.value) {
                 timeSlotContainer.style.display = 'none';
                 timeRequired.classList.add('hidden');
                 return;
             }
-            
+
             const selectedDate = new Date(dateInput.value);
             const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
-            
+
             // Show time slot container
             timeSlotContainer.style.display = 'block';
             timeRequired.classList.remove('hidden');
-            
+
             // Reset all time slots
             timeSlotOptions.forEach(option => {
                 option.style.display = 'block';
@@ -489,13 +489,13 @@
                 const radio = option.querySelector('input[type="radio"]');
                 radio.disabled = false;
             });
-            
+
             // Sunday - hide all time slots
             if (dayOfWeek === 0) {
                 timeSlotContainer.innerHTML = '<p class="text-red-600 text-sm">Las entregas no están disponibles los domingos. Por favor selecciona otro día.</p>';
                 return;
             }
-            
+
             // Saturday - hide evening slot
             if (dayOfWeek === 6) {
                 const eveningSlot = document.querySelector('.time-slot-option[data-slot="evening"]');
@@ -508,13 +508,13 @@
                 }
             }
         }
-        
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             updateAvailableTimeSlots();
             togglePaymentFields(); // Initialize payment fields
         });
-        
+
         function togglePaymentFields() {
             const selectedMethod = document.querySelector('input[name="payment_method"]:checked')?.value;
 
