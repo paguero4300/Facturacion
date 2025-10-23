@@ -332,7 +332,7 @@
                                             <span class="font-medium text-gray-900">Tarjeta de Crédito/Débito</span>
                                             <p class="text-xs text-gray-600 mt-1">Solicitar link de pago al WhatsApp: <a href="https://wa.me/51941492316" target="_blank" class="text-pink-600 hover:text-pink-700 font-semibold">941 492 316</a></p>
                                         </div>
-                                        <span class="ml-2 text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Pronto</span>
+
                                     </label>
                                 </div>
                             </div>
