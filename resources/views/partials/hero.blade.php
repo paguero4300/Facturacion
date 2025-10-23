@@ -143,7 +143,7 @@ $isCarousel = count($banners) > 1;
                                           style="background-color: rgba(255, 153, 0, 0.1);">
                                         📞
                                     </span>
-                                    <span class="group-hover:underline">(51) 944 492 316</span>
+                                    <span class="group-hover:underline">(51) 941 492 316</span>
                                 </a>
                             </div>
 
