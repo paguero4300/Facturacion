@@ -200,6 +200,9 @@ class InventoryMovementObserver
 
         $stock->qty = max(0, $stock->qty + $qtyChange);
         $stock->save();
+
+        // Sincronizar current_stock del producto con la suma de todos los almacenes
+        $this->syncProductCurrentStock($productId);
     }
 
     /**
@@ -227,5 +230,19 @@ class InventoryMovementObserver
 
         $stock->qty = max(0, $qty);
         $stock->save();
+
+        // Sincronizar current_stock del producto con la suma de todos los almacenes
+        $this->syncProductCurrentStock($productId);
+    }
+
+    /**
+     * Sincronizar current_stock del producto con la suma de stock de todos los almacenes
+     */
+    private function syncProductCurrentStock(int $productId): void
+    {
+        $totalStock = Stock::where('product_id', $productId)->sum('qty');
+        
+        \App\Models\Product::where('id', $productId)
+            ->update(['current_stock' => $totalStock]);
     }
 }
