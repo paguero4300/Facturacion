@@ -20,10 +20,7 @@
 
         <!-- 2. Logo -->
         <a href="{{ route('home') }}" class="flex items-center gap-2">
-            <img src="{{ asset('logos/logook.png') }}" alt="Rosaliz" class="h-12 w-auto object-contain mix-blend-multiply">
-            <!-- Si deseas el texto ROSALIZ al lado como en la referencia, descomenta esto:
-            <span class="text-2xl font-bold tracking-tight text-gray-900">ROSALIZ</span> 
-            -->
+            <img src="{{ asset('logos/logook.png') }}" alt="Rosaliz" class="h-12 w-auto object-contain" style="transform: scale(0.65); transform-origin: center; filter: brightness(1.1) contrast(1.1);">
         </a>
 
         <!-- 3. Navegación Desktop -->
