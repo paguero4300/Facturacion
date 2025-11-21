@@ -808,7 +808,7 @@ class CompanyResource extends Resource
             ->actions([
                 ViewAction::make(),
                 EditAction::make(),
-                \Filament\Tables\Actions\Action::make('web_config')
+                Action::make('web_config')
                     ->label('Configuración Web')
                     ->icon('heroicon-o-globe-alt')
                     ->color('info')
