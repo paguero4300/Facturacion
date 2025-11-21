@@ -54,25 +54,27 @@ $isCarousel = count($banners) > 1;
                 </div>
 
                 <!-- Contenido Centrado -->
-                <div class="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4 z-20">
-                    @if($banner['titulo'])
-                        <h1 class="mb-2 text-5xl font-bold tracking-wider sm:text-6xl md:text-7xl drop-shadow-lg">
-                            {!! nl2br(e($banner['titulo'])) !!}
-                        </h1>
-                    @endif
-                    
-                    @if($banner['texto'])
-                        <p class="mb-8 text-xl font-light tracking-wide sm:text-2xl drop-shadow-md">
-                            {{ $banner['texto'] }}
-                        </p>
-                    @endif
+                <div class="absolute inset-0 flex items-center justify-center z-20">
+                    <div class="container mx-auto px-4 flex flex-col items-center justify-center text-center text-white max-w-4xl">
+                        @if($banner['titulo'])
+                            <h1 class="mb-4 text-5xl font-black uppercase tracking-wider sm:text-6xl md:text-7xl drop-shadow-lg leading-none">
+                                {!! nl2br(e($banner['titulo'])) !!}
+                            </h1>
+                        @endif
+                        
+                        @if($banner['texto'])
+                            <p class="mb-8 text-xl font-light tracking-wide sm:text-2xl drop-shadow-md">
+                                {{ $banner['texto'] }}
+                            </p>
+                        @endif
 
-                    @if($banner['link'] && $banner['link'] != '#')
-                        <a href="{{ $banner['link'] }}" 
-                           class="h-12 flex items-center justify-center rounded-full bg-[var(--naranja)] px-8 text-base font-bold text-white hover:bg-white hover:text-[var(--naranja)] transition-colors shadow-lg">
-                            NUEVA COLECCIÓN
-                        </a>
-                    @endif
+                        @if($banner['link'] && $banner['link'] != '#')
+                            <a href="{{ $banner['link'] }}" 
+                               class="h-12 flex items-center justify-center rounded-full bg-[var(--naranja)] px-8 text-base font-bold text-white hover:bg-white hover:text-[var(--naranja)] transition-colors shadow-lg">
+                                NUEVA COLECCIÓN
+                            </a>
+                        @endif
+                    </div>
                 </div>
             </div>
         @endforeach
