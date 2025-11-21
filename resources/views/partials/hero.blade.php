@@ -6,7 +6,7 @@
     - Texto superpuesto con tipografía de impacto
     - Indicadores numéricos y flechas de navegación
 -->
-<section class="relative w-full h-[calc(100vh-64px)] md:h-[calc(100vh-80px)] mt-16 md:mt-20 overflow-hidden bg-gray-100">
+<section class="relative h-[600px] w-full overflow-hidden bg-gray-900 mt-16 md:mt-20">
 <?php
 // Obtener configuración
 $webConfig = \App\Models\WebConfiguration::find(1);
@@ -27,9 +27,9 @@ if ($webConfig) {
 // Fallback si no hay banners
 if (empty($banners)) {
     $banners[] = [
-        "imagen" => "logos/herosection.png", // Asegúrate de que esta imagen exista o usa un placeholder
-        "titulo" => "DETALLES Y MÁS",
-        "texto" => "Amor y delicadeza en cada detalle",
+        "imagen" => "logos/herosection.png",
+        "titulo" => "ROSALIZ DELUXE",
+        "texto" => "Amor y delicadeza",
         "link" => route('shop.index')
     ];
 }
@@ -46,60 +46,55 @@ $isCarousel = count($banners) > 1;
                 <div class="absolute inset-0">
                     <img src="{{ str_starts_with($banner['imagen'], 'logos/') ? asset($banner['imagen']) : asset('storage/' . $banner['imagen']) }}" 
                          alt="{{ $banner['titulo'] }}" 
-                         class="w-full h-full object-cover object-center transform transition-transform duration-[10s] hover:scale-105"
+                         class="w-full h-full object-cover object-center opacity-80"
                          onerror="this.src='https://via.placeholder.com/1920x1080/f3f4f6/9ca3af?text=Banner+{{ $index + 1 }}'">
                     
-                    <!-- Overlay Gradiente para legibilidad -->
-                    <div class="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent"></div>
+                    <!-- Overlay Simple -->
+                    <div class="absolute inset-0 bg-black/20"></div>
                 </div>
 
-                <!-- Contenido -->
-                <div class="relative z-20 container mx-auto px-4 h-full flex items-center">
-                    <div class="max-w-3xl text-white pl-4 md:pl-12 border-l-4 border-naranja/80">
-                        @if($banner['titulo'])
-                            <h2 class="text-5xl font-bold tracking-wider sm:text-6xl md:text-7xl mb-4 leading-none drop-shadow-lg">
-                                {!! nl2br(e($banner['titulo'])) !!}
-                            </h2>
-                        @endif
-                        
-                        @if($banner['texto'])
-                            <p class="text-xl font-light tracking-wide sm:text-2xl mb-8 text-gray-100 drop-shadow-md">
-                                {{ $banner['texto'] }}
-                            </p>
-                        @endif
+                <!-- Contenido Centrado -->
+                <div class="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4 z-20">
+                    @if($banner['titulo'])
+                        <h1 class="mb-2 text-5xl font-bold tracking-wider sm:text-6xl md:text-7xl drop-shadow-lg">
+                            {!! nl2br(e($banner['titulo'])) !!}
+                        </h1>
+                    @endif
+                    
+                    @if($banner['texto'])
+                        <p class="mb-8 text-xl font-light tracking-wide sm:text-2xl drop-shadow-md">
+                            {{ $banner['texto'] }}
+                        </p>
+                    @endif
 
-                        @if($banner['link'] && $banner['link'] != '#')
-                            <a href="{{ $banner['link'] }}" 
-                               class="inline-block px-8 py-3 bg-naranja text-white font-bold text-base rounded-full hover:bg-white hover:text-naranja transition-all duration-300 shadow-lg transform hover:-translate-y-1">
-                                Ver Colección
-                            </a>
-                        @endif
-                    </div>
+                    @if($banner['link'] && $banner['link'] != '#')
+                        <a href="{{ $banner['link'] }}" 
+                           class="h-12 flex items-center justify-center rounded-full bg-[var(--naranja)] px-8 text-base font-bold text-white hover:bg-white hover:text-[var(--naranja)] transition-colors shadow-lg">
+                            NUEVA COLECCIÓN
+                        </a>
+                    @endif
                 </div>
             </div>
         @endforeach
 
         @if($isCarousel)
             <!-- Navegación (Flechas) -->
-            <button onclick="prevHeroSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-3 text-white/70 hover:text-white transition-colors hidden md:block">
-                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15 19l-7-7 7-7"></path></svg>
+            <button onclick="prevHeroSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-black/20 text-white hover:bg-black/40 hover:scale-110 transition-all hidden md:flex items-center justify-center group">
+                <svg class="w-8 h-8 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
             </button>
-            <button onclick="nextHeroSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-3 text-white/70 hover:text-white transition-colors hidden md:block">
-                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5l7 7-7 7"></path></svg>
+            <button onclick="nextHeroSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-black/20 text-white hover:bg-black/40 hover:scale-110 transition-all hidden md:flex items-center justify-center group">
+                <svg class="w-8 h-8 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
             </button>
 
-            <!-- Indicadores Numéricos (Bottom) -->
-            <div class="absolute bottom-10 left-0 w-full z-30">
-                <div class="container mx-auto px-4 flex justify-center md:justify-start md:pl-16 items-center gap-4 text-white/80 font-mono text-sm">
-                    @foreach($banners as $index => $banner)
-                        <button onclick="showHeroSlide({{ $index }})" 
-                                class="indicator-btn flex items-center gap-2 transition-all duration-300 {{ $index == 0 ? 'text-white font-bold' : 'text-white/50' }}"
-                                data-index="{{ $index }}">
-                            <span>0{{ $index + 1 }}</span>
-                            <span class="h-[2px] bg-current transition-all duration-300 {{ $index == 0 ? 'w-12' : 'w-4' }}"></span>
-                        </button>
-                    @endforeach
-                </div>
+            <!-- Indicadores Centrados Abajo -->
+            <div class="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-4 text-white/80 z-30">
+                @foreach($banners as $index => $banner)
+                    <button onclick="showHeroSlide({{ $index }})" 
+                            class="indicator-btn flex items-center gap-2 transition-all duration-300 {{ $index == 0 ? 'text-white font-bold' : 'text-white/50' }}">
+                        <span class="text-sm font-medium">0{{ $index + 1 }}</span>
+                        <div class="h-[2px] bg-white transition-all duration-300 {{ $index == 0 ? 'w-12' : 'w-4' }}"></div>
+                    </button>
+                @endforeach
             </div>
         @endif
     </div>
