@@ -5,7 +5,7 @@
 @section('content')
     @include('partials.hero')
     @include('partials.benefits')
-    @include('partials.categories')
     @include('partials.featured-products')
+    @include('partials.categories')
     @include('partials.contact-form')
 @endsection

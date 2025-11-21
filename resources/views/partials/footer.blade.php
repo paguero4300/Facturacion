@@ -1,69 +1,74 @@
 <!--
     =============================================
-    SECCIÓN 7: PIE DE PÁGINA
+    SECCIÓN: PIE DE PÁGINA (Rediseño Estilo Rosaliz)
     =============================================
-    - Información de contacto completa con horario de atención
-    - Enlaces organizados por categorías: Arreglos, Ocasiones y Festivos
-    - Diseño oscuro con cuatro columnas en desktop y apilado en móvil
 -->
-<!-- Footer -->
-<footer class="py-12" style="background-color: var(--fondo-footer); color: var(--texto-principal);">
+<footer class="bg-gray-50 pt-16 pb-8 text-gray-600">
     <div class="container mx-auto px-4">
-        <div class="grid md:grid-cols-4 gap-8 mb-8 max-w-6xl mx-auto">
+        <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-4 mb-12">
+            <!-- Columna 1: Acerca de -->
             <div>
-                <div class="mb-4">
-                    <img src="{{ asset('logos/logook.png') }}" alt="Detalles y Más Flores" class="h-16 w-auto object-contain" style="background-color: transparent !important; min-height: auto !important;">
+                <div class="mb-6">
+                    <img src="{{ asset('logos/logook.png') }}" alt="Detalles y Más Flores" class="h-16 w-auto object-contain mix-blend-multiply">
                 </div>
-                <h3 class="font-bold mb-3" style="color: var(--enlaces-titulos);">Detalles y Más</h3>
-                <p class="text-sm mb-2">📞 {{ $webConfig->telefono_huancayo ?? '(+51) 944 492 316' }}</p>
-                <p class="text-sm mb-2">📞 {{ $webConfig->telefono_lima ?? '(+51) 944 492 317' }}</p>
-                <p class="text-sm mb-2">✉️ {{ $webConfig->email ?? 'contacto@detalles.com' }}</p>
-                <p class="text-sm">🕒 {{ $webConfig->horario_atencion ?? 'Lun - Dom: 9:00 - 20:00' }}</p>
-                <div class="flex space-x-3 mt-4">
-                    <a href="{{ $webConfig->facebook ?? 'https://facebook.com' }}" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('logos/face.png') }}" alt="Facebook" class="h-8 w-8 object-contain transition hover:opacity-80">
-                    </a>
-                    <a href="{{ $webConfig->instagram ?? 'https://instagram.com' }}" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('logos/inst.png') }}" alt="Instagram" class="h-8 w-8 object-contain transition hover:opacity-80">
-                    </a>
-                    <a href="{{ $webConfig->tiktok ?? 'https://tiktok.com' }}" target="_blank" rel="noopener noreferrer">
-                        <img src="{{ asset('logos/tik-tok.png') }}" alt="TikTok" class="h-8 w-8 object-contain transition hover:opacity-80">
-                    </a>
+                <h4 class="mb-4 text-lg font-bold text-gray-900">Acerca de Nosotros</h4>
+                <p class="text-sm leading-relaxed mb-4">
+                    Somos especialistas en transmitir emociones a través de detalles únicos y flores frescas. Creamos momentos inolvidables para ti y tus seres queridos.
+                </p>
+                <div class="space-y-2 text-sm">
+                    <p><i class="fas fa-phone mr-2 text-[var(--naranja)]"></i> {{ $webConfig->telefono_huancayo ?? '(+51) 944 492 316' }}</p>
+                    <p><i class="fas fa-envelope mr-2 text-[var(--naranja)]"></i> {{ $webConfig->email ?? 'contacto@detalles.com' }}</p>
                 </div>
             </div>
+
+            <!-- Columna 2: Enlaces Rápidos -->
             <div>
-                <h3 class="font-bold mb-4" style="color: var(--enlaces-titulos);">Arreglos</h3>
+                <h4 class="mb-4 text-lg font-bold text-gray-900">Enlaces Rápidos</h4>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="{{ url('/rosas-flor') }}" class="transition" style="color: var(--texto-principal);">Rosas</a></li>
-                    <li><a href="{{ url('/girasoles-flor') }}" class="transition" style="color: var(--texto-principal);">Girasoles</a></li>
-                    <li><a href="{{ url('/tulipanes-flor') }}" class="transition" style="color: var(--texto-principal);">Tulipanes</a></li>
-                    <li><a href="{{ url('/boxflor') }}" class="transition" style="color: var(--texto-principal);">Box</a></li>
-                    <li><a href="{{ url('/matrimonioflor') }}" class="transition" style="color: var(--texto-principal);">Matrimonio</a></li>
+                    <li><a href="{{ route('home') }}" class="hover:text-[var(--naranja)] transition-colors">Inicio</a></li>
+                    <li><a href="{{ route('shop.index') }}" class="hover:text-[var(--naranja)] transition-colors">Catálogo</a></li>
+                    <li><a href="#" class="hover:text-[var(--naranja)] transition-colors">Nosotros</a></li>
+                    <li><a href="#" class="hover:text-[var(--naranja)] transition-colors">Contacto</a></li>
                 </ul>
             </div>
+
+            <!-- Columna 3: Categorías -->
             <div>
-                <h3 class="font-bold mb-4" style="color: var(--enlaces-titulos);">Ocasiones</h3>
+                <h4 class="mb-4 text-lg font-bold text-gray-900">Categorías Populares</h4>
                 <ul class="space-y-2 text-sm">
-                    <li><a href="{{ url('/amor') }}" class="transition" style="color: var(--texto-principal);">Amor</a></li>
-                    <li><a href="{{ url('/aniversario') }}" class="transition" style="color: var(--texto-principal);">Aniversario</a></li>
-                    <li><a href="{{ url('/hello-kitty') }}" class="transition" style="color: var(--texto-principal);">Hello Kitty</a></li>
-                    <li><a href="{{ url('/gato') }}" class="transition" style="color: var(--texto-principal);">Gato</a></li>
-                    <li><a href="{{ url('/perro') }}" class="transition" style="color: var(--texto-principal);">Perro</a></li>
+                    <li><a href="{{ url('/rosas-flor') }}" class="hover:text-[var(--naranja)] transition-colors">Rosas</a></li>
+                    <li><a href="{{ url('/girasoles-flor') }}" class="hover:text-[var(--naranja)] transition-colors">Girasoles</a></li>
+                    <li><a href="{{ url('/tulipanes-flor') }}" class="hover:text-[var(--naranja)] transition-colors">Tulipanes</a></li>
+                    <li><a href="{{ url('/boxflor') }}" class="hover:text-[var(--naranja)] transition-colors">Box de Flores</a></li>
+                    <li><a href="{{ url('/amor') }}" class="hover:text-[var(--naranja)] transition-colors">Ocasión: Amor</a></li>
                 </ul>
             </div>
+
+            <!-- Columna 4: Síguenos -->
             <div>
-                <h3 class="font-bold mb-4" style="color: var(--enlaces-titulos);">Regalos</h3>
-                <ul class="space-y-2 text-sm">
-                    <li><a href="{{ url('/chocolate') }}" class="transition" style="color: var(--texto-principal);">Chocolates</a></li>
-                    <li><a href="{{ url('/pinguino') }}" class="transition" style="color: var(--texto-principal);">Peluches</a></li>
-                    <li><a href="{{ url('/stich') }}" class="transition" style="color: var(--texto-principal);">Stitch</a></li>
-                    <li><a href="{{ url('/vinera') }}" class="transition" style="color: var(--texto-principal);">Vinera</a></li>
-                    <li><a href="{{ url('/taza') }}" class="transition" style="color: var(--texto-principal);">Tazas</a></li>
-                </ul>
+                <h4 class="mb-4 text-lg font-bold text-gray-900">Síguenos</h4>
+                <div class="flex gap-4">
+                    <a href="{{ $webConfig->facebook ?? '#' }}" target="_blank" class="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm hover:bg-[#1877F2] hover:text-white transition-colors text-gray-600">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="{{ $webConfig->instagram ?? '#' }}" target="_blank" class="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm hover:bg-[#E4405F] hover:text-white transition-colors text-gray-600">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="{{ $webConfig->tiktok ?? '#' }}" target="_blank" class="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm hover:bg-[#000000] hover:text-white transition-colors text-gray-600">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
+                </div>
             </div>
         </div>
-        <div class="border-t pt-8 text-center text-sm max-w-6xl mx-auto" style="border-color: var(--borde-categorias);">
-            <p>© 2025 Detalles y Más. Todos los derechos reservados.</p>
+
+        <!-- Copyright -->
+        <div class="border-t border-gray-200 pt-8 text-center text-sm text-gray-500">
+            <p>&copy; {{ date('Y') }} Detalles y Más. Todos los derechos reservados.</p>
         </div>
     </div>
 </footer>
+
+<!-- WhatsApp Floating Button -->
+<a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $webConfig->telefono_huancayo ?? '51944492316') }}" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-transform hover:scale-110 hover:bg-[#20bd5a]" aria-label="Chat on WhatsApp">
+    <i class="fab fa-whatsapp text-3xl"></i>
+</a>

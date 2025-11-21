@@ -3,234 +3,412 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grocery Checkout UI</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Florería Rosaliz - Arreglos Florales y Detalles</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#84cc16',
+                        'primary-dark': '#65a30d',
+                        secondary: '#f97316',
+                        'secondary-dark': '#ea580c',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
-    <div class="container">
-        <!-- Left Sidebar -->
-        <div class="sidebar">
-            <div class="product-section">
-                <div class="product-header">
-                    <span class="product-label">PRODUCT</span>
-                    <span class="qty-label">QTY</span>
-                    <span class="price-label">PRICE</span>
-                    <span class="subtotal-label">SUB TOTAL</span>
-                </div>
-                
-                <div class="product-item">
-                    <div class="product-info">
-                        <span class="product-name">Potato</span>
-                        <span class="product-tag">VEGETABLES</span>
-                    </div>
-                    <div class="quantity-controls">
-                        <button class="qty-btn minus">-</button>
-                        <span class="qty-value">5</span>
-                        <button class="qty-btn plus">+</button>
-                    </div>
-                    <div class="price">₹ 53.73</div>
-                    <div class="subtotal">₹ 268.65</div>
-                    <button class="remove-btn">×</button>
-                </div>
+<body class="bg-white text-gray-900">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 w-full border-b bg-white">
+        <div class="container mx-auto flex h-20 items-center justify-between px-4">
+            <!-- Mobile Menu Button -->
+            <div class="lg:hidden">
+                <button class="p-2 hover:bg-gray-100 rounded-md">
+                    <i data-lucide="menu" class="h-6 w-6"></i>
+                </button>
             </div>
 
-            <div class="tax-section">
-                <div class="tax-row">
-                    <span>Tax</span>
-                    <span>%</span>
-                </div>
-                <div class="discount-section">
-                    <div class="discount-type">
-                        <label><input type="radio" name="discount" checked> Fixed</label>
-                        <label><input type="radio" name="discount"> Percentage</label>
-                    </div>
-                    <div class="discount-input">
-                        <input type="text" placeholder="Discount" value="₹">
-                    </div>
-                    <div class="shipping-input">
-                        <input type="text" placeholder="Shipping" value="₹">
-                    </div>
-                </div>
-            </div>
+            <!-- Logo -->
+            <a href="#" class="flex items-center gap-2">
+                <i data-lucide="flower-2" class="h-8 w-8 text-primary"></i>
+                <span class="text-2xl font-bold tracking-tight text-gray-900">ROSALIZ</span>
+            </a>
 
-            <div class="totals-section">
-                <div class="total-row">
-                    <span>Total QTY : 5.00</span>
-                </div>
-                <div class="total-row">
-                    <span>Sub Total : ₹ 268.65</span>
-                </div>
-                <div class="total-row final">
-                    <span>Total : ₹ 268.65</span>
-                </div>
-            </div>
+            <!-- Desktop Navigation -->
+            <nav class="hidden lg:flex items-center gap-8">
+                <a href="#" class="text-sm font-medium hover:text-primary transition-colors">DELUXE</a>
+                <a href="#" class="text-sm font-medium hover:text-primary transition-colors">OCASIONES</a>
+                <a href="#" class="text-sm font-medium hover:text-primary transition-colors">RAMOS</a>
+                <a href="#" class="text-sm font-medium hover:text-primary transition-colors">FLORES</a>
+                <a href="#" class="text-sm font-medium text-secondary hover:text-secondary-dark transition-colors">PROMOCIONES</a>
+            </nav>
 
-            <div class="action-buttons">
-                <button class="btn hold">Hold 🔒</button>
-                <button class="btn reset">Reset 🔄</button>
-                <button class="btn pay">Pay Now 💳</button>
-            </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="category-tabs">
-                <button class="tab active">All Categories</button>
-                <button class="tab">FRUITS & VEGETABLES</button>
-            </div>
-
-            <div class="brand-filters">
-                <button class="filter">All Brands</button>
-                <button class="filter">Nature's Best</button>
-                <button class="filter active">sweet farms</button>
-            </div>
-
-            <div class="products-grid">
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="/placeholder.svg?height=120&width=120" alt="Potato">
-                        <div class="price-tag">₹ 53.73</div>
-                        <div class="weight-tag">92.5 kilogram</div>
-                    </div>
-                    <div class="product-details">
-                        <h3>Potato</h3>
-                        <p>VCO76VFR</p>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="/placeholder.svg?height=120&width=120" alt="Tomato">
-                        <div class="price-tag">₹ 46.30</div>
-                        <div class="weight-tag">583.5 kilogram</div>
-                    </div>
-                    <div class="product-details">
-                        <h3>Tomato</h3>
-                        <p>HE8GACN44P</p>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="/placeholder.svg?height=120&width=120" alt="Onion">
-                        <div class="price-tag">₹ 18.34</div>
-                        <div class="weight-tag">54 kilogram</div>
-                    </div>
-                    <div class="product-details">
-                        <h3>Onion</h3>
-                        <p>2JO5JWU7A</p>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="/placeholder.svg?height=120&width=120" alt="Cabbage">
-                        <div class="price-tag">₹ 107.24</div>
-                        <div class="weight-tag">37 kilogram</div>
-                    </div>
-                    <div class="product-details">
-                        <h3>Cabbage</h3>
-                        <p>CBRMJ2PH</p>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="/placeholder.svg?height=120&width=120" alt="Cauliflower">
-                        <div class="price-tag">₹ 72.15</div>
-                        <div class="weight-tag">275 kilogram</div>
-                    </div>
-                    <div class="product-details">
-                        <h3>Cauliflower</h3>
-                        <p>OCIMCF8BDMF</p>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="/placeholder.svg?height=120&width=120" alt="Spinach">
-                        <div class="price-tag">₹ 64.44</div>
-                        <div class="weight-tag">353 kilogram</div>
-                    </div>
-                    <div class="product-details">
-                        <h3>Spinach</h3>
-                        <p>Q3B84XCQ0IG</p>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="/placeholder.svg?height=120&width=120" alt="Broccoli">
-                        <div class="price-tag">₹ 17.12</div>
-                        <div class="weight-tag">350 kilogram</div>
-                    </div>
-                    <div class="product-details">
-                        <h3>Broccoli</h3>
-                        <p>RRGBGJ28YY</p>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="/placeholder.svg?height=120&width=120" alt="Capsicum">
-                        <div class="price-tag">₹ 74.58</div>
-                        <div class="weight-tag">20 kilogram</div>
-                    </div>
-                    <div class="product-details">
-                        <h3>Capsicum</h3>
-                        <p>BUPJLP28LS</p>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="/placeholder.svg?height=120&width=120" alt="Pumpkin">
-                        <div class="price-tag">₹ 42.28</div>
-                        <div class="weight-tag">198 kilogram</div>
-                    </div>
-                    <div class="product-details">
-                        <h3>Pumpkin</h3>
-                        <p>000209</p>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="/placeholder.svg?height=120&width=120" alt="Radish">
-                        <div class="price-tag">₹ 91.46</div>
-                        <div class="weight-tag">384 kilogram</div>
-                    </div>
-                    <div class="product-details">
-                        <h3>Radish</h3>
-                        <p>BUSLQOAA83T</p>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="/placeholder.svg?height=120&width=120" alt="Turnip">
-                        <div class="price-tag">₹ 54.42</div>
-                        <div class="weight-tag">205 kilogram</div>
-                    </div>
-                    <div class="product-details">
-                        <h3>Turnip</h3>
-                        <p>2IWSUHBBLD3</p>
-                    </div>
-                </div>
-
-                <div class="product-card">
-                    <div class="product-image">
-                        <img src="/placeholder.svg?height=120&width=120" alt="Beetroot">
-                        <div class="price-tag">₹ 120.77</div>
-                        <div class="weight-tag">119 kilogram</div>
-                    </div>
-                    <div class="product-details">
-                        <h3>Beetroot</h3>
-                        <p>I6XORSAAMFD</p>
-                    </div>
+            <!-- Actions -->
+            <div class="flex items-center gap-4">
+                <a href="#" class="hidden text-xs font-medium text-gray-500 hover:text-gray-900 lg:block">
+                    ACCESO / REGISTRO
+                </a>
+                <div class="flex items-center gap-2">
+                    <button class="p-2 text-gray-700 hover:text-primary hover:bg-gray-100 rounded-full transition-colors">
+                        <i data-lucide="search" class="h-5 w-5"></i>
+                    </button>
+                    <button class="hidden sm:flex p-2 text-gray-700 hover:text-primary hover:bg-gray-100 rounded-full transition-colors">
+                        <i data-lucide="heart" class="h-5 w-5"></i>
+                    </button>
+                    <button class="flex items-center gap-2 p-2 text-gray-700 hover:text-primary hover:bg-gray-100 rounded-md transition-colors">
+                        <i data-lucide="shopping-bag" class="h-5 w-5"></i>
+                        <span class="hidden text-sm font-medium sm:inline-block">S/ 0.00</span>
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="relative h-[600px] w-full overflow-hidden bg-gray-900">
+            <img src="woman-holding-large-bouquet-of-pink-roses-luxury.jpg" alt="Hero Banner" class="absolute inset-0 h-full w-full object-cover opacity-80">
+            <div class="absolute inset-0 bg-black/20"></div>
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4">
+                <h1 class="mb-2 text-5xl font-bold tracking-wider sm:text-6xl md:text-7xl">
+                    ROSALIZ <span class="font-light">DELUXE</span>
+                </h1>
+                <p class="mb-8 text-xl font-light tracking-wide sm:text-2xl">Amor y delicadeza</p>
+                <button class="h-12 rounded-full bg-primary px-8 text-base font-bold text-white hover:bg-primary-dark transition-colors">
+                    NUEVA COLECCIÓN
+                </button>
+            </div>
+
+            <!-- Slider Indicators -->
+            <div class="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-4 text-white/80">
+                <span class="text-sm font-medium">01</span>
+                <div class="h-[2px] w-12 bg-white"></div>
+                <span class="text-sm font-medium opacity-50">02</span>
+            </div>
+        </section>
+
+        <!-- New Arrivals Section -->
+        <section class="container mx-auto px-4 py-16">
+            <div class="mb-12 text-center">
+                <h2 class="mb-2 text-3xl font-bold text-gray-900">Lo nuevo</h2>
+                <div class="mx-auto mb-4 h-1 w-16 bg-primary"></div>
+                <p class="text-gray-600">
+                    En Rosaliz encuentra el arreglo, flores o detalle para disfrutar de un momento especial.
+                </p>
+            </div>
+
+            <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <!-- Product 1 -->
+                <div class="group relative flex flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-shadow hover:shadow-md">
+                    <div class="relative aspect-square overflow-hidden bg-gray-100">
+                        <span class="absolute left-2 top-2 z-10 rounded bg-secondary px-2 py-1 text-xs font-bold text-white">-7%</span>
+                        <img src="bouquet-of-30-colorful-tulips.jpg" alt="Ramo 30 Tulipanes" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+                        <div class="absolute inset-0 flex items-center justify-center gap-2 bg-black/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <button class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-900 hover:text-primary transition-colors">
+                                <i data-lucide="eye" class="h-5 w-5"></i>
+                            </button>
+                            <button class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-900 hover:text-primary transition-colors">
+                                <i data-lucide="heart" class="h-5 w-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex flex-1 flex-col p-4">
+                        <h3 class="mb-2 text-lg font-medium text-gray-900 line-clamp-1">
+                            <a href="#" class="hover:text-primary transition-colors">Ramo 30 Tulipanes</a>
+                        </h3>
+                        <div class="mb-4 flex items-center gap-2">
+                            <span class="text-sm text-gray-400 line-through">S/ 460.00</span>
+                            <span class="text-lg font-bold text-secondary">S/ 430.00</span>
+                        </div>
+                        <button class="mt-auto flex w-full items-center justify-center gap-2 rounded-md bg-gray-900 py-2 text-sm font-medium text-white hover:bg-primary transition-colors">
+                            <i data-lucide="shopping-cart" class="h-4 w-4"></i>
+                            Add to cart
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="group relative flex flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-shadow hover:shadow-md">
+                    <div class="relative aspect-square overflow-hidden bg-gray-100">
+                        <img src="box-of-red-roses-gift.jpg" alt="Box Beso de Rosa" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+                        <div class="absolute inset-0 flex items-center justify-center gap-2 bg-black/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <button class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-900 hover:text-primary transition-colors">
+                                <i data-lucide="eye" class="h-5 w-5"></i>
+                            </button>
+                            <button class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-900 hover:text-primary transition-colors">
+                                <i data-lucide="heart" class="h-5 w-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex flex-1 flex-col p-4">
+                        <h3 class="mb-2 text-lg font-medium text-gray-900 line-clamp-1">
+                            <a href="#" class="hover:text-primary transition-colors">Box Beso de Rosa</a>
+                        </h3>
+                        <div class="mb-4 flex items-center gap-2">
+                            <span class="text-lg font-bold text-secondary">S/ 120.00</span>
+                        </div>
+                        <button class="mt-auto flex w-full items-center justify-center gap-2 rounded-md bg-gray-900 py-2 text-sm font-medium text-white hover:bg-primary transition-colors">
+                            <i data-lucide="shopping-cart" class="h-4 w-4"></i>
+                            Add to cart
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="group relative flex flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-shadow hover:shadow-md">
+                    <div class="relative aspect-square overflow-hidden bg-gray-100">
+                        <img src="white-roses-bouquet-pure-love.jpg" alt="Ramo «Amor puro»" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+                        <div class="absolute inset-0 flex items-center justify-center gap-2 bg-black/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <button class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-900 hover:text-primary transition-colors">
+                                <i data-lucide="eye" class="h-5 w-5"></i>
+                            </button>
+                            <button class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-900 hover:text-primary transition-colors">
+                                <i data-lucide="heart" class="h-5 w-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex flex-1 flex-col p-4">
+                        <h3 class="mb-2 text-lg font-medium text-gray-900 line-clamp-1">
+                            <a href="#" class="hover:text-primary transition-colors">Ramo «Amor puro»</a>
+                        </h3>
+                        <div class="mb-4 flex items-center gap-2">
+                            <span class="text-lg font-bold text-secondary">S/ 100.00</span>
+                        </div>
+                        <button class="mt-auto flex w-full items-center justify-center gap-2 rounded-md bg-gray-900 py-2 text-sm font-medium text-white hover:bg-primary transition-colors">
+                            <i data-lucide="shopping-cart" class="h-4 w-4"></i>
+                            Add to cart
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product 4 -->
+                <div class="group relative flex flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-shadow hover:shadow-md">
+                    <div class="relative aspect-square overflow-hidden bg-gray-100">
+                        <span class="absolute left-2 top-2 z-10 rounded bg-secondary px-2 py-1 text-xs font-bold text-white">-16%</span>
+                        <img src="huge-bouquet-of-100-red-roses.jpg" alt="Ramo Buchón 100 Rosas" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+                        <div class="absolute inset-0 flex items-center justify-center gap-2 bg-black/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <button class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-900 hover:text-primary transition-colors">
+                                <i data-lucide="eye" class="h-5 w-5"></i>
+                            </button>
+                            <button class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-900 hover:text-primary transition-colors">
+                                <i data-lucide="heart" class="h-5 w-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex flex-1 flex-col p-4">
+                        <h3 class="mb-2 text-lg font-medium text-gray-900 line-clamp-1">
+                            <a href="#" class="hover:text-primary transition-colors">Ramo Buchón 100 Rosas</a>
+                        </h3>
+                        <div class="mb-4 flex items-center gap-2">
+                            <span class="text-sm text-gray-400 line-through">S/ 500.00</span>
+                            <span class="text-lg font-bold text-secondary">S/ 420.00</span>
+                        </div>
+                        <button class="mt-auto flex w-full items-center justify-center gap-2 rounded-md bg-gray-900 py-2 text-sm font-medium text-white hover:bg-primary transition-colors">
+                            <i data-lucide="shopping-cart" class="h-4 w-4"></i>
+                            Add to cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Best Sellers Section -->
+        <section class="bg-gray-50 py-16">
+            <div class="container mx-auto px-4">
+                <div class="mb-12 text-center">
+                    <h2 class="mb-2 text-3xl font-bold text-gray-900">Lo más vendido</h2>
+                    <div class="mx-auto mb-4 h-1 w-16 bg-primary"></div>
+                    <p class="text-gray-600">
+                        En Rosaliz encuentra el arreglo, flores o detalle para disfrutar de un momento especial.
+                    </p>
+                </div>
+
+                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    <!-- Product 5 -->
+                    <div class="group relative flex flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-shadow hover:shadow-md">
+                        <div class="relative aspect-square overflow-hidden bg-gray-100">
+                            <img src="https://placehold.co/400x400/e2e8f0/1e293b?text=Girasoles" alt="Ramo de Girasoles" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+                            <div class="absolute inset-0 flex items-center justify-center gap-2 bg-black/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                                <button class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-900 hover:text-primary transition-colors">
+                                    <i data-lucide="eye" class="h-5 w-5"></i>
+                                </button>
+                                <button class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-900 hover:text-primary transition-colors">
+                                    <i data-lucide="heart" class="h-5 w-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex flex-1 flex-col p-4">
+                            <h3 class="mb-2 text-lg font-medium text-gray-900 line-clamp-1">
+                                <a href="#" class="hover:text-primary transition-colors">Ramo de Girasoles</a>
+                            </h3>
+                            <div class="mb-4 flex items-center gap-2">
+                                <span class="text-lg font-bold text-secondary">S/ 60.00</span>
+                            </div>
+                            <button class="mt-auto flex w-full items-center justify-center gap-2 rounded-md bg-gray-900 py-2 text-sm font-medium text-white hover:bg-primary transition-colors">
+                                <i data-lucide="shopping-cart" class="h-4 w-4"></i>
+                                Add to cart
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Product 6 -->
+                    <div class="group relative flex flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-shadow hover:shadow-md">
+                        <div class="relative aspect-square overflow-hidden bg-gray-100">
+                            <img src="https://placehold.co/400x400/e2e8f0/1e293b?text=9+Rosas" alt="Box 9 Rosas" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+                            <div class="absolute inset-0 flex items-center justify-center gap-2 bg-black/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                                <button class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-900 hover:text-primary transition-colors">
+                                    <i data-lucide="eye" class="h-5 w-5"></i>
+                                </button>
+                                <button class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-900 hover:text-primary transition-colors">
+                                    <i data-lucide="heart" class="h-5 w-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex flex-1 flex-col p-4">
+                            <h3 class="mb-2 text-lg font-medium text-gray-900 line-clamp-1">
+                                <a href="#" class="hover:text-primary transition-colors">Box 9 Rosas</a>
+                            </h3>
+                            <div class="mb-4 flex items-center gap-2">
+                                <span class="text-lg font-bold text-secondary">S/ 75.00</span>
+                            </div>
+                            <button class="mt-auto flex w-full items-center justify-center gap-2 rounded-md bg-gray-900 py-2 text-sm font-medium text-white hover:bg-primary transition-colors">
+                                <i data-lucide="shopping-cart" class="h-4 w-4"></i>
+                                Add to cart
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Product 7 -->
+                    <div class="group relative flex flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-shadow hover:shadow-md">
+                        <div class="relative aspect-square overflow-hidden bg-gray-100">
+                            <img src="https://placehold.co/400x400/e2e8f0/1e293b?text=Mini+Girasoles" alt="Mini buchón de Girasoles" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+                            <div class="absolute inset-0 flex items-center justify-center gap-2 bg-black/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                                <button class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-900 hover:text-primary transition-colors">
+                                    <i data-lucide="eye" class="h-5 w-5"></i>
+                                </button>
+                                <button class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-900 hover:text-primary transition-colors">
+                                    <i data-lucide="heart" class="h-5 w-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex flex-1 flex-col p-4">
+                            <h3 class="mb-2 text-lg font-medium text-gray-900 line-clamp-1">
+                                <a href="#" class="hover:text-primary transition-colors">Mini buchón de Girasoles</a>
+                            </h3>
+                            <div class="mb-4 flex items-center gap-2">
+                                <span class="text-lg font-bold text-secondary">S/ 70.00</span>
+                            </div>
+                            <button class="mt-auto flex w-full items-center justify-center gap-2 rounded-md bg-gray-900 py-2 text-sm font-medium text-white hover:bg-primary transition-colors">
+                                <i data-lucide="shopping-cart" class="h-4 w-4"></i>
+                                Add to cart
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Product 8 -->
+                    <div class="group relative flex flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-shadow hover:shadow-md">
+                        <div class="relative aspect-square overflow-hidden bg-gray-100">
+                            <img src="https://placehold.co/400x400/e2e8f0/1e293b?text=Ramo+Mix" alt="Ramo Mix" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+                            <div class="absolute inset-0 flex items-center justify-center gap-2 bg-black/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                                <button class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-900 hover:text-primary transition-colors">
+                                    <i data-lucide="eye" class="h-5 w-5"></i>
+                                </button>
+                                <button class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-900 hover:text-primary transition-colors">
+                                    <i data-lucide="heart" class="h-5 w-5"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex flex-1 flex-col p-4">
+                            <h3 class="mb-2 text-lg font-medium text-gray-900 line-clamp-1">
+                                <a href="#" class="hover:text-primary transition-colors">Ramo Mix</a>
+                            </h3>
+                            <div class="mb-4 flex items-center gap-2">
+                                <span class="text-lg font-bold text-secondary">S/ 70.00</span>
+                            </div>
+                            <button class="mt-auto flex w-full items-center justify-center gap-2 rounded-md bg-gray-900 py-2 text-sm font-medium text-white hover:bg-primary transition-colors">
+                                <i data-lucide="shopping-cart" class="h-4 w-4"></i>
+                                Add to cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-50 pt-16 pb-8">
+        <div class="container mx-auto px-4">
+            <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+                <div>
+                    <h4 class="mb-4 text-lg font-bold text-gray-900">Acerca de Rosaliz</h4>
+                    <p class="text-sm text-gray-600 leading-relaxed">
+                        Florería con más 15 años de experiencia transmitiendo detalles y emociones a nuestros clientes. Creamos arreglos únicos para cada ocasión especial.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="mb-4 text-lg font-bold text-gray-900">Enlaces Rápidos</h4>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li><a href="#" class="hover:text-primary transition-colors">Inicio</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Nosotros</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Catálogo</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Contacto</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Blog</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="mb-4 text-lg font-bold text-gray-900">Categorías</h4>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li><a href="#" class="hover:text-primary transition-colors">Ramos de Rosas</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Tulipanes</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Girasoles</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Cajas de Flores</a></li>
+                        <li><a href="#" class="hover:text-primary transition-colors">Ocasiones Especiales</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="mb-4 text-lg font-bold text-gray-900">Síguenos</h4>
+                    <div class="flex gap-4">
+                        <a href="#" class="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm hover:bg-primary hover:text-white transition-colors">
+                            <i data-lucide="facebook" class="h-5 w-5"></i>
+                        </a>
+                        <a href="#" class="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm hover:bg-primary hover:text-white transition-colors">
+                            <i data-lucide="instagram" class="h-5 w-5"></i>
+                        </a>
+                        <a href="#" class="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm hover:bg-primary hover:text-white transition-colors">
+                            <i data-lucide="twitter" class="h-5 w-5"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 border-t pt-8 text-center text-sm text-gray-500">
+                <p>&copy; 2025 Florería Rosaliz. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Floating Button -->
+    <a href="https://wa.me/" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-transform hover:scale-110 hover:bg-[#20bd5a]" aria-label="Chat on WhatsApp">
+        <i data-lucide="message-circle" class="h-8 w-8"></i>
+    </a>
+
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>

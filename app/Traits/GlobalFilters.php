@@ -185,6 +185,8 @@ trait GlobalFilters
         }
 
         // Si hay warehouse (explícito o por defecto), filtrar categorías con productos con stock
+        // COMENTADO: Para mostrar todas las categorías activas en el menú, independientemente del stock
+        /*
         if ($warehouseId) {
             $query->whereHas('products', function ($q) use ($warehouseId) {
                 $q->where('status', 'active')
@@ -195,6 +197,7 @@ trait GlobalFilters
                   });
             });
         }
+        */
 
         return $query->with('activeChildren')->orderBy('name');
     }
