@@ -108,7 +108,8 @@ class AdminPanelProvider extends PanelProvider
             )
             ->widgets([
                 \App\Filament\Widgets\PosStatsOverview::class,
-                AccountWidget::class,
+                \App\Filament\Widgets\DeliveryStatsWidget::class,
+                \App\Filament\Widgets\SalesChart::class,
             ])
             ->globalSearch(true)
             ->globalSearchKeyBindings(["command+k", "ctrl+k"])
