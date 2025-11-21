@@ -1,20 +1,24 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finalizar Pedido - Tienda</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
-</head>
-<body class="bg-gray-50">
-    @include('partials.header')
+@extends('layouts.app')
+
+@section('title', 'Finalizar Pedido - Detalles y Más')
+
+@section('content')
+    <!-- Spacer for fixed header -->
+    <div class="h-20"></div>
 
     <!-- Page Header -->
-    <div class="bg-gradient-to-r from-pink-500 to-rose-500 text-white py-8">
-        <div class="max-w-7xl mx-auto px-4">
-            <h1 class="text-3xl md:text-4xl font-bold">Finalizar Pedido</h1>
-            <p class="text-base md:text-lg text-pink-100 mt-2">Completa tu información para procesar el pedido</p>
+    <div class="relative bg-gradient-to-br from-[var(--fondo-principal)] via-white to-orange-50 py-12 overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <div class="absolute top-0 right-0 w-96 h-96 bg-[var(--naranja)] rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-96 h-96 bg-[var(--azul-claro)] rounded-full blur-3xl"></div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 relative z-10">
+            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--enlaces-titulos)] mb-3">
+                Finalizar Pedido
+            </h1>
+            <p class="text-base md:text-lg text-[var(--texto-principal)]">
+                Completa tu información para procesar el pedido
+            </p>
         </div>
     </div>
 
@@ -22,14 +26,14 @@
     <div class="py-8">
         <div class="max-w-7xl mx-auto px-4">
             @if(session('error'))
-                <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                <div class="mb-6 bg-red-50 border-2 border-red-200 text-red-700 px-6 py-4 rounded-xl shadow-sm">
                     {{ session('error') }}
                 </div>
             @endif
 
             @if($errors->any())
-                <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                    <ul class="list-disc list-inside">
+                <div class="mb-6 bg-red-50 border-2 border-red-200 text-red-700 px-6 py-4 rounded-xl shadow-sm">
+                    <ul class="list-disc list-inside space-y-1">
                         @foreach($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
@@ -39,44 +43,44 @@
 
             <!-- Guest/Login Options -->
             @guest
-                <div class="mb-6 bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+                <div class="mb-6 bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-[var(--azul-claro)] rounded-2xl p-6 shadow-md">
                     <div class="flex items-start gap-4">
                         <div class="flex-shrink-0">
-                            <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-10 h-10 text-[var(--azul-primario)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                         </div>
                         <div class="flex-1">
-                            <h3 class="text-lg font-bold text-blue-900 mb-2">¿Tienes una cuenta?</h3>
-                            <p class="text-blue-800 mb-4">
+                            <h3 class="text-xl font-bold text-[var(--enlaces-titulos)] mb-2">¿Tienes una cuenta?</h3>
+                            <p class="text-[var(--texto-principal)] mb-4">
                                 Inicia sesión para ver tu historial de pedidos y gestionar tu información más fácilmente.
                             </p>
                             <div class="flex flex-wrap gap-3">
                                 <a href="{{ route('login') }}"
-                                    class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-lg transition">
+                                    class="inline-flex items-center gap-2 bg-[var(--azul-primario)] hover:bg-[var(--azul-claro)] text-white font-semibold px-6 py-3 rounded-lg transition-all shadow-md hover:shadow-lg">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
                                     </svg>
                                     Iniciar Sesión
                                 </a>
                                 <a href="{{ route('register') }}"
-                                    class="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-blue-600 font-semibold px-6 py-2 rounded-lg border-2 border-blue-600 transition">
+                                    class="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-[var(--azul-primario)] font-semibold px-6 py-3 rounded-lg border-2 border-[var(--azul-primario)] transition-all shadow-md hover:shadow-lg">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
                                     </svg>
                                     Crear Cuenta
                                 </a>
                             </div>
-                            <p class="text-sm text-blue-700 mt-3">
-                                O continúa como <strong>invitado</strong> llenando el formulario a continuación 👇
+                            <p class="text-sm text-[var(--texto-principal)] mt-3 font-medium">
+                                O continúa como <strong class="text-[var(--enlaces-titulos)]">invitado</strong> llenando el formulario a continuación 👇
                             </p>
                         </div>
                     </div>
                 </div>
             @else
-                <div class="mb-6 bg-green-50 border border-green-200 rounded-xl p-4">
+                <div class="mb-6 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-2xl p-5 shadow-md">
                     <div class="flex items-center gap-3">
-                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
                         <p class="text-green-800">
@@ -92,9 +96,9 @@
                     <!-- Checkout Form -->
                     <div class="lg:col-span-2 space-y-6">
                         <!-- Personal Information -->
-                        <div class="bg-white rounded-xl shadow-md p-6">
-                            <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                <svg class="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow">
+                            <h2 class="text-2xl font-bold text-[var(--enlaces-titulos)] mb-6 flex items-center gap-3">
+                                <svg class="w-7 h-7 text-[var(--naranja)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                                 </svg>
                                 Información Personal
@@ -102,38 +106,38 @@
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="md:col-span-2">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                         Nombre completo <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" name="client_name" value="{{ old('client_name') }}" required
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all"
                                         placeholder="Ej: Juan Pérez García">
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                         Teléfono <span class="text-red-500">*</span>
                                     </label>
                                     <input type="tel" name="client_phone" value="{{ old('client_phone') }}" required
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all"
                                         placeholder="Ej: 987654321">
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                         Email
                                     </label>
                                     <input type="email" name="client_email" value="{{ old('client_email') }}"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all"
                                         placeholder="correo@ejemplo.com">
                                 </div>
                             </div>
                         </div>
 
                         <!-- Delivery Address -->
-                        <div class="bg-white rounded-xl shadow-md p-6">
-                            <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                <svg class="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow">
+                            <h2 class="text-2xl font-bold text-[var(--enlaces-titulos)] mb-6 flex items-center gap-3">
+                                <svg class="w-7 h-7 text-[var(--naranja)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                 </svg>
@@ -142,47 +146,47 @@
 
                             <div class="space-y-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                         Dirección completa <span class="text-red-500">*</span>
                                     </label>
                                     <textarea name="client_address" required rows="3"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all"
                                         placeholder="Ej: Av. Los Rosales 456, Dpto. 302">{{ old('client_address') }}</textarea>
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                         Distrito
                                     </label>
                                     <input type="text" name="client_district" value="{{ old('client_district') }}"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all"
                                         placeholder="Ej: San Isidro">
                                 </div>
                             </div>
                         </div>
 
                         <!-- Delivery Scheduling -->
-                        <div class="bg-white rounded-xl shadow-md p-6">
-                            <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                <svg class="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow">
+                            <h2 class="text-2xl font-bold text-[var(--enlaces-titulos)] mb-6 flex items-center gap-3">
+                                <svg class="w-7 h-7 text-[var(--naranja)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4M3 12h18M8 12l2 3 4-6M3 21h18a2 2 0 002-2V9a2 2 0 00-2-2H3a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                                 </svg>
                                 Programar Entrega (Opcional)
                             </h2>
-                            <p class="text-sm text-gray-600 mb-4">
+                            <p class="text-sm text-[var(--texto-principal)] mb-4">
                                 Puedes programar tu entrega para un día y horario específico. Si no seleccionas, te contactaremos para coordinar.
                             </p>
 
                             <div class="space-y-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                         Fecha de entrega preferida
                                     </label>
                                     <input type="date" name="delivery_date"
                                         value="{{ old('delivery_date') }}"
                                         min="{{ $minDeliveryDate }}"
                                         max="{{ $maxDeliveryDate }}"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all"
                                         id="delivery_date"
                                         onchange="updateAvailableTimeSlots()">
                                     <p class="text-xs text-gray-500 mt-1">
@@ -191,7 +195,7 @@
                                 </div>
 
                                 <div id="time_slot_container" style="display: none;">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                         Horario preferido <span class="text-red-500 hidden" id="time_required">*</span>
                                     </label>
                                     <div class="space-y-2" id="time_slots">
@@ -207,20 +211,20 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                         Instrucciones especiales para la entrega
                                     </label>
                                     <textarea name="delivery_notes" rows="3"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                        class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all"
                                         placeholder="Ej: Tocar timbre del edificio, dejar con portería, llamar al llegar...">{{ old('delivery_notes') }}</textarea>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Payment Method -->
-                        <div class="bg-white rounded-xl shadow-md p-6">
-                            <h2 class="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                <svg class="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow">
+                            <h2 class="text-2xl font-bold text-[var(--enlaces-titulos)] mb-6 flex items-center gap-3">
+                                <svg class="w-7 h-7 text-[var(--naranja)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                                 </svg>
                                 Método de Pago
@@ -229,47 +233,49 @@
                             <div class="space-y-3">
                                 <!-- Yape -->
                                 <div class="payment-method-container">
-                                    <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-pink-300 transition payment-method-option" data-method="yape">
+                                    <label class="flex items-center p-5 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[var(--naranja)] hover:bg-orange-50 transition-all payment-method-option" data-method="yape">
                                         <input type="radio" name="payment_method" value="yape" {{ old('payment_method') == 'yape' ? 'checked' : '' }} required
-                                            class="w-4 h-4 text-pink-600 focus:ring-pink-500" onchange="togglePaymentFields()">
-                                        <span class="ml-3 font-medium text-gray-900">Yape</span>
+                                            class="w-5 h-5 text-[var(--naranja)] focus:ring-[var(--naranja)]" onchange="togglePaymentFields()">
+                                        <span class="ml-3 font-semibold text-[var(--enlaces-titulos)]">Yape</span>
                                     </label>
 
                                     <!-- Campos específicos para Yape -->
-                                    <div id="yape-fields" class="payment-fields mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg" style="display: none;">
-                                        <div class="mb-4 p-3 bg-purple-100 rounded-lg">
-                                            <h4 class="font-semibold text-purple-800 mb-2">📱 Datos para Yape:</h4>
-                                            <p class="text-sm text-purple-700">Número: <strong>941 492 316</strong></p>
-                                            <p class="text-sm text-purple-700">Nombre: <strong>DETALLESYMASFLORES SAC</strong></p>
-                                            <p class="text-xs text-purple-600 mt-1">Realiza el pago y sube tu comprobante</p>
+                                    <div id="yape-fields" class="payment-fields mt-4 p-6 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl shadow-sm" style="display: none;">
+                                        <div class="mb-4 p-4 bg-white/80 backdrop-blur rounded-xl shadow-sm">
+                                            <h4 class="font-bold text-purple-800 mb-3 flex items-center gap-2">
+                                                <span class="text-2xl">📱</span> Datos para Yape:
+                                            </h4>
+                                            <p class="text-sm text-purple-700 font-medium">Número: <strong class="text-purple-900">941 492 316</strong></p>
+                                            <p class="text-sm text-purple-700 font-medium">Nombre: <strong class="text-purple-900">DETALLESYMASFLORES SAC</strong></p>
+                                            <p class="text-xs text-purple-600 mt-2">Realiza el pago y sube tu comprobante</p>
                                         </div>
 
                                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                                     Número de operación <span class="text-red-500">*</span>
                                                 </label>
                                                 <input type="text" name="payment_operation_number" value="{{ old('payment_operation_number') }}"
-                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all"
                                                     placeholder="Ej: OP-123456789">
                                             </div>
 
                                             <div>
-                                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                                <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                                     Tu número de Yape
                                                 </label>
                                                 <input type="text" name="client_payment_phone" value="{{ old('client_payment_phone') }}"
-                                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all"
                                                     placeholder="Ej: 987654321">
                                             </div>
                                         </div>
 
                                         <div class="mt-4">
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                                 Comprobante de pago <span class="text-red-500">*</span>
                                             </label>
                                             <input type="file" name="payment_evidence" accept=".jpg,.jpeg,.png,.pdf"
-                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500">
+                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all">
                                             <p class="text-xs text-gray-500 mt-1">Formatos: JPG, PNG, PDF. Máximo 2MB</p>
                                         </div>
                                     </div>
@@ -287,33 +293,35 @@
 
                                 <!-- Transferencia Bancaria -->
                                 <div class="payment-method-container">
-                                    <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-pink-300 transition payment-method-option" data-method="transfer">
+                                    <label class="flex items-center p-5 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[var(--azul-claro)] hover:bg-blue-50 transition-all payment-method-option" data-method="transfer">
                                         <input type="radio" name="payment_method" value="transfer" {{ old('payment_method') == 'transfer' ? 'checked' : '' }} required
-                                            class="w-4 h-4 text-pink-600 focus:ring-pink-500" onchange="togglePaymentFields()">
-                                        <span class="ml-3 font-medium text-gray-900">Transferencia Bancaria</span>
+                                            class="w-5 h-5 text-[var(--azul-primario)] focus:ring-[var(--azul-primario)]" onchange="togglePaymentFields()">
+                                        <span class="ml-3 font-semibold text-[var(--enlaces-titulos)]">Transferencia Bancaria</span>
                                     </label>
 
                                     <!-- Campos específicos para Transferencia -->
-                                    <div id="transfer-fields" class="payment-fields mt-4 p-4 bg-green-50 border border-green-200 rounded-lg" style="display: none;">
-                                        <div class="mb-4 p-3 bg-green-100 rounded-lg">
-                                            <h4 class="font-semibold text-green-800 mb-2">🏦 Datos Bancarios BCP:</h4>
-                                            <p class="text-sm text-green-700">Titular: <strong>DETALLESYMASFLORES SAC</strong></p>
-                                            <p class="text-sm text-green-700">Cuenta BCP Soles: <strong>3557129566074</strong></p>
-                                            <p class="text-sm text-green-700">CCI: <strong>00235500712956607461</strong></p>
-                                            <p class="text-xs text-green-600 mt-1">Realiza la transferencia y sube tu comprobante</p>
+                                    <div id="transfer-fields" class="payment-fields mt-4 p-6 bg-gradient-to-br from-green-50 to-teal-50 border-2 border-green-200 rounded-xl shadow-sm" style="display: none;">
+                                        <div class="mb-4 p-4 bg-white/80 backdrop-blur rounded-xl shadow-sm">
+                                            <h4 class="font-bold text-green-800 mb-3 flex items-center gap-2">
+                                                <span class="text-2xl">🏦</span> Datos Bancarios BCP:
+                                            </h4>
+                                            <p class="text-sm text-green-700 font-medium">Titular: <strong class="text-green-900">DETALLESYMASFLORES SAC</strong></p>
+                                            <p class="text-sm text-green-700 font-medium">Cuenta BCP Soles: <strong class="text-green-900">3557129566074</strong></p>
+                                            <p class="text-sm text-green-700 font-medium">CCI: <strong class="text-green-900">00235500712956607461</strong></p>
+                                            <p class="text-xs text-green-600 mt-2">Realiza la transferencia y sube tu comprobante</p>
                                         </div>
 
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                                 Número de operación <span class="text-red-500">*</span>
                                             </label>
                                             <input type="text" name="payment_operation_number" value="{{ old('payment_operation_number') }}"
-                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all"
                                                 placeholder="Ej: OP-123456789">
                                         </div>
 
                                         <div class="mt-4">
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                                 Comprobante de transferencia <span class="text-red-500">*</span>
                                             </label>
                                             <input type="file" name="payment_evidence" accept=".jpg,.jpeg,.png,.pdf"
@@ -325,12 +333,12 @@
 
                                 <!-- Tarjeta de Crédito/Débito -->
                                 <div class="payment-method-container">
-                                    <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-pink-300 transition payment-method-option" data-method="card">
+                                    <label class="flex items-center p-5 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[var(--naranja)] hover:bg-orange-50 transition-all payment-method-option" data-method="card">
                                         <input type="radio" name="payment_method" value="card" {{ old('payment_method') == 'card' ? 'checked' : '' }} required
-                                            class="w-4 h-4 text-pink-600 focus:ring-pink-500" onchange="togglePaymentFields()">
+                                            class="w-5 h-5 text-[var(--naranja)] focus:ring-[var(--naranja)]" onchange="togglePaymentFields()">
                                         <div class="ml-3 flex-1">
-                                            <span class="font-medium text-gray-900">Tarjeta de Crédito/Débito</span>
-                                            <p class="text-xs text-gray-600 mt-1">Solicitar link de pago al WhatsApp: <a href="https://wa.me/51941492316" target="_blank" class="text-pink-600 hover:text-pink-700 font-semibold">941 492 316</a></p>
+                                            <span class="font-semibold text-[var(--enlaces-titulos)]">Tarjeta de Crédito/Débito</span>
+                                            <p class="text-xs text-[var(--texto-principal)] mt-1">Solicitar link de pago al WhatsApp: <a href="https://wa.me/51941492316" target="_blank" class="text-[var(--azul-primario)] hover:text-[var(--azul-claro)] font-semibold">941 492 316</a></p>
                                         </div>
 
                                     </label>
@@ -349,23 +357,28 @@
                         </div>
 
                         <!-- Additional Notes -->
-                        <div class="bg-white rounded-xl shadow-md p-6">
-                            <h2 class="text-xl font-bold text-gray-900 mb-4">Dedicatoria</h2>
-                            <textarea name="observations" rows="3"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500"
+                        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow">
+                            <h2 class="text-2xl font-bold text-[var(--enlaces-titulos)] mb-6 flex items-center gap-3">
+                                <svg class="w-7 h-7 text-[var(--naranja)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Dedicatoria
+                            </h2>
+                            <textarea name="observations" rows="4"
+                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all resize-none"
                                 placeholder="Agrega cualquier nota o instrucción especial para tu pedido...">{{ old('observations') }}</textarea>
                         </div>
                     </div>
 
                     <!-- Order Summary -->
                     <div class="lg:col-span-1">
-                        <div class="bg-white rounded-xl shadow-md p-6 sticky top-24">
-                            <h2 class="text-xl font-bold text-gray-900 mb-4">Resumen del Pedido</h2>
+                        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 sticky top-24 hover:shadow-xl transition-shadow">
+                            <h2 class="text-2xl font-bold text-[var(--enlaces-titulos)] mb-6">Resumen del Pedido</h2>
 
                             <div class="space-y-3 mb-6">
                                 @foreach($cart as $item)
-                                    <div class="flex gap-3 pb-3 border-b border-gray-200">
-                                        <div class="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                                    <div class="flex gap-3 pb-3 border-b border-gray-100">
+                                        <div class="w-16 h-16 bg-gray-50 rounded-xl overflow-hidden flex-shrink-0 border border-gray-100">
                                             <img
                                                 src="{{ $item['image'] && file_exists(storage_path('app/public/' . $item['image'])) ? asset('storage/' . $item['image']) : asset('images/no-image.png') }}"
                                                 alt="{{ $item['name'] }}"
@@ -374,13 +387,13 @@
                                             >
                                         </div>
                                         <div class="flex-1">
-                                            <h3 class="font-medium text-gray-900 text-sm line-clamp-2">{{ $item['name'] }}</h3>
-                                            <p class="text-sm text-gray-600 mt-1">
+                                            <h3 class="font-semibold text-[var(--enlaces-titulos)] text-sm line-clamp-2">{{ $item['name'] }}</h3>
+                                            <p class="text-sm text-[var(--texto-principal)] mt-1">
                                                 {{ $item['quantity'] }} x S/ {{ number_format($item['price'], 2) }}
                                             </p>
                                         </div>
                                         <div class="text-right">
-                                            <p class="font-semibold text-gray-900">
+                                            <p class="font-bold text-[var(--enlaces-titulos)]">
                                                 S/ {{ number_format($item['price'] * $item['quantity'], 2) }}
                                             </p>
                                         </div>
@@ -388,29 +401,29 @@
                                 @endforeach
                             </div>
 
-                            <div class="space-y-2 pt-4 border-t border-gray-200">
+                            <div class="space-y-3 pt-4 border-t-2 border-gray-100">
                                 <div class="flex justify-between text-base">
-                                    <span class="text-gray-600">Subtotal:</span>
-                                    <span class="font-medium text-gray-900">S/ {{ number_format($total, 2) }}</span>
+                                    <span class="text-[var(--texto-principal)] font-medium">Subtotal:</span>
+                                    <span class="font-semibold text-[var(--enlaces-titulos)]">S/ {{ number_format($total, 2) }}</span>
                                 </div>
                                 <div class="flex justify-between text-base">
-                                    <span class="text-gray-600">Envío:</span>
-                                    <span class="font-medium text-gray-900">A coordinar</span>
+                                    <span class="text-[var(--texto-principal)] font-medium">Envío:</span>
+                                    <span class="font-semibold text-[var(--enlaces-titulos)]">A coordinar</span>
                                 </div>
-                                <div class="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
-                                    <span>Total:</span>
-                                    <span class="text-pink-600">S/ {{ number_format($total, 2) }}</span>
+                                <div class="flex justify-between text-xl font-bold pt-3 border-t-2 border-gray-100">
+                                    <span class="text-[var(--enlaces-titulos)]">Total:</span>
+                                    <span class="bg-gradient-to-r from-[var(--naranja)] to-[var(--azul-claro)] bg-clip-text text-transparent">S/ {{ number_format($total, 2) }}</span>
                                 </div>
                             </div>
 
                             <button type="submit"
-                                class="w-full mt-6 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-semibold py-3 px-6 rounded-lg hover:from-pink-600 hover:to-rose-600 transition shadow-md hover:shadow-lg">
+                                class="w-full mt-6 bg-gradient-to-r from-[var(--naranja)] to-[var(--azul-claro)] text-white font-bold py-4 px-6 rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 shadow-lg">
                                 Confirmar Pedido
                             </button>
 
                             <a href="{{ route('cart.index') }}"
-                                class="block text-center mt-3 text-pink-600 hover:text-pink-700 font-medium">
-                                Volver al carrito
+                                class="block text-center mt-4 text-[var(--azul-primario)] hover:text-[var(--azul-claro)] font-semibold transition-colors">
+                                ← Volver al carrito
                             </a>
                         </div>
                     </div>
@@ -419,8 +432,7 @@
         </div>
     </div>
 
-    @include('partials.footer')
-
+    @push('scripts')
     <script>
         function updateAvailableTimeSlots() {
             const dateInput = document.getElementById('delivery_date');
@@ -510,5 +522,5 @@
             }
         }
     </script>
-</body>
-</html>
+    @endpush
+@endsection
