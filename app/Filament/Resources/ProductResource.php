@@ -693,6 +693,63 @@ class ProductResource extends Resource
                     ->query(fn (Builder $query): Builder => $query->whereNotNull('barcode'))
                     ->label(__('Con código de barras')),
             ])
+            ->headerActions([
+                Action::make('generate_missing_barcodes')
+                    ->label(__('Generar Códigos de Barras Faltantes'))
+                    ->icon('heroicon-o-qr-code')
+                    ->color('warning')
+                    ->requiresConfirmation()
+                    ->modalHeading(__('Generar Códigos de Barras'))
+                    ->modalDescription(function () {
+                        $count = Product::whereNull('barcode')
+                            ->orWhere('barcode', '')
+                            ->count();
+                        
+                        if ($count === 0) {
+                            return __('Todos los productos ya tienen código de barras asignado.');
+                        }
+                        
+                        return __('Se generarán códigos de barras únicos para :count producto(s) que actualmente no tienen código asignado. Esta acción se procesará en lotes de 50 productos para garantizar el rendimiento óptimo.', ['count' => $count]);
+                    })
+                    ->modalSubmitActionLabel(__('Generar Códigos'))
+                    ->action(function () {
+                        $productsUpdated = 0;
+                        $batchSize = 50;
+                        
+                        // Procesar en lotes para no sobrecargar la base de datos
+                        Product::whereNull('barcode')
+                            ->orWhere('barcode', '')
+                            ->chunkById($batchSize, function ($products) use (&$productsUpdated) {
+                                foreach ($products as $product) {
+                                    try {
+                                        $product->barcode = $product->generateUniqueBarcode();
+                                        $product->save();
+                                        $productsUpdated++;
+                                    } catch (\Exception $e) {
+                                        // Log error pero continuar con los demás productos
+                                        \Log::error('Error generando código de barras para producto ' . $product->id . ': ' . $e->getMessage());
+                                    }
+                                }
+                            });
+                        
+                        if ($productsUpdated > 0) {
+                            \Filament\Notifications\Notification::make()
+                                ->title(__('Códigos de Barras Generados'))
+                                ->body(__('Se generaron exitosamente :count código(s) de barras.', ['count' => $productsUpdated]))
+                                ->success()
+                                ->icon('heroicon-o-check-circle')
+                                ->send();
+                        } else {
+                            \Filament\Notifications\Notification::make()
+                                ->title(__('Sin Cambios'))
+                                ->body(__('No hay productos que requieran generación de código de barras.'))
+                                ->info()
+                                ->icon('heroicon-o-information-circle')
+                                ->send();
+                        }
+                    })
+                    ->visible(fn () => Product::whereNull('barcode')->orWhere('barcode', '')->exists()),
+            ])
             ->actions([
                 ActionGroup::make([
                     ViewAction::make(),
