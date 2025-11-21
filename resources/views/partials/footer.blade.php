@@ -3,8 +3,16 @@
     SECCIÓN: PIE DE PÁGINA (Rediseño Estilo Rosaliz)
     =============================================
 -->
-<footer class="bg-gray-50 pt-16 pb-8 text-gray-600">
-    <div class="container mx-auto px-4">
+<footer class="relative bg-gray-50 pt-16 pb-8 text-gray-600 overflow-hidden">
+    <!-- Flores Decorativas -->
+    <div class="absolute bottom-0 left-0 w-64 h-64 pointer-events-none opacity-90 hidden md:block">
+        <img src="{{ asset('logos/left.png') }}" alt="" class="w-full h-full object-contain">
+    </div>
+    <div class="absolute bottom-0 right-0 w-64 h-64 pointer-events-none opacity-90 hidden md:block">
+        <img src="{{ asset('logos/right.png') }}" alt="" class="w-full h-full object-contain">
+    </div>
+
+    <div class="container mx-auto px-4 relative z-10">
         <div class="grid gap-8 md:grid-cols-2 lg:grid-cols-4 mb-12">
             <!-- Columna 1: Acerca de -->
             <div>
