@@ -7,181 +7,139 @@
     - UX mejorada para selector de local y usuario
 -->
 <header id="main-header" class="fixed top-0 w-full z-50 transition-all duration-300 bg-white shadow-sm border-b border-gray-100">
-    <nav class="container mx-auto px-4 h-16 md:h-20 flex justify-between items-center">
+    <div class="container mx-auto px-4 h-20 flex justify-between items-center">
         
         <!-- 1. Menú Móvil Toggle (Izquierda en móvil) -->
-        <div class="md:hidden flex items-center">
-            <button id="mobile-menu-btn" class="p-2 text-gray-600 hover:text-gray-900 focus:outline-none transition-colors">
+        <div class="lg:hidden flex items-center">
+            <button id="mobile-menu-btn" class="p-2 text-gray-600 hover:bg-gray-100 rounded-md transition-colors" onclick="toggleMobileMenu()">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
                 </svg>
             </button>
         </div>
 
-        <!-- 2. Logo (Centrado en móvil, Izquierda en desktop) -->
-        <div class="flex-shrink-0 flex items-center justify-center md:justify-start flex-1 md:flex-none">
-            <a href="{{ route('home') }}" class="block transition-transform hover:scale-105 duration-300">
-                <img src="{{ asset('logos/logook.png') }}" alt="Detalles y Más Flores"
-                     class="h-16 md:h-20 w-auto object-contain mix-blend-multiply">
-            </a>
-        </div>
+        <!-- 2. Logo -->
+        <a href="{{ route('home') }}" class="flex items-center gap-2">
+            <img src="{{ asset('logos/logook.png') }}" alt="Rosaliz" class="h-12 w-auto object-contain mix-blend-multiply">
+            <!-- Si deseas el texto ROSALIZ al lado como en la referencia, descomenta esto:
+            <span class="text-2xl font-bold tracking-tight text-gray-900">ROSALIZ</span> 
+            -->
+        </a>
 
-        <!-- 3. Navegación Desktop (Centro) -->
-        <div class="hidden md:flex items-center justify-center flex-1 px-8">
-            <ul class="flex gap-8 text-sm font-medium">
-                <li>
-                    <a href="{{ route('home') }}" class="relative flex items-center py-2 text-gray-700 hover:text-naranja transition-colors group">
-                        INICIO
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-naranja transition-all duration-300 group-hover:w-full"></span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('home') }}#nosotros" class="relative flex items-center py-2 text-gray-700 hover:text-naranja transition-colors group">
-                        NOSOTROS
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-naranja transition-all duration-300 group-hover:w-full"></span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{ route('shop.index') }}" class="relative flex items-center py-2 text-gray-700 hover:text-naranja transition-colors group">
-                        TIENDA
-                        <span class="absolute bottom-0 left-0 w-0 h-0.5 bg-naranja transition-all duration-300 group-hover:w-full"></span>
-                    </a>
-                </li>
-
-                @if (isset($menuCategories) && $menuCategories->count() > 0)
-                    @foreach ($menuCategories as $category)
-                        <li class="relative group">
-                            <a href="{{ url('/' . $category->slug) }}" class="flex items-center gap-1 py-2 text-gray-700 hover:text-naranja transition-colors cursor-pointer">
-                                {{ strtoupper($category->name) }}
-                                @if ($category->activeChildren->count() > 0)
-                                    <svg class="w-3 h-3 group-hover:rotate-180 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                @endif
-                            </a>
-
-                            @if ($category->activeChildren->count() > 0)
-                                <div class="absolute top-full left-0 mt-1 w-56 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-left z-50 overflow-hidden">
-                                    <ul class="py-1">
-                                        @foreach ($category->activeChildren as $subcategory)
-                                            <li>
-                                                <a href="{{ url('/' . $subcategory->slug) }}"
-                                                    class="block px-5 py-3 text-sm text-gray-600 hover:bg-orange-50 hover:text-naranja transition-colors border-l-2 border-transparent hover:border-naranja">
-                                                    {{ $subcategory->name }}
-                                                </a>
-                                            </li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            @endif
-                        </li>
-                    @endforeach
-                @endif
-            </ul>
-        </div>
-
-        <!-- 4. Acciones Derecha (Selector, Usuario, Carrito) -->
-        <div class="flex items-center gap-3 md:gap-5">
+        <!-- 3. Navegación Desktop -->
+        <nav class="hidden lg:flex items-center gap-8">
+            <a href="{{ route('home') }}" class="text-sm font-medium text-gray-700 hover:text-[var(--naranja)] transition-colors">INICIO</a>
+            <a href="{{ route('home') }}#nosotros" class="text-sm font-medium text-gray-700 hover:text-[var(--naranja)] transition-colors">NOSOTROS</a>
+            <a href="{{ route('shop.index') }}" class="text-sm font-medium text-gray-700 hover:text-[var(--naranja)] transition-colors">TIENDA</a>
             
-            <!-- Selector de Almacén (Desktop) -->
-            <div class="hidden md:block relative group">
-                <button onclick="markWarehouseSelectorSeen()" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-50 hover:bg-gray-100 border border-gray-200 transition-all text-xs font-medium text-gray-700 group-hover:border-blue-300 group-hover:shadow-sm">
-                    <i class="fas fa-map-marker-alt text-naranja"></i>
-                    <span class="max-w-[140px] md:max-w-[200px] truncate">
-                        @php
-                            $currentWarehouse = request()->has('warehouse') 
-                                ? \App\Models\Warehouse::find(request()->warehouse) 
-                                : \App\Models\Warehouse::where('is_default', true)->first();
-                        @endphp
-                        {{ $currentWarehouse ? $currentWarehouse->name : 'LOCALES' }}
-                    </span>
-                    <i class="fas fa-chevron-down text-[10px] text-gray-400 group-hover:rotate-180 transition-transform"></i>
-                    
-                    <!-- Badge Pulsante -->
-                    <span id="warehouse-badge" class="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
-                    </span>
-                </button>
-                
-                <!-- Dropdown Almacén -->
-                <div class="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 transform origin-top-right">
-                    <div class="p-3">
-                        <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-2">Seleccionar Ubicación</div>
-                        <ul class="space-y-1 max-h-60 overflow-y-auto custom-scrollbar">
-                            <li>
-                                <a href="{{ request()->url() }}{{ request()->has('category') ? '?category=' . request()->category : '' }}"
-                                   class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors {{ !request()->has('warehouse') ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
-                                    <i class="fas fa-globe w-5 text-center mr-2"></i> Todos los Locales
-                                </a>
-                            </li>
-                            @foreach(\App\Models\Warehouse::where('is_active', true)->orderBy('is_default', 'desc')->orderBy('name')->get() as $warehouse)
-                                <li>
-                                    @php
-                                        $warehouseParams = ['warehouse' => $warehouse->id];
-                                        if (request()->has('category')) $warehouseParams['category'] = request()->category;
-                                    @endphp
-                                    <a href="{{ request()->url() }}?{{ http_build_query($warehouseParams) }}" 
-                                       class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors {{ request()->warehouse == $warehouse->id ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
-                                        <i class="fas fa-store w-5 text-center mr-2 {{ $warehouse->is_default ? 'text-yellow-500' : 'text-gray-400' }}"></i>
-                                        <span class="truncate">{{ $warehouse->name }}</span>
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
-                </div>
-            </div>
+            @if (isset($menuCategories) && $menuCategories->count() > 0)
+                @foreach ($menuCategories as $category)
+                    <div class="relative group">
+                        <a href="{{ url('/' . $category->slug) }}" class="flex items-center gap-1 text-sm font-medium text-gray-700 hover:text-[var(--naranja)] transition-colors cursor-pointer">
+                            {{ strtoupper($category->name) }}
+                            @if ($category->activeChildren->count() > 0)
+                                <svg class="w-3 h-3 group-hover:rotate-180 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            @endif
+                        </a>
 
-            <!-- Usuario (Desktop) -->
-            <div class="hidden md:block relative group">
-                <a href="{{ route('login') }}" class="p-2 text-gray-600 hover:text-naranja transition-colors relative">
-                    @auth
-                        <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-naranja font-bold text-sm border border-orange-200">
-                            {{ substr(Auth::user()->name, 0, 1) }}
-                        </div>
-                    @else
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                        </svg>
-                    @endauth
-                </a>
-                
-                @auth
-                <!-- Dropdown Usuario -->
-                <div class="absolute top-full right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 transform origin-top-right">
-                    <div class="p-4 border-b border-gray-50">
-                        <p class="text-sm font-bold text-gray-800 truncate">{{ Auth::user()->name }}</p>
-                        <p class="text-xs text-gray-500 truncate">{{ Auth::user()->email }}</p>
+                        @if ($category->activeChildren->count() > 0)
+                            <div class="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-left z-50 overflow-hidden">
+                                <ul class="py-1">
+                                    @foreach ($category->activeChildren as $subcategory)
+                                        <li>
+                                            <a href="{{ url('/' . $subcategory->slug) }}"
+                                                class="block px-5 py-3 text-sm text-gray-600 hover:bg-orange-50 hover:text-[var(--naranja)] transition-colors">
+                                                {{ $subcategory->name }}
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                     </div>
-                    <ul class="py-2">
-                        <li><a href="{{ route('account.orders') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-naranja transition"><i class="fas fa-box-open mr-2 w-4"></i> Mis Pedidos</a></li>
-                        <li><a href="{{ route('filament.admin.pages.dashboard') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-naranja transition"><i class="fas fa-cog mr-2 w-4"></i> Panel Admin</a></li>
-                        <li class="border-t border-gray-50 mt-1 pt-1">
-                            <form action="{{ route('logout') }}" method="POST">
-                                @csrf
-                                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition"><i class="fas fa-sign-out-alt mr-2 w-4"></i> Cerrar Sesión</button>
-                            </form>
-                        </li>
-                    </ul>
-                </div>
+                @endforeach
+            @endif
+        </nav>
+
+        <!-- 4. Acciones -->
+        <div class="flex items-center gap-4">
+            <!-- Acceso / Registro (Desktop) -->
+            <div class="hidden lg:block">
+                @auth
+                    <div class="relative group">
+                        <a href="{{ route('account.orders') }}" class="text-xs font-medium text-gray-500 hover:text-gray-900 uppercase flex items-center gap-1">
+                            HOLA, {{ substr(Auth::user()->name, 0, 10) }}
+                        </a>
+                        <!-- Dropdown Usuario -->
+                        <div class="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                            <ul class="py-1">
+                                <li><a href="{{ route('account.orders') }}" class="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-[var(--naranja)]">Mis Pedidos</a></li>
+                                <li>
+                                    <form action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-red-50">Cerrar Sesión</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                @else
+                    <a href="{{ route('login') }}" class="text-xs font-medium text-gray-500 hover:text-gray-900 uppercase">
+                        ACCESO / REGISTRO
+                    </a>
                 @endauth
             </div>
 
-            <!-- Carrito (Siempre visible) -->
-            <a href="{{ route('cart.index') }}" class="relative p-2 text-gray-600 hover:text-naranja transition-transform hover:scale-110">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
-                </svg>
-                @php $cartCount = session()->has('cart') ? count(session('cart')) : 0; @endphp
-                @if($cartCount > 0)
-                    <span class="absolute top-0 right-0 bg-naranja text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center shadow-sm border border-white">
-                        {{ $cartCount }}
+            <div class="flex items-center gap-2">
+                <!-- Selector Almacén (Icono) -->
+                <div class="relative group hidden sm:block">
+                    <button class="p-2 text-gray-700 hover:text-[var(--naranja)] hover:bg-gray-100 rounded-full transition-colors" title="Seleccionar Local">
+                        <i class="fas fa-map-marker-alt text-lg"></i>
+                    </button>
+                    <!-- Dropdown Almacén -->
+                    <div class="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                        <div class="p-3">
+                            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-2">Ubicación</div>
+                            <ul class="space-y-1 max-h-60 overflow-y-auto custom-scrollbar">
+                                @foreach(\App\Models\Warehouse::where('is_active', true)->orderBy('is_default', 'desc')->get() as $warehouse)
+                                    <li>
+                                        <a href="{{ request()->url() }}?warehouse={{ $warehouse->id }}" 
+                                           class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors {{ request()->warehouse == $warehouse->id ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
+                                            <i class="fas fa-store w-5 text-center mr-2"></i>
+                                            <span class="truncate">{{ $warehouse->name }}</span>
+                                        </a>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search (Placeholder) -->
+                <button class="p-2 text-gray-700 hover:text-[var(--naranja)] hover:bg-gray-100 rounded-full transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </button>
+
+                <!-- Cart -->
+                <a href="{{ route('cart.index') }}" class="flex items-center gap-2 p-2 text-gray-700 hover:text-[var(--naranja)] hover:bg-gray-100 rounded-md transition-colors group">
+                    <div class="relative">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                        @php $cartCount = session()->has('cart') ? count(session('cart')) : 0; @endphp
+                        @if($cartCount > 0)
+                            <span class="absolute -top-1 -right-1 bg-[var(--naranja)] text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                                {{ $cartCount }}
+                            </span>
+                        @endif
+                    </div>
+                    <span class="hidden text-sm font-medium sm:inline-block group-hover:text-[var(--naranja)]">
+                        <!-- Precio Opcional -->
                     </span>
-                @endif
-            </a>
+                </a>
+            </div>
         </div>
-    </nav>
+    </div>
 
     <!-- MENÚ MÓVIL (Overlay + Sidebar) -->
     <div id="mobile-menu-overlay" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300 opacity-0" onclick="toggleMobileMenu()"></div>

@@ -1,12 +1,16 @@
 <!--
     =============================================
-    SECCIÓN HERO FULL-WIDTH (Estilo Referencia)
+    SECCIÓN HERO PROFESIONAL (UX/UI Optimizado)
     =============================================
-    - Carrusel de ancho completo
-    - Texto superpuesto con tipografía de impacto
-    - Indicadores numéricos y flechas de navegación
+    - Jerarquía tipográfica clara (32-56px desktop, 22-34px móvil)
+    - Animaciones suaves con autoplay 6s
+    - Accesibilidad completa (ARIA, teclado)
+    - Diseño responsive optimizado
 -->
-<section class="relative h-[600px] w-full overflow-hidden bg-gray-900 mt-16 md:mt-20">
+<section class="relative h-[600px] w-full overflow-hidden bg-gray-900 mt-16 md:mt-20" 
+         role="region" 
+         aria-roledescription="carousel" 
+         aria-label="Hero Slider">
 <?php
 // Obtener configuración
 $webConfig = \App\Models\WebConfiguration::find(1);
@@ -28,8 +32,8 @@ if ($webConfig) {
 if (empty($banners)) {
     $banners[] = [
         "imagen" => "logos/herosection.png",
-        "titulo" => "ROSALIZ DELUXE",
-        "texto" => "Amor y delicadeza",
+        "titulo" => "El regalo perfecto para enamorar",
+        "texto" => "Más de 200 opciones de arreglos premium",
         "link" => route('shop.index')
     ];
 }
@@ -39,39 +43,47 @@ $isCarousel = count($banners) > 1;
 
     <div id="hero-carousel" class="relative w-full h-full group">
         @foreach($banners as $index => $banner)
-            <div class="carousel-slide absolute inset-0 transition-opacity duration-1000 ease-in-out {{ $index == 0 ? 'opacity-100 z-10' : 'opacity-0 z-0' }}"
-                 data-index="{{ $index }}">
+            <div class="carousel-slide absolute inset-0 transition-opacity duration-700 ease-in-out {{ $index == 0 ? 'opacity-100 z-10' : 'opacity-0 z-0' }}"
+                 data-index="{{ $index }}"
+                 role="group"
+                 aria-roledescription="slide"
+                 aria-label="Slide {{ $index + 1 }} de {{ count($banners) }}">
                 
                 <!-- Imagen de Fondo -->
                 <div class="absolute inset-0">
                     <img src="{{ str_starts_with($banner['imagen'], 'logos/') ? asset($banner['imagen']) : asset('storage/' . $banner['imagen']) }}" 
                          alt="{{ $banner['titulo'] }}" 
-                         class="w-full h-full object-cover object-center opacity-80"
+                         class="w-full h-full object-cover object-center"
+                         loading="{{ $index == 0 ? 'eager' : 'lazy' }}"
                          onerror="this.src='https://via.placeholder.com/1920x1080/f3f4f6/9ca3af?text=Banner+{{ $index + 1 }}'">
                     
-                    <!-- Overlay Simple -->
-                    <div class="absolute inset-0 bg-black/20"></div>
+                    <!-- Overlay Sutil para Contraste -->
+                    <div class="absolute inset-0 bg-black/30"></div>
                 </div>
 
-                <!-- Contenido Centrado -->
-                <div class="absolute inset-0 flex items-center justify-center z-20">
-                    <div class="container mx-auto px-4 flex flex-col items-center justify-center text-center text-white max-w-4xl">
+                <!-- Contenido Centrado con Padding Interno -->
+                <div class="absolute inset-0 flex items-center justify-center z-20 px-8 py-12">
+                    <div class="container mx-auto flex flex-col items-center justify-center text-center text-white max-w-4xl space-y-6">
+                        <!-- Título Principal: 32-56px Desktop, 22-34px Móvil -->
                         @if($banner['titulo'])
-                            <h1 class="mb-4 text-5xl font-black uppercase tracking-wider sm:text-6xl md:text-7xl drop-shadow-lg leading-none">
+                            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-wide leading-tight drop-shadow-2xl animate-fadeIn">
                                 {!! nl2br(e($banner['titulo'])) !!}
                             </h1>
                         @endif
                         
+                        <!-- Subtítulo: 20-28px Desktop, 16-20px Móvil -->
                         @if($banner['texto'])
-                            <p class="mb-8 text-xl font-light tracking-wide sm:text-2xl drop-shadow-md">
+                            <p class="text-lg sm:text-xl md:text-2xl font-light tracking-wide max-w-2xl drop-shadow-lg animate-fadeIn animation-delay-200">
                                 {{ $banner['texto'] }}
                             </p>
                         @endif
 
+                        <!-- CTA Button: Grande y Visible -->
                         @if($banner['link'] && $banner['link'] != '#')
                             <a href="{{ $banner['link'] }}" 
-                               class="h-12 flex items-center justify-center rounded-full bg-[var(--naranja)] px-8 text-base font-bold text-white hover:bg-white hover:text-[var(--naranja)] transition-colors shadow-lg">
-                                NUEVA COLECCIÓN
+                               class="inline-flex items-center justify-center px-10 py-4 text-lg font-bold text-white bg-[var(--naranja)] rounded-full hover:bg-white hover:text-[var(--naranja)] transition-all duration-300 shadow-2xl hover:shadow-3xl hover:scale-105 animate-fadeIn animation-delay-400"
+                               aria-label="Ver Nueva Colección">
+                                VER COLECCIÓN
                             </a>
                         @endif
                     </div>
@@ -80,27 +92,66 @@ $isCarousel = count($banners) > 1;
         @endforeach
 
         @if($isCarousel)
-            <!-- Navegación (Flechas) -->
-            <button onclick="prevHeroSlide()" class="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-black/20 text-white hover:bg-black/40 hover:scale-110 transition-all hidden md:flex items-center justify-center group">
-                <svg class="w-8 h-8 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+            <!-- Navegación Lateral (Flechas) con Accesibilidad -->
+            <button onclick="prevHeroSlide()" 
+                    class="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-30 p-3 md:p-4 rounded-full bg-black/30 text-white hover:bg-black/50 hover:scale-110 transition-all duration-300 hidden md:flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
+                    aria-label="Slide anterior">
+                <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
             </button>
-            <button onclick="nextHeroSlide()" class="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2 rounded-full bg-black/20 text-white hover:bg-black/40 hover:scale-110 transition-all hidden md:flex items-center justify-center group">
-                <svg class="w-8 h-8 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+            <button onclick="nextHeroSlide()" 
+                    class="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-30 p-3 md:p-4 rounded-full bg-black/30 text-white hover:bg-black/50 hover:scale-110 transition-all duration-300 hidden md:flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent"
+                    aria-label="Slide siguiente">
+                <svg class="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
             </button>
 
-            <!-- Indicadores Centrados Abajo -->
-            <div class="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-4 text-white/80 z-30">
+            <!-- Indicadores (Dots) Centrados -->
+            <div class="absolute bottom-8 left-1/2 flex -translate-x-1/2 items-center gap-3 z-30" role="tablist" aria-label="Navegación de slides">
                 @foreach($banners as $index => $banner)
                     <button onclick="showHeroSlide({{ $index }})" 
-                            class="indicator-btn flex items-center gap-2 transition-all duration-300 {{ $index == 0 ? 'text-white font-bold' : 'text-white/50' }}">
-                        <span class="text-sm font-medium">0{{ $index + 1 }}</span>
-                        <div class="h-[2px] bg-white transition-all duration-300 {{ $index == 0 ? 'w-12' : 'w-4' }}"></div>
+                            class="indicator-btn group flex items-center gap-2 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent rounded-full px-2 py-1 {{ $index == 0 ? 'text-white' : 'text-white/50' }}"
+                            role="tab"
+                            aria-label="Ir a slide {{ $index + 1 }}"
+                            aria-selected="{{ $index == 0 ? 'true' : 'false' }}">
+                        <span class="text-sm font-medium">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</span>
+                        <div class="h-[2px] bg-white transition-all duration-300 {{ $index == 0 ? 'w-12' : 'w-4 group-hover:w-8' }}"></div>
                     </button>
                 @endforeach
             </div>
         @endif
     </div>
 </section>
+
+<!-- Estilos para Animaciones -->
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .animate-fadeIn {
+        animation: fadeIn 0.8s ease-out forwards;
+    }
+    
+    .animation-delay-200 {
+        animation-delay: 0.2s;
+        opacity: 0;
+    }
+    
+    .animation-delay-400 {
+        animation-delay: 0.4s;
+        opacity: 0;
+    }
+</style>
 
 @if($isCarousel)
 <script>
@@ -109,8 +160,13 @@ $isCarousel = count($banners) > 1;
     const indicators = document.querySelectorAll('.indicator-btn');
     const totalHeroSlides = heroSlides.length;
     let heroInterval;
+    let isPaused = false;
 
     function showHeroSlide(index) {
+        // Validar índice
+        if (index < 0) index = totalHeroSlides - 1;
+        if (index >= totalHeroSlides) index = 0;
+        
         // Update Slides
         heroSlides.forEach(s => {
             s.classList.remove('opacity-100', 'z-10');
@@ -118,18 +174,20 @@ $isCarousel = count($banners) > 1;
         });
         heroSlides[index].classList.remove('opacity-0', 'z-0');
         heroSlides[index].classList.add('opacity-100', 'z-10');
-        
+
         // Update Indicators
-        indicators.forEach((btn, i) => {
-            const line = btn.querySelector('span:last-child');
+        indicators.forEach((ind, i) => {
+            const line = ind.querySelector('div');
             if (i === index) {
-                btn.classList.remove('text-white/50');
-                btn.classList.add('text-white', 'font-bold');
+                ind.classList.remove('text-white/50');
+                ind.classList.add('text-white');
+                ind.setAttribute('aria-selected', 'true');
                 line.classList.remove('w-4');
                 line.classList.add('w-12');
             } else {
-                btn.classList.add('text-white/50');
-                btn.classList.remove('text-white', 'font-bold');
+                ind.classList.add('text-white/50');
+                ind.classList.remove('text-white');
+                ind.setAttribute('aria-selected', 'false');
                 line.classList.add('w-4');
                 line.classList.remove('w-12');
             }
@@ -139,27 +197,49 @@ $isCarousel = count($banners) > 1;
     }
 
     function nextHeroSlide() {
-        showHeroSlide((currentHeroSlide + 1) % totalHeroSlides);
+        showHeroSlide(currentHeroSlide + 1);
+        resetAutoplay();
     }
 
     function prevHeroSlide() {
-        showHeroSlide((currentHeroSlide - 1 + totalHeroSlides) % totalHeroSlides);
+        showHeroSlide(currentHeroSlide - 1);
+        resetAutoplay();
     }
 
-    function startHeroAuto() {
-        heroInterval = setInterval(nextHeroSlide, 6000);
+    function startAutoplay() {
+        heroInterval = setInterval(() => {
+            if (!isPaused) {
+                nextHeroSlide();
+            }
+        }, 6000); // 6 segundos por slide
     }
-    
-    function stopHeroAuto() {
+
+    function resetAutoplay() {
         clearInterval(heroInterval);
+        startAutoplay();
     }
 
+    // Navegación por Teclado
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+            prevHeroSlide();
+        } else if (e.key === 'ArrowRight') {
+            nextHeroSlide();
+        }
+    });
+
+    // Pausar en Hover (Opcional para UX)
     const carousel = document.getElementById('hero-carousel');
-    if(carousel) {
-        carousel.addEventListener('mouseenter', stopHeroAuto);
-        carousel.addEventListener('mouseleave', startHeroAuto);
+    carousel.addEventListener('mouseenter', () => {
+        isPaused = true;
+    });
+    carousel.addEventListener('mouseleave', () => {
+        isPaused = false;
+    });
+
+    // Iniciar Autoplay
+    if (totalHeroSlides > 1) {
+        startAutoplay();
     }
-    
-    startHeroAuto();
 </script>
 @endif
