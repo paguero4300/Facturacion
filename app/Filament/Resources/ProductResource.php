@@ -100,12 +100,6 @@ class ProductResource extends Resource
                         ->placeholder(__('Nombre descriptivo del producto'))
                         ->columnSpan(2),
                         
-                    TextInput::make('barcode')
-                        ->maxLength(100)
-                        ->label(__('Código de Barras'))
-                        ->placeholder(__('EAN, UPC, etc.'))
-                        ->columnSpan(1),
-                        
                     Textarea::make('description')
                         ->maxLength(500)
                         ->label(__('Descripción'))

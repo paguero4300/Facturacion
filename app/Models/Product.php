@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Picqer\Barcode\BarcodeGeneratorSVG;
 
 class Product extends Model
 {
@@ -194,7 +195,7 @@ class Product extends Model
         }
 
         try {
-            $generator = new \Picqer\Barcode\BarcodeGeneratorSVG();
+            $generator = new BarcodeGeneratorSVG();
             return $generator->getBarcode($this->barcode, $generator::TYPE_CODE_128);
         } catch (\Exception $e) {
             return '<text>Error: ' . $e->getMessage() . '</text>';

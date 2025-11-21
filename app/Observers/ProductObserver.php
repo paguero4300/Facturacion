@@ -7,6 +7,18 @@ use App\Models\Product;
 class ProductObserver
 {
     /**
+     * Handle the Product "creating" event.
+     * This runs BEFORE the product is saved to the database.
+     */
+    public function creating(Product $product): void
+    {
+        // Generar código de barras automáticamente si está vacío
+        if (empty($product->barcode)) {
+            $product->barcode = $product->generateUniqueBarcode();
+        }
+    }
+
+    /**
      * Handle the Product "created" event.
      */
     public function created(Product $product): void
