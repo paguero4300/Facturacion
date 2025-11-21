@@ -23,6 +23,7 @@ use Filafly\Themes\Brisk\BriskTheme;
 use Filafly\Icons\Iconoir\IconoirIcons;
 use Filament\Navigation\NavigationGroup;
 use App\Models\Company;
+use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -94,16 +95,16 @@ class AdminPanelProvider extends PanelProvider
             )
             ->discoverResources(
                 in: app_path("Filament/Resources"),
-                for: "App\Filament\Resources",
+                for: "App\\Filament\\Resources",
             )
             ->discoverPages(
                 in: app_path("Filament/Pages"),
-                for: "App\Filament\Pages",
+                for: "App\\Filament\\Pages",
             )
             ->pages([Dashboard::class])
             ->discoverWidgets(
                 in: app_path("Filament/Widgets"),
-                for: "App\Filament\Widgets",
+                for: "App\\Filament\\Widgets",
             )
             ->widgets([
                 \App\Filament\Widgets\PosStatsOverview::class,
@@ -144,6 +145,9 @@ class AdminPanelProvider extends PanelProvider
                     ->navigationLabel(__("Visor de Logs"))
                     ->navigationSort(100)
                     ->pollingTime(null), // Disable auto-refresh
+                
+                // Shield Plugin para gestión de roles y permisos
+                FilamentShieldPlugin::make(),
             ])
             ->middleware([
                 EncryptCookies::class,
