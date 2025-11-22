@@ -17,10 +17,16 @@ $webConfig = \App\Models\WebConfiguration::find(1);
 $banners = [];
 if ($webConfig) {
     for ($i = 1; $i <= 3; $i++) {
+        $type = $webConfig->{"banner_{$i}_type"} ?? 'image';
         $imagen = $webConfig->{"banner_{$i}_imagen"} ?? null;
-        if ($imagen) {
+        $video = $webConfig->{"banner_{$i}_video"} ?? null;
+        
+        // Solo agregar si tiene contenido (imagen o video)
+        if (($type === 'image' && $imagen) || ($type === 'video' && $video)) {
             $banners[] = [
+                "type" => $type,
                 "imagen" => $imagen,
+                "video" => $video,
                 "titulo" => $webConfig->{"banner_{$i}_titulo"} ?? "",
                 "texto" => $webConfig->{"banner_{$i}_texto"} ?? "",
                 "link" => $webConfig->{"banner_{$i}_link"} ?? "#",
@@ -31,7 +37,9 @@ if ($webConfig) {
 // Fallback si no hay banners
 if (empty($banners)) {
     $banners[] = [
+        "type" => "image",
         "imagen" => "logos/herosection.png",
+        "video" => null,
         "titulo" => "El regalo perfecto para enamorar",
         "texto" => "Más de 200 opciones de arreglos premium",
         "link" => route('shop.index')
@@ -49,13 +57,31 @@ $isCarousel = count($banners) > 1;
                  aria-roledescription="slide"
                  aria-label="Slide {{ $index + 1 }} de {{ count($banners) }}">
                 
-                <!-- Imagen de Fondo -->
+                <!-- Fondo de Media (Imagen o Video) -->
                 <div class="absolute inset-0">
-                    <img src="{{ str_starts_with($banner['imagen'], 'logos/') ? asset($banner['imagen']) : asset('storage/' . $banner['imagen']) }}" 
-                         alt="{{ $banner['titulo'] }}" 
-                         class="w-full h-full object-cover object-center"
-                         loading="{{ $index == 0 ? 'eager' : 'lazy' }}"
-                         onerror="this.src='https://via.placeholder.com/1920x1080/f3f4f6/9ca3af?text=Banner+{{ $index + 1 }}'">
+                    @if($banner['type'] === 'video' && $banner['video'])
+                        <!-- Video Background -->
+                        <video 
+                            class="w-full h-full object-cover object-center"
+                            autoplay 
+                            muted 
+                            loop 
+                            playsinline
+                            {{ $index == 0 ? '' : 'preload="none"' }}
+                            aria-label="{{ $banner['titulo'] }}"
+                            onloadedmetadata="this.muted = true; this.play().catch(e => console.log('Video autoplay prevented'))">
+                            <source src="{{ asset('storage/' . $banner['video']) }}" type="video/{{ pathinfo($banner['video'], PATHINFO_EXTENSION) === 'webm' ? 'webm' : 'mp4' }}">
+                            <!-- Fallback para navegadores sin soporte -->
+                            Tu navegador no soporta videos HTML5.
+                        </video>
+                    @else
+                        <!-- Image Background -->
+                        <img src="{{ str_starts_with($banner['imagen'], 'logos/') ? asset($banner['imagen']) : asset('storage/' . $banner['imagen']) }}" 
+                             alt="{{ $banner['titulo'] }}" 
+                             class="w-full h-full object-cover object-center"
+                             loading="{{ $index == 0 ? 'eager' : 'lazy' }}"
+                             onerror="this.src='https://via.placeholder.com/1920x1080/f3f4f6/9ca3af?text=Banner+{{ $index + 1 }}'">
+                    @endif
                     
                     <!-- Overlay Sutil para Contraste -->
                     <div class="absolute inset-0 bg-black/30"></div>
@@ -168,12 +194,30 @@ $isCarousel = count($banners) > 1;
         if (index >= totalHeroSlides) index = 0;
         
         // Update Slides
-        heroSlides.forEach(s => {
-            s.classList.remove('opacity-100', 'z-10');
-            s.classList.add('opacity-0', 'z-0');
+        heroSlides.forEach((s, i) => {
+            const video = s.querySelector('video');
+            
+            if (i === index) {
+                // Mostrar slide actual
+                s.classList.remove('opacity-0', 'z-0');
+                s.classList.add('opacity-100', 'z-10');
+                
+                // Reproducir video si existe
+                if (video) {
+                    video.muted = true; // Asegurar que esté muteado
+                    video.play().catch(e => console.log('Video autoplay prevented:', e));
+                }
+            } else {
+                // Ocultar otros slides
+                s.classList.remove('opacity-100', 'z-10');
+                s.classList.add('opacity-0', 'z-0');
+                
+                // Pausar video si existe
+                if (video) {
+                    video.pause();
+                }
+            }
         });
-        heroSlides[index].classList.remove('opacity-0', 'z-0');
-        heroSlides[index].classList.add('opacity-100', 'z-10');
 
         // Update Indicators
         indicators.forEach((ind, i) => {

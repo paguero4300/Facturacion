@@ -107,19 +107,42 @@ class WebConfigurationResource extends Resource
                     ->columns(1),
                  
                  \Filament\Schemas\Components\Section::make('Banners del Sitio Web')
-                     ->description('Configura los banners para el carrusel principal. Si solo cargas un banner, se mostrará estático. Si cargas varios, se mostrarán como carrusel.')
+                     ->description('Configura los banners para el carrusel principal. Puedes usar imágenes o videos. Si solo cargas un banner, se mostrará estático. Si cargas varios, se mostrarán como carrusel.')
                      ->schema([
+                         // Banner 1
                          \Filament\Schemas\Components\Section::make('Banner 1')
                              ->schema([
+                                 \Filament\Forms\Components\Radio::make('banner_1_type')
+                                     ->label('Tipo de Contenido')
+                                     ->options([
+                                         'image' => 'Imagen',
+                                         'video' => 'Video',
+                                     ])
+                                     ->default('image')
+                                     ->inline()
+                                     ->reactive()
+                                     ->required()
+                                     ->columnSpanFull(),
+                                 
                                  \Filament\Forms\Components\FileUpload::make('banner_1_imagen')
                                      ->label('Imagen del Banner 1')
                                      ->image()
                                      ->imageEditor()
-                                     ->directory('banners')
+                                     ->directory('banners/images')
                                      ->disk('public')
                                      ->maxSize(2048)
                                      ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                                     ->helperText('Dimensiones recomendadas: 1200x600px'),
+                                     ->helperText('Dimensiones recomendadas: 1920x1080px (Full HD) o 1200x600px')
+                                     ->hidden(fn ($get) => $get('banner_1_type') === 'video'),
+                                 
+                                 \Filament\Forms\Components\FileUpload::make('banner_1_video')
+                                     ->label('Video del Banner 1')
+                                     ->directory('banners/videos')
+                                     ->disk('public')
+                                     ->maxSize(51200) // 50MB
+                                     ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/quicktime'])
+                                     ->helperText('Formatos aceptados: MP4, WebM, MOV. Tamaño máximo: 50MB. Recomendación: videos cortos (5-15 segundos) en resolución 1920x1080px para mejor rendimiento.')
+                                     ->hidden(fn ($get) => $get('banner_1_type') !== 'video'),
                                  
                                  \Filament\Forms\Components\TextInput::make('banner_1_titulo')
                                      ->label('Título del Banner 1')
@@ -140,19 +163,42 @@ class WebConfigurationResource extends Resource
                              ])
                              ->columns(2)
                              ->collapsible()
-                             ->collapsed(fn ($get) => !$get('banner_1_imagen')),
+                             ->collapsed(fn ($get) => !$get('banner_1_imagen') && !$get('banner_1_video')),
                          
+                         // Banner 2
                          \Filament\Schemas\Components\Section::make('Banner 2')
                              ->schema([
+                                 \Filament\Forms\Components\Radio::make('banner_2_type')
+                                     ->label('Tipo de Contenido')
+                                     ->options([
+                                         'image' => 'Imagen',
+                                         'video' => 'Video',
+                                     ])
+                                     ->default('image')
+                                     ->inline()
+                                     ->reactive()
+                                     ->required()
+                                     ->columnSpanFull(),
+                                 
                                  \Filament\Forms\Components\FileUpload::make('banner_2_imagen')
                                      ->label('Imagen del Banner 2')
                                      ->image()
                                      ->imageEditor()
-                                     ->directory('banners')
+                                     ->directory('banners/images')
                                      ->disk('public')
                                      ->maxSize(2048)
                                      ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                                     ->helperText('Dimensiones recomendadas: 1200x600px'),
+                                     ->helperText('Dimensiones recomendadas: 1920x1080px (Full HD) o 1200x600px')
+                                     ->hidden(fn ($get) => $get('banner_2_type') === 'video'),
+                                 
+                                 \Filament\Forms\Components\FileUpload::make('banner_2_video')
+                                     ->label('Video del Banner 2')
+                                     ->directory('banners/videos')
+                                     ->disk('public')
+                                     ->maxSize(51200) // 50MB
+                                     ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/quicktime'])
+                                     ->helperText('Formatos aceptados: MP4, WebM, MOV. Tamaño máximo: 50MB. Recomendación: videos cortos (5-15 segundos) en resolución 1920x1080px para mejor rendimiento.')
+                                     ->hidden(fn ($get) => $get('banner_2_type') !== 'video'),
                                  
                                  \Filament\Forms\Components\TextInput::make('banner_2_titulo')
                                      ->label('Título del Banner 2')
@@ -173,19 +219,42 @@ class WebConfigurationResource extends Resource
                              ])
                              ->columns(2)
                              ->collapsible()
-                             ->collapsed(fn ($get) => !$get('banner_2_imagen')),
+                             ->collapsed(fn ($get) => !$get('banner_2_imagen') && !$get('banner_2_video')),
                          
+                         // Banner 3
                          \Filament\Schemas\Components\Section::make('Banner 3')
                              ->schema([
+                                 \Filament\Forms\Components\Radio::make('banner_3_type')
+                                     ->label('Tipo de Contenido')
+                                     ->options([
+                                         'image' => 'Imagen',
+                                         'video' => 'Video',
+                                     ])
+                                     ->default('image')
+                                     ->inline()
+                                     ->reactive()
+                                     ->required()
+                                     ->columnSpanFull(),
+                                 
                                  \Filament\Forms\Components\FileUpload::make('banner_3_imagen')
                                      ->label('Imagen del Banner 3')
                                      ->image()
                                      ->imageEditor()
-                                     ->directory('banners')
+                                     ->directory('banners/images')
                                      ->disk('public')
                                      ->maxSize(2048)
                                      ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
-                                     ->helperText('Dimensiones recomendadas: 1200x600px'),
+                                     ->helperText('Dimensiones recomendadas: 1920x1080px (Full HD) o 1200x600px')
+                                     ->hidden(fn ($get) => $get('banner_3_type') === 'video'),
+                                 
+                                 \Filament\Forms\Components\FileUpload::make('banner_3_video')
+                                     ->label('Video del Banner 3')
+                                     ->directory('banners/videos')
+                                     ->disk('public')
+                                     ->maxSize(51200) // 50MB
+                                     ->acceptedFileTypes(['video/mp4', 'video/webm', 'video/quicktime'])
+                                     ->helperText('Formatos aceptados: MP4, WebM, MOV. Tamaño máximo: 50MB. Recomendación: videos cortos (5-15 segundos) en resolución 1920x1080px para mejor rendimiento.')
+                                     ->hidden(fn ($get) => $get('banner_3_type') !== 'video'),
                                  
                                  \Filament\Forms\Components\TextInput::make('banner_3_titulo')
                                      ->label('Título del Banner 3')
@@ -206,7 +275,7 @@ class WebConfigurationResource extends Resource
                              ])
                              ->columns(2)
                              ->collapsible()
-                             ->collapsed(fn ($get) => !$get('banner_3_imagen')),
+                             ->collapsed(fn ($get) => !$get('banner_3_imagen') && !$get('banner_3_video')),
                      ])
                      ->columns(1)
                      ->collapsible(),
