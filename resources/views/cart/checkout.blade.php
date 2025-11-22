@@ -10,18 +10,10 @@
     <x-checkout-progress currentStep="2" />
 
     <!-- Page Header -->
-    <div class="relative bg-gradient-to-br from-[var(--fondo-principal)] via-white to-orange-50 py-12 overflow-hidden">
-        <div class="absolute inset-0 opacity-10">
-            <div class="absolute top-0 right-0 w-96 h-96 bg-[var(--naranja)] rounded-full blur-3xl"></div>
-            <div class="absolute bottom-0 left-0 w-96 h-96 bg-[var(--azul-claro)] rounded-full blur-3xl"></div>
-        </div>
-        <div class="max-w-7xl mx-auto px-4 relative z-10">
-            <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--enlaces-titulos)] mb-3">
-                Finalizar Pedido
-            </h1>
-            <p class="text-base md:text-lg text-[var(--texto-principal)]">
-                Completa tu información para procesar el pedido
-            </p>
+    <div class="bg-gray-50 py-8 border-b border-gray-200">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Finalizar Pedido</h1>
+            <p class="text-gray-600">Completa tu información para procesar el pedido</p>
         </div>
     </div>
 

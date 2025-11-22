@@ -16,6 +16,11 @@ class CheckWarehouseSelection
      */
     public function handle(Request $request, Closure $next): Response
     {
+        // Excluir rutas de Livewire y Admin para evitar conflictos y redirecciones incorrectas
+        if ($request->is('livewire/*') || $request->is('admin/*')) {
+            return $next($request);
+        }
+
         // 1. Si la URL ya tiene el parámetro warehouse, guardamos la cookie y seguimos
         if ($request->has('warehouse')) {
             $warehouseId = $request->input('warehouse');

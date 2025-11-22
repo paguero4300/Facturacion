@@ -9,19 +9,11 @@
     {{-- Progress Indicator --}}
     <x-checkout-progress :currentStep="1" />
     
-    <!-- Page Header (Matching Shop Style) -->
-    <div class="relative bg-gray-900 py-16 md:py-24 overflow-hidden">
-        <div class="absolute inset-0">
-            <img src="{{ asset('logos/herosection.png') }}" alt="Carrito Background" class="w-full h-full object-cover opacity-20">
-            <div class="absolute inset-0 bg-gradient-to-r from-gray-900 via-gray-900/90 to-gray-900/50"></div>
-        </div>
-        <div class="relative max-w-7xl mx-auto px-4 text-center">
-            <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-4 tracking-tight">
-                TU <span class="text-[var(--naranja)]">CARRITO</span>
-            </h1>
-            <p class="text-xl text-gray-300 max-w-2xl mx-auto font-light">
-                Revisa tus productos antes de finalizar tu pedido
-            </p>
+    <!-- Page Header -->
+    <div class="bg-gray-50 py-8 border-b border-gray-200">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Tu Carrito</h1>
+            <p class="text-gray-600">Revisa tus productos antes de finalizar tu pedido</p>
         </div>
     </div>
 
