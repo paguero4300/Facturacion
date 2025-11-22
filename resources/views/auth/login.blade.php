@@ -19,7 +19,7 @@
             </label>
             <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors">
-                    <svg class="h-5 w-5 text-gray-400 group-focus-within:text-pink-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="h-5 w-5 text-gray-400 transition-colors" style="color: var(--texto-principal);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
                     </svg>
                 </div>
@@ -31,7 +31,7 @@
                     required
                     autofocus
                     autocomplete="username"
-                    class="block w-full pl-12 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all bg-white hover:border-gray-400"
+                    class="block w-full pl-12 pr-4 py-3.5 border border-gray-300 rounded-xl transition-all bg-white hover:border-gray-400 auth-input"
                     placeholder="tu@email.com"
                 >
             </div>
@@ -52,7 +52,7 @@
             </label>
             <div class="relative group">
                 <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors">
-                    <svg class="h-5 w-5 text-gray-400 group-focus-within:text-pink-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="h-5 w-5 text-gray-400 transition-colors" style="color: var(--texto-principal);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                 </div>
@@ -62,7 +62,7 @@
                     name="password"
                     required
                     autocomplete="current-password"
-                    class="block w-full pl-12 pr-4 py-3.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-pink-500 transition-all bg-white hover:border-gray-400"
+                    class="block w-full pl-12 pr-4 py-3.5 border border-gray-300 rounded-xl transition-all bg-white hover:border-gray-400 auth-input"
                     placeholder="••••••••"
                 >
             </div>
@@ -83,7 +83,7 @@
                     id="remember_me"
                     type="checkbox"
                     name="remember"
-                    class="rounded-md border-gray-300 text-pink-600 shadow-sm focus:ring-pink-500 cursor-pointer w-4 h-4 transition"
+                    class="rounded-md border-gray-300 shadow-sm cursor-pointer w-4 h-4 transition accent-orange-500"
                 >
                 <span class="ml-2.5 text-gray-600 group-hover:text-gray-800 transition">Recuérdame</span>
             </label>
@@ -91,7 +91,7 @@
             @if (Route::has('password.request'))
                 <a href="{{ route('password.request') }}"
                    class="font-medium hover:underline transition-colors"
-                   style="color: var(--enlaces-titulos);">
+                   style="color: var(--azul-primario);">
                     ¿Olvidaste tu contraseña?
                 </a>
             @endif
@@ -100,7 +100,7 @@
         <!-- Submit Button -->
         <button
             type="submit"
-            class="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:scale-98 flex items-center justify-center gap-2 group"
+            class="w-full text-white font-bold py-3.5 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 active:scale-98 flex items-center justify-center gap-2 group auth-btn"
         >
             <span>Iniciar Sesión</span>
             <svg class="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -116,7 +116,7 @@
                 ¿No tienes una cuenta?
                 <a href="{{ route('register') }}"
                    class="font-bold hover:underline transition-colors inline-flex items-center gap-1 group"
-                   style="color: var(--enlaces-titulos);">
+                   style="color: var(--naranja);">
                     <span>Regístrate gratis</span>
                     <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -134,4 +134,24 @@
             <a href="#" class="underline hover:text-gray-700">Política de Privacidad</a>
         </p>
     </div>
+    
+    <style>
+        .auth-input:focus {
+            outline: none;
+            border-color: var(--naranja);
+            box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.1);
+        }
+        
+        .group:focus-within svg {
+            color: var(--naranja) !important;
+        }
+        
+        .auth-btn {
+            background: linear-gradient(135deg, var(--naranja) 0%, var(--azul-claro) 100%);
+        }
+        
+        .auth-btn:hover {
+            opacity: 0.9;
+        }
+    </style>
 </x-guest-layout>
