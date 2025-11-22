@@ -96,25 +96,24 @@
                                 </a>
 
                                 <!-- Stock Indicator -->
-                                @if(request()->has('warehouse') && request()->warehouse)
-                                    @php
-                                        $warehouseStock = $product->stocks->where('warehouse_id', request()->warehouse)->first();
-                                        $stockQty = $warehouseStock ? $warehouseStock->qty : 0;
-                                    @endphp
-                                    <div class="mb-3">
-                                        @if($stockQty > 0)
-                                            <span class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-green-50 text-green-700 rounded-full">
-                                                <i class="fas fa-check-circle"></i>
-                                                Stock: {{ number_format($stockQty, 0) }}
-                                            </span>
-                                        @else
-                                            <span class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-red-50 text-red-700 rounded-full">
-                                                <i class="fas fa-times-circle"></i>
-                                                Sin stock
-                                            </span>
-                                        @endif
-                                    </div>
-                                @endif
+                                @php
+                                    $warehouseStock = $product->stocks->where('warehouse_id', $warehouseId ?? null)->first();
+                                    $stockQty = $warehouseStock ? $warehouseStock->qty : 0;
+                                    $isOutOfStock = $stockQty <= 0;
+                                @endphp
+                                <div class="mb-3">
+                                    @if($stockQty > 0)
+                                        <span class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-green-50 text-green-700 rounded-full">
+                                            <i class="fas fa-check-circle"></i>
+                                            Stock: {{ number_format($stockQty, 0) }}
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-red-50 text-red-700 rounded-full">
+                                            <i class="fas fa-times-circle"></i>
+                                            Agotado
+                                        </span>
+                                    @endif
+                                </div>
 
                                 <!-- Precio y Botón -->
                                 <div class="mt-auto">
@@ -136,16 +135,23 @@
                                     </div>
 
                                     <!-- Add to Cart Button -->
-                                    <form action="{{ route('cart.add') }}" method="POST" class="w-full">
-                                        @csrf
-                                        <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                        <input type="hidden" name="quantity" value="1">
-                                        <button type="submit"
-                                                class="w-full bg-gray-900 hover:bg-[var(--naranja)] text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-                                            <i class="fas fa-shopping-cart"></i>
-                                            <span>Añadir al carrito</span>
+                                    @if($isOutOfStock)
+                                        <button type="button" disabled class="w-full bg-gray-300 text-gray-500 font-bold py-3 px-4 rounded-lg cursor-not-allowed flex items-center justify-center gap-2">
+                                            <i class="fas fa-times"></i>
+                                            <span>Agotado</span>
                                         </button>
-                                    </form>
+                                    @else
+                                        <form action="{{ route('cart.add') }}" method="POST" class="w-full">
+                                            @csrf
+                                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                            <input type="hidden" name="quantity" value="1">
+                                            <button type="submit"
+                                                    class="w-full bg-gray-900 hover:bg-[var(--naranja)] text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                                                <i class="fas fa-shopping-cart"></i>
+                                                <span>Añadir al carrito</span>
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </div>
                         </div>

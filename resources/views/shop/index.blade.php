@@ -149,37 +149,43 @@
                                         </div>
 
                                         <!-- Stock Info -->
-                                        @if(request()->has('warehouse') && request()->warehouse)
-                                            @php
-                                                $warehouseStock = $product->stocks->where('warehouse_id', request()->warehouse)->first();
-                                                $stockQty = $warehouseStock ? $warehouseStock->qty : 0;
-                                            @endphp
-                                            <div class="mb-4">
-                                                @if($stockQty > 0)
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                                        <span class="w-1.5 h-1.5 rounded-full bg-green-600 mr-1.5"></span>
-                                                        Stock: {{ number_format($stockQty, 0) }}
-                                                    </span>
-                                                @else
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                                        <span class="w-1.5 h-1.5 rounded-full bg-red-600 mr-1.5"></span>
-                                                        Agotado
-                                                    </span>
-                                                @endif
-                                            </div>
-                                        @endif
+                                        @php
+                                            $warehouseStock = $product->stocks->where('warehouse_id', $warehouseId ?? null)->first();
+                                            $stockQty = $warehouseStock ? $warehouseStock->qty : 0;
+                                            $isOutOfStock = $stockQty <= 0;
+                                        @endphp
+                                        <div class="mb-4">
+                                            @if($stockQty > 0)
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-green-600 mr-1.5"></span>
+                                                    Stock: {{ number_format($stockQty, 0) }}
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-red-600 mr-1.5"></span>
+                                                    Agotado
+                                                </span>
+                                            @endif
+                                        </div>
 
                                         <!-- Botón Añadir -->
-                                        <form action="{{ route('cart.add') }}" method="POST" class="mt-auto">
-                                            @csrf
-                                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                            <input type="hidden" name="quantity" value="1">
-                                            <button type="submit" 
-                                                    class="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-900 py-2.5 text-sm font-bold text-white hover:bg-[var(--naranja)] transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                                                <i class="fas fa-shopping-cart"></i>
-                                                Añadir al carrito
+                                        @if($isOutOfStock)
+                                            <button type="button" disabled class="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-300 py-2.5 text-sm font-bold text-gray-500 cursor-not-allowed">
+                                                <i class="fas fa-times"></i>
+                                                Agotado
                                             </button>
-                                        </form>
+                                        @else
+                                            <form action="{{ route('cart.add') }}" method="POST" class="mt-auto">
+                                                @csrf
+                                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                                <input type="hidden" name="quantity" value="1">
+                                                <button type="submit" 
+                                                        class="flex w-full items-center justify-center gap-2 rounded-lg bg-gray-900 py-2.5 text-sm font-bold text-white hover:bg-[var(--naranja)] transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                                                    <i class="fas fa-shopping-cart"></i>
+                                                    Añadir al carrito
+                                                </button>
+                                            </form>
+                                        @endif
                                     </div>
                                 </div>
                             @endforeach

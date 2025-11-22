@@ -27,12 +27,19 @@ class DetallesController extends Controller
         $menuCategories = $this->getFilteredCategories($request)->get();
         $mainCategories = $menuCategories;
 
+        // Obtener warehouse ID
+        $warehouseId = $request->warehouse;
+        if (!$warehouseId) {
+            $defaultWarehouse = \App\Models\Warehouse::where('is_default', true)->first();
+            $warehouseId = $defaultWarehouse?->id;
+        }
+
         // Cargar productos destacados con filtros aplicados
         $featuredProducts = $this->getFilteredProducts($request, [
             'featured' => true,
             'order_by' => 'name',
             'order_direction' => 'asc'
-        ])->get();
+        ])->with('stocks')->get();
 
         return view('index', compact(
             'menuCategories', 
@@ -41,7 +48,8 @@ class DetallesController extends Controller
             'filterData',
             'activeFilters',
             'filterBreadcrumbs',
-            'clearFiltersUrl'
+            'clearFiltersUrl',
+            'warehouseId'
         ));
     }
     
@@ -93,7 +101,7 @@ class DetallesController extends Controller
             });
         }
         
-        $products = $query->orderBy('name', 'asc')->get();
+        $products = $query->with('stocks')->orderBy('name', 'asc')->get();
         
         $menuCategories = $this->getFilteredCategories($request)->get();
         
@@ -105,6 +113,7 @@ class DetallesController extends Controller
             'activeFilters' => $activeFilters,
             'filterBreadcrumbs' => $filterBreadcrumbs,
             'clearFiltersUrl' => $clearFiltersUrl,
+            'warehouseId' => $warehouseId,
         ]);
     }
     

@@ -24,7 +24,14 @@ class ShopController extends Controller
         // Construir consulta con filtros aplicados
         $query = $this->buildFilteredQuery($request);
         
-        $products = $query->orderBy('name')->paginate(12);
+        // Obtener warehouse ID
+        $warehouseId = $request->warehouse;
+        if (!$warehouseId) {
+            $defaultWarehouse = \App\Models\Warehouse::where('is_default', true)->first();
+            $warehouseId = $defaultWarehouse?->id;
+        }
+
+        $products = $query->with('stocks')->orderBy('name')->paginate(12);
         $categories = $filterData['categories'];
         $warehouses = $filterData['warehouses'];
         
@@ -38,7 +45,8 @@ class ShopController extends Controller
             'activeFilters',
             'filterBreadcrumbs',
             'clearFiltersUrl',
-            'menuCategories'
+            'menuCategories',
+            'warehouseId'
         ));
     }
 
@@ -49,7 +57,7 @@ class ShopController extends Controller
     {
         $product = Product::where('status', 'active')
             ->where('for_sale', true)
-            ->with('category')
+            ->with(['category', 'stocks'])
             ->findOrFail($id);
 
         // Get related products from same category with filters applied
@@ -73,11 +81,11 @@ class ShopController extends Controller
             });
         }
         
-        $related = $relatedQuery->limit(4)->get();
+        $related = $relatedQuery->with('stocks')->limit(4)->get();
         
         // Obtener categorías para el header (mismo método que home)
         $menuCategories = $this->getFilteredCategories($request)->get();
 
-        return view('shop.product', compact('product', 'related', 'menuCategories'));
+        return view('shop.product', compact('product', 'related', 'menuCategories', 'warehouseId'));
     }
 }

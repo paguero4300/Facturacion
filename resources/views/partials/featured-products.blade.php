@@ -63,30 +63,36 @@
                         </div>
 
                         <!-- Stock Info (Sutil) -->
-                        @if(request()->has('warehouse') && request()->warehouse)
-                            @php
-                                $warehouseStock = $product->stocks->where('warehouse_id', request()->warehouse)->first();
-                                $stockQty = $warehouseStock ? $warehouseStock->qty : 0;
-                            @endphp
-                            <div class="mb-3 text-xs">
-                                @if($stockQty > 0)
-                                    <span class="text-green-600 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Stock: {{ number_format($stockQty, 0) }}</span>
-                                @else
-                                    <span class="text-red-500 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Agotado</span>
-                                @endif
-                            </div>
-                        @endif
+                        @php
+                            $warehouseStock = $product->stocks->where('warehouse_id', $warehouseId ?? null)->first();
+                            $stockQty = $warehouseStock ? $warehouseStock->qty : 0;
+                            $isOutOfStock = $stockQty <= 0;
+                        @endphp
+                        <div class="mb-3 text-xs">
+                            @if($stockQty > 0)
+                                <span class="text-green-600 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Stock: {{ number_format($stockQty, 0) }}</span>
+                            @else
+                                <span class="text-red-500 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Agotado</span>
+                            @endif
+                        </div>
 
                         <!-- Botón Añadir -->
-                        <form action="{{ route('cart.add') }}" method="POST" class="mt-auto">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-                            <input type="hidden" name="quantity" value="1">
-                            <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-md bg-gray-900 py-2 text-sm font-medium text-white hover:bg-[var(--naranja)] transition-colors">
-                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                                Añadir al carrito
+                        @if($isOutOfStock)
+                            <button type="button" disabled class="flex w-full items-center justify-center gap-2 rounded-md bg-gray-300 py-2 text-sm font-medium text-gray-500 cursor-not-allowed">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                Agotado
                             </button>
-                        </form>
+                        @else
+                            <form action="{{ route('cart.add') }}" method="POST" class="mt-auto">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-md bg-gray-900 py-2 text-sm font-medium text-white hover:bg-[var(--naranja)] transition-colors">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                    Añadir al carrito
+                                </button>
+                            </form>
+                        @endif
                     </div>
                 </div>
             @endforeach

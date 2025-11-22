@@ -103,12 +103,17 @@
                                 </div>
                             @endif
                             @if($product->track_inventory)
+                                @php
+                                    $warehouseStock = $product->stocks->where('warehouse_id', $warehouseId ?? null)->first();
+                                    $stockQty = $warehouseStock ? $warehouseStock->qty : 0;
+                                    $isOutOfStock = $stockQty <= 0;
+                                @endphp
                                 <div class="flex items-center text-sm">
                                     <span class="text-gray-500 w-32 font-medium">Disponibilidad:</span>
-                                    <span class="font-bold {{ $product->current_stock > 0 ? 'text-green-600' : 'text-red-600' }} flex items-center gap-2">
-                                        @if($product->current_stock > 0)
+                                    <span class="font-bold {{ $stockQty > 0 ? 'text-green-600' : 'text-red-600' }} flex items-center gap-2">
+                                        @if($stockQty > 0)
                                             <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                                            {{ $product->current_stock }} unidades
+                                            {{ number_format($stockQty, 0) }} unidades
                                         @else
                                             <span class="w-2 h-2 rounded-full bg-red-500"></span>
                                             Agotado
@@ -120,43 +125,58 @@
                     </div>
 
                     <!-- Add to Cart Form -->
-                    <form action="{{ route('cart.add') }}" method="POST" class="space-y-6">
-                        @csrf
-                        <input type="hidden" name="product_id" value="{{ $product->id }}">
+                    @php
+                        $warehouseStock = $product->stocks->where('warehouse_id', $warehouseId ?? null)->first();
+                        $stockQty = $warehouseStock ? $warehouseStock->qty : 0;
+                        $isOutOfStock = $stockQty <= 0;
+                    @endphp
+                    
+                    @if($isOutOfStock)
+                        <div class="bg-red-50 border-2 border-red-200 rounded-xl p-6 text-center">
+                            <i class="fas fa-times-circle text-4xl text-red-500 mb-3"></i>
+                            <p class="text-lg font-bold text-red-700">Producto Agotado</p>
+                            <p class="text-sm text-red-600 mt-2">Este producto no está disponible en este momento.</p>
+                        </div>
+                    @else
+                        <form action="{{ route('cart.add') }}" method="POST" class="space-y-6">
+                            @csrf
+                            <input type="hidden" name="product_id" value="{{ $product->id }}">
 
-                        <!-- Quantity Selector -->
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-3">Cantidad</label>
-                            <div class="flex items-center gap-4">
-                                <div class="flex items-center border-2 border-gray-200 rounded-lg overflow-hidden">
-                                    <button type="button" onclick="decreaseQuantity()"
-                                        class="w-12 h-12 flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-600 transition active:bg-gray-200">
-                                        <i class="fas fa-minus"></i>
-                                    </button>
-                                    <input type="number" name="quantity" id="quantity" value="1" min="1"
-                                        class="w-16 text-center border-none py-2 font-bold text-lg text-gray-900 focus:ring-0 bg-white appearance-none">
-                                    <button type="button" onclick="increaseQuantity()"
-                                        class="w-12 h-12 flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-600 transition active:bg-gray-200">
-                                        <i class="fas fa-plus"></i>
-                                    </button>
+                            <!-- Quantity Selector -->
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-3">Cantidad</label>
+                                <div class="flex items-center gap-4">
+                                    <div class="flex items-center border-2 border-gray-200 rounded-lg overflow-hidden">
+                                        <button type="button" onclick="decreaseQuantity()"
+                                            class="w-12 h-12 flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-600 transition active:bg-gray-200">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <input type="number" name="quantity" id="quantity" value="1" min="1" max="{{ $stockQty }}"
+                                            class="w-16 text-center border-none py-2 font-bold text-lg text-gray-900 focus:ring-0 bg-white appearance-none">
+                                        <button type="button" onclick="increaseQuantity({{ $stockQty }})"
+                                            class="w-12 h-12 flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-600 transition active:bg-gray-200">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                    <span class="text-sm text-gray-500">Máx: {{ number_format($stockQty, 0) }}</span>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Action Buttons -->
-                        <div class="flex flex-col sm:flex-row gap-4">
-                            <button type="submit" name="action" value="add_to_cart"
-                                class="flex-1 bg-gray-900 text-white font-bold py-4 px-8 rounded-xl hover:bg-[var(--naranja)] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-3">
-                                <i class="fas fa-shopping-cart"></i>
-                                AÑADIR AL CARRITO
-                            </button>
-                            <button type="submit" name="action" value="buy_now"
-                                class="flex-1 bg-[var(--naranja)] text-white font-bold py-4 px-8 rounded-xl hover:bg-gray-900 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-3">
-                                <i class="fas fa-bolt"></i>
-                                COMPRAR AHORA
-                            </button>
-                        </div>
-                    </form>
+                            <!-- Action Buttons -->
+                            <div class="flex flex-col sm:flex-row gap-4">
+                                <button type="submit" name="action" value="add_to_cart"
+                                    class="flex-1 bg-gray-900 text-white font-bold py-4 px-8 rounded-xl hover:bg-[var(--naranja)] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-3">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    AÑADIR AL CARRITO
+                                </button>
+                                <button type="submit" name="action" value="buy_now"
+                                    class="flex-1 bg-[var(--naranja)] text-white font-bold py-4 px-8 rounded-xl hover:bg-gray-900 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-3">
+                                    <i class="fas fa-bolt"></i>
+                                    COMPRAR AHORA
+                                </button>
+                            </div>
+                        </form>
+                    @endif
                 </div>
             </div>
 
@@ -205,9 +225,12 @@
     </div>
 
     <script>
-        function increaseQuantity() {
+        function increaseQuantity(maxStock) {
             const input = document.getElementById('quantity');
-            input.value = parseInt(input.value) + 1;
+            const currentValue = parseInt(input.value);
+            if (currentValue < maxStock) {
+                input.value = currentValue + 1;
+            }
         }
 
         function decreaseQuantity() {
