@@ -16,6 +16,9 @@ Route::get('/', [DetallesController::class, 'index'])->name('home');
 // Formulario de contacto
 Route::post('/contacto', [DetallesController::class, 'submitContact'])->name('contact.submit');
 
+// Localizador de Tiendas
+Route::get('/nuestras-tiendas', [\App\Http\Controllers\StoreController::class, 'index'])->name('stores.index');
+
 // Redirección 301 para compatibilidad con URLs heredadas
 Route::get('/detalles', function () {
     return redirect('/', 301);

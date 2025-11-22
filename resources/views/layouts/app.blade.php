@@ -132,6 +132,9 @@
 
     <!-- Modal de Productos por Almacén -->
     @include('components.warehouse-modal')
+    
+    <!-- Modal de Bienvenida (Selección de Tienda) -->
+    @include('components.warehouse-welcome-modal')
 
     @include('partials.footer')
 

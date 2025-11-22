@@ -90,26 +90,49 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <!-- Selector Almacén (Icono) -->
+                <!-- Selector Almacén (Texto + Icono) -->
                 <div class="relative group hidden sm:block">
-                    <button class="p-2 text-gray-700 hover:text-[var(--naranja)] hover:bg-gray-100 rounded-full transition-colors" title="Seleccionar Local">
-                        <i class="fas fa-map-marker-alt text-lg"></i>
+                    @php
+                        $currentWarehouseId = request()->warehouse ?? \Illuminate\Support\Facades\Cookie::get('warehouse_id');
+                        $currentWarehouse = \App\Models\Warehouse::find($currentWarehouseId) ?? \App\Models\Warehouse::where('is_default', true)->first();
+                    @endphp
+                    
+                    <button class="flex items-center gap-2 px-3 py-1.5 text-gray-700 hover:text-[var(--naranja)] hover:bg-gray-50 rounded-lg transition-all border border-transparent hover:border-gray-200" title="Cambiar Tienda">
+                        <i class="fas fa-map-marker-alt text-[var(--naranja)]"></i>
+                        <span class="text-sm font-medium">
+                            Tienda: {{ $currentWarehouse ? $currentWarehouse->name : 'Seleccionar' }}
+                        </span>
+                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
                     </button>
+                    
                     <!-- Dropdown Almacén -->
                     <div class="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                         <div class="p-3">
-                            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-2">Ubicación</div>
+                            <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-2">Cambiar Ubicación</div>
                             <ul class="space-y-1 max-h-60 overflow-y-auto custom-scrollbar">
                                 @foreach(\App\Models\Warehouse::where('is_active', true)->orderBy('is_default', 'desc')->get() as $warehouse)
                                     <li>
                                         <a href="{{ request()->url() }}?warehouse={{ $warehouse->id }}" 
-                                           class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors {{ request()->warehouse == $warehouse->id ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
-                                            <i class="fas fa-store w-5 text-center mr-2"></i>
-                                            <span class="truncate">{{ $warehouse->name }}</span>
+                                           class="flex items-center px-3 py-2 text-sm rounded-lg transition-colors {{ ($currentWarehouse && $currentWarehouse->id == $warehouse->id) ? 'bg-blue-50 text-blue-600 font-medium' : 'text-gray-600 hover:bg-gray-50' }}">
+                                            <i class="fas fa-store w-5 text-center mr-2 {{ ($currentWarehouse && $currentWarehouse->id == $warehouse->id) ? 'text-blue-500' : 'text-gray-400' }}"></i>
+                                            <div class="flex flex-col">
+                                                <span class="truncate">{{ $warehouse->name }}</span>
+                                                @if($warehouse->is_default)
+                                                    <span class="text-[10px] text-gray-400">Principal</span>
+                                                @endif
+                                            </div>
+                                            @if($currentWarehouse && $currentWarehouse->id == $warehouse->id)
+                                                <i class="fas fa-check ml-auto text-xs"></i>
+                                            @endif
                                         </a>
                                     </li>
                                 @endforeach
                             </ul>
+                            <div class="mt-2 pt-2 border-t border-gray-100">
+                                <a href="{{ route('stores.index') }}" class="block px-3 py-2 text-xs text-center text-[var(--azul-primario)] hover:underline">
+                                    Ver todas las tiendas y horarios
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
