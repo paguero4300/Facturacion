@@ -135,8 +135,9 @@
 
                             <div class="space-y-4">
                                 {{-- RECOJO EN TIENDA --}}
-                                <label class="relative flex items-start p-6 border-2 rounded-xl cursor-pointer transition-all group border-[var(--naranja)] bg-orange-50" id="pickup_label">
-                                    <input type="radio" name="delivery_choice" value="pickup" checked
+                                <label class="relative flex items-start p-6 border-2 rounded-xl cursor-pointer transition-all group {{ old('delivery_choice', 'pickup') == 'pickup' ? 'border-[var(--naranja)] bg-orange-50' : 'border-gray-200' }}" id="pickup_label">
+                                    <input type="radio" name="delivery_choice" value="pickup" 
+                                           {{ old('delivery_choice', 'pickup') == 'pickup' ? 'checked' : '' }}
                                            class="mt-1 w-5 h-5 text-[var(--naranja)] focus:ring-[var(--naranja)]"
                                            onchange="toggleDeliveryType()">
                                     <div class="ml-4 flex-1">
@@ -152,8 +153,9 @@
                                 </label>
 
                                 {{-- DELIVERY --}}
-                                <label class="relative flex items-start p-6 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[var(--azul-claro)] transition-all group" id="delivery_label">
+                                <label class="relative flex items-start p-6 border-2 rounded-xl cursor-pointer transition-all group {{ old('delivery_choice', 'pickup') == 'delivery' ? 'border-[var(--azul-claro)] bg-blue-50' : 'border-gray-200 hover:border-[var(--azul-claro)]' }}" id="delivery_label">
                                     <input type="radio" name="delivery_choice" value="delivery"
+                                           {{ old('delivery_choice') == 'delivery' ? 'checked' : '' }}
                                            class="mt-1 w-5 h-5 text-[var(--azul-claro)] focus:ring-[var(--azul-claro)]"
                                            onchange="toggleDeliveryType()">
                                     <div class="ml-4 flex-1">
@@ -201,6 +203,7 @@
                                             @foreach($deliveryTimeSlots as $value => $label)
                                                 <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-[var(--naranja)] transition pickup-time-option" data-slot="{{ $value }}">
                                                     <input type="radio" name="delivery_time_slot" value="{{ $value }}"
+                                                           {{ old('delivery_time_slot') == $value ? 'checked' : '' }}
                                                            class="w-4 h-4 text-[var(--naranja)] focus:ring-[var(--naranja)]">
                                                     <span class="ml-2 text-sm font-medium">{{ $label }}</span>
                                                 </label>
@@ -290,6 +293,7 @@
                                             @foreach($deliveryTimeSlots as $value => $label)
                                                 <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-[var(--azul-claro)] transition delivery-time-option" data-slot="{{ $value }}">
                                                     <input type="radio" name="delivery_time_slot" value="{{ $value }}"
+                                                           {{ old('delivery_time_slot') == $value ? 'checked' : '' }}
                                                            class="w-4 h-4 text-[var(--azul-claro)] focus:ring-[var(--azul-claro)]">
                                                     <span class="ml-2 text-sm font-medium">{{ $label }}</span>
                                                 </label>
@@ -451,11 +455,14 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
-                                                Número de operación <span class="text-red-500">*</span>
+                                                Número de operación <span class="text-gray-400 text-xs">(Opcional)</span>
                                             </label>
                                             <input type="text" name="payment_operation_number" value="{{ old('payment_operation_number') }}"
                                                 class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all"
                                                 placeholder="Ej: 123456">
+                                            @error('payment_operation_number')
+                                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                            @enderror
                                         </div>
                                         <div>
                                             <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
@@ -467,13 +474,23 @@
                                         </div>
                                         <div class="md:col-span-2">
                                             <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
-                                                Comprobante de pago (Captura) <span class="text-red-500">*</span>
+                                                Comprobante de pago (Captura) <span class="text-gray-400 text-xs">(Opcional)</span>
                                             </label>
                                             <input type="file" name="payment_evidence" accept=".jpg,.jpeg,.png,.pdf"
                                                 class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all bg-white">
+                                            @error('payment_evidence')
+                                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                            @enderror
+                                            <p class="text-xs text-gray-500 mt-2 flex items-start gap-1">
+                                                <svg class="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                <span>Puedes completar tu pedido ahora y enviar el comprobante más tarde por WhatsApp si lo prefieres.</span>
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
+
 
                                 <!-- Transfer Fields -->
                                 <div id="transfer-fields" class="payment-fields p-6 bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100 rounded-xl shadow-sm" style="display: none;">
@@ -501,18 +518,30 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
-                                                Número de operación <span class="text-red-500">*</span>
+                                                Número de operación <span class="text-gray-400 text-xs">(Opcional)</span>
                                             </label>
                                             <input type="text" name="payment_operation_number" value="{{ old('payment_operation_number') }}"
                                                 class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--azul-primario)] focus:border-[var(--azul-primario)] transition-all"
                                                 placeholder="Ej: 1234567">
+                                            @error('payment_operation_number')
+                                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                            @enderror
                                         </div>
                                         <div class="md:col-span-2">
                                             <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
-                                                Comprobante de transferencia <span class="text-red-500">*</span>
+                                                Comprobante de transferencia <span class="text-gray-400 text-xs">(Opcional)</span>
                                             </label>
                                             <input type="file" name="payment_evidence" accept=".jpg,.jpeg,.png,.pdf"
                                                 class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--azul-primario)] focus:border-[var(--azul-primario)] transition-all bg-white">
+                                            @error('payment_evidence')
+                                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                            @enderror
+                                            <p class="text-xs text-gray-500 mt-2 flex items-start gap-1">
+                                                <svg class="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                <span>Puedes completar tu pedido ahora y enviar el comprobante más tarde por WhatsApp si lo prefieres.</span>
+                                            </p>
                                         </div>
                                     </div>
                                 </div>

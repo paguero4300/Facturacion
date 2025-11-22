@@ -83,6 +83,11 @@ class CheckoutController extends Controller
         
         $validated = $request->validate($rules);
 
+        // Note: Payment evidence (file upload) and operation number are now OPTIONAL for all payment methods.
+        // This allows customers to complete their order without immediate proof of payment.
+        // The setPaymentValidationStatus() method will automatically mark orders as requiring validation
+        // when payment evidence is missing, allowing the admin team to follow up via WhatsApp/email.
+
         // Additional delivery validations
         if ($request->has('delivery_date') && $request->delivery_date) {
             $deliveryDate = Carbon::parse($request->delivery_date);
@@ -108,22 +113,6 @@ class CheckoutController extends Controller
             if (!$request->delivery_time_slot) {
                 return back()->withInput()->withErrors([
                     'delivery_time_slot' => 'Debe seleccionar un horario de entrega.'
-                ]);
-            }
-        }
-
-        // Validar comprobante para métodos que lo requieren
-        $methodsRequiringEvidence = ['yape', 'plin', 'transfer'];
-        if (in_array($validated['payment_method'], $methodsRequiringEvidence)) {
-            if (!$request->hasFile('payment_evidence')) {
-                return back()->withInput()->withErrors([
-                    'payment_evidence' => 'Debe subir un comprobante de pago para este método.'
-                ]);
-            }
-            
-            if (empty($validated['payment_operation_number'])) {
-                return back()->withInput()->withErrors([
-                    'payment_operation_number' => 'Debe ingresar el número de operación.'
                 ]);
             }
         }
