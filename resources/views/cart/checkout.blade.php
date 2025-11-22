@@ -6,6 +6,9 @@
     <!-- Spacer for fixed header -->
     <div class="h-20"></div>
 
+    <!-- Progress Indicator -->
+    <x-checkout-progress currentStep="2" />
+
     <!-- Page Header -->
     <div class="relative bg-gradient-to-br from-[var(--fondo-principal)] via-white to-orange-50 py-12 overflow-hidden">
         <div class="absolute inset-0 opacity-10">
@@ -41,40 +44,23 @@
                 </div>
             @endif
 
-            <!-- Guest/Login Options -->
             @guest
-                <div class="mb-6 bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-[var(--azul-claro)] rounded-2xl p-6 shadow-md">
-                    <div class="flex items-start gap-4">
-                        <div class="flex-shrink-0">
-                            <svg class="w-10 h-10 text-[var(--azul-primario)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                <div class="mb-6 bg-blue-50 border border-[var(--azul-claro)] rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-white p-2 rounded-full shadow-sm">
+                            <svg class="w-5 h-5 text-[var(--azul-primario)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
                         </div>
-                        <div class="flex-1">
-                            <h3 class="text-xl font-bold text-[var(--enlaces-titulos)] mb-2">¿Tienes una cuenta?</h3>
-                            <p class="text-[var(--texto-principal)] mb-4">
-                                Inicia sesión para ver tu historial de pedidos y gestionar tu información más fácilmente.
-                            </p>
-                            <div class="flex flex-wrap gap-3">
-                                <a href="{{ route('login') }}"
-                                    class="inline-flex items-center gap-2 bg-[var(--azul-primario)] hover:bg-[var(--azul-claro)] text-white font-semibold px-6 py-3 rounded-lg transition-all shadow-md hover:shadow-lg">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                                    </svg>
-                                    Iniciar Sesión
-                                </a>
-                                <a href="{{ route('register') }}"
-                                    class="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-[var(--azul-primario)] font-semibold px-6 py-3 rounded-lg border-2 border-[var(--azul-primario)] transition-all shadow-md hover:shadow-lg">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
-                                    </svg>
-                                    Crear Cuenta
-                                </a>
-                            </div>
-                            <p class="text-sm text-[var(--texto-principal)] mt-3 font-medium">
-                                O continúa como <strong class="text-[var(--enlaces-titulos)]">invitado</strong> llenando el formulario a continuación 👇
-                            </p>
+                        <div>
+                            <h3 class="text-base font-bold text-[var(--enlaces-titulos)]">¿Ya tienes cuenta?</h3>
+                            <p class="text-sm text-[var(--texto-principal)]">Inicia sesión para agilizar tu compra o continúa como invitado.</p>
                         </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <a href="{{ route('login') }}" class="text-sm font-semibold text-[var(--azul-primario)] hover:underline">Iniciar Sesión</a>
+                        <span class="text-gray-300">|</span>
+                        <a href="{{ route('register') }}" class="text-sm font-semibold text-[var(--azul-primario)] hover:underline">Crear Cuenta</a>
                     </div>
                 </div>
             @else
@@ -207,19 +193,21 @@
                                             Fecha de recojo
                                         </label>
                                         <input type="date" name="delivery_date"
+                                            id="pickup_date"
                                             value="{{ old('delivery_date') }}"
                                             min="{{ $minDeliveryDate }}"
                                             max="{{ $maxDeliveryDate }}"
-                                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all">
+                                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all"
+                                            onchange="updateAvailableTimeSlots()">
                                     </div>
 
-                                    <div>
+                                    <div id="pickup_time_container">
                                         <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                             Horario de recojo
                                         </label>
                                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                                             @foreach($deliveryTimeSlots as $value => $label)
-                                                <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-[var(--naranja)] transition">
+                                                <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-[var(--naranja)] transition pickup-time-option" data-slot="{{ $value }}">
                                                     <input type="radio" name="delivery_time_slot" value="{{ $value }}"
                                                            class="w-4 h-4 text-[var(--naranja)] focus:ring-[var(--naranja)]">
                                                     <span class="ml-2 text-sm font-medium">{{ $label }}</span>
@@ -243,22 +231,18 @@
                         {{-- CAMPOS DELIVERY --}}
                         <div id="delivery_fields" class="space-y-6" style="display: none;">
                             {{-- AVISO GRANDE DELIVERY --}}
-                            <div class="bg-gradient-to-r from-orange-50 to-red-50 border-4 border-orange-400 rounded-2xl p-8 shadow-xl">
-                                <div class="flex items-start gap-4">
-                                    <div class="flex-shrink-0">
-                                        <svg class="w-16 h-16 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            {{-- AVISO GRANDE DELIVERY --}}
+                            <div class="bg-orange-50 border-l-4 border-orange-400 p-4 rounded-r-lg shadow-sm">
+                                <div class="flex items-start gap-3">
+                                    <div class="flex-shrink-0 mt-0.5">
+                                        <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                                         </svg>
                                     </div>
                                     <div class="flex-1">
-                                        <h3 class="text-2xl font-black text-orange-900 mb-3">⚠️ DELIVERY TIENE COSTO ADICIONAL</h3>
-                                        <div class="bg-white rounded-lg p-4 mb-3">
-                                            <p class="text-orange-900 text-base font-semibold leading-relaxed">
-                                                El costo del delivery <u>varía según el distrito</u> y será coordinado contigo después de confirmar tu pedido.
-                                            </p>
-                                        </div>
-                                        <p class="text-orange-800 text-sm leading-relaxed">
-                                            📱 <strong>Nos contactaremos contigo</strong> via WhatsApp o llamada para confirmar el <strong>monto exacto del envío</strong> antes de procesar tu pago.
+                                        <h3 class="text-sm font-bold text-orange-900">⚠️ DELIVERY TIENE COSTO ADICIONAL</h3>
+                                        <p class="text-sm text-orange-800 mt-1">
+                                            El costo varía según el distrito. <strong>Nos contactaremos contigo</strong> (WhatsApp/Llamada) para confirmar el monto exacto antes del pago.
                                         </p>
                                     </div>
                                 </div>
@@ -274,8 +258,8 @@
                                     ¿A dónde lo enviamos?
                                 </h2>
 
-                                <div class="space-y-4">
-                                    <div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div class="md:col-span-1">
                                         <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                             Distrito <span class="text-red-500">*</span>
                                         </label>
@@ -284,7 +268,7 @@
                                             placeholder="Ej: San Isidro">
                                     </div>
 
-                                    <div>
+                                    <div class="md:col-span-2">
                                         <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                             Dirección completa <span class="text-red-500">*</span>
                                         </label>
@@ -293,25 +277,27 @@
                                             placeholder="Ej: Av. Los Rosales 456, Dpto. 302">{{ old('client_address') }}</textarea>
                                     </div>
 
-                                    <div>
+                                    <div class="md:col-span-1">
                                         <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                             Fecha de entrega
                                         </label>
-                                        <input type="date" name="delivery_date_delivery"
+                                        <input type="date" name="delivery_date"
+                                            id="delivery_date_input"
                                             value="{{ old('delivery_date') }}"
                                             min="{{ $minDeliveryDate }}"
                                             max="{{ $maxDeliveryDate }}"
-                                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--azul-claro)] focus:border-[var(--azul-claro)] transition-all">
+                                            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--azul-claro)] focus:border-[var(--azul-claro)] transition-all"
+                                            onchange="updateAvailableTimeSlots()">
                                     </div>
 
-                                    <div>
+                                    <div class="md:col-span-2" id="delivery_time_container">
                                         <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                             Horario preferido
                                         </label>
                                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                                             @foreach($deliveryTimeSlots as $value => $label)
-                                                <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-[var(--azul-claro)] transition">
-                                                    <input type="radio" name="delivery_time_slot_delivery" value="{{ $value }}"
+                                                <label class="flex items-center p-3 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-[var(--azul-claro)] transition delivery-time-option" data-slot="{{ $value }}">
+                                                    <input type="radio" name="delivery_time_slot" value="{{ $value }}"
                                                            class="w-4 h-4 text-[var(--azul-claro)] focus:ring-[var(--azul-claro)]">
                                                     <span class="ml-2 text-sm font-medium">{{ $label }}</span>
                                                 </label>
@@ -319,7 +305,11 @@
                                         </div>
                                     </div>
 
-                                    <div>
+                                    <div class="md:col-span-2 pt-4 border-t border-gray-100">
+                                        <h3 class="text-lg font-bold text-[var(--enlaces-titulos)] mb-4">¿Quién recibirá el pedido?</h3>
+                                    </div>
+
+                                    <div class="md:col-span-1">
                                         <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                             Nombre de quien recibe <span class="text-red-500">*</span>
                                         </label>
@@ -328,7 +318,7 @@
                                             placeholder="Ej: María González">
                                     </div>
 
-                                    <div>
+                                    <div class="md:col-span-1">
                                         <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                             Teléfono de quien recibe <span class="text-red-500">*</span>
                                         </label>
@@ -338,27 +328,14 @@
                                         <p class="text-xs text-gray-500 mt-1">Para coordinar la entrega</p>
                                     </div>
 
-                                    <div>
+                                    <div class="md:col-span-2">
                                         <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                             💌 Dedicatoria (Opcional)
                                         </label>
-                                        <textarea name="observations_delivery" rows="3"
+                                        <textarea name="observations" rows="3"
                                             class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--azul-claro)] focus:border-[var(--azul-claro)] transition-all"
                                             placeholder="Escribe tu dedicatoria aquí...">{{ old('observations') }}</textarea>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Observaciones antiguas --}}
-                        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow" style="display: none;">
-                            <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
-                                Observaciones adicionales
-                            </label>
-                            <textarea name="delivery_notes" rows="2"
-                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all"
-                                placeholder="Cualquier indicación adicional">{{ old('delivery_notes') }}</textarea>
-                        </div>
                                 </div>
                             </div>
                         </div>
@@ -369,7 +346,7 @@
                                 <svg class="w-7 h-7 text-[var(--naranja)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
                                 </svg>
-                                Método de Pago
+                                3️⃣ Método de Pago
                             </h2>
 
                             <div class="space-y-3">
@@ -497,19 +474,6 @@
                                     placeholder="Ej: REF-123456">
                             </div>
                         </div>
-
-                        <!-- Additional Notes -->
-                        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow">
-                            <h2 class="text-2xl font-bold text-[var(--enlaces-titulos)] mb-6 flex items-center gap-3">
-                                <svg class="w-7 h-7 text-[var(--naranja)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                </svg>
-                                Dedicatoria
-                            </h2>
-                            <textarea name="observations" rows="4"
-                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all resize-none"
-                                placeholder="Agrega cualquier nota o instrucción especial para tu pedido...">{{ old('observations') }}</textarea>
-                        </div>
                     </div>
 
                     <!-- Order Summary -->
@@ -577,48 +541,61 @@
     @push('scripts')
     <script>
         function updateAvailableTimeSlots() {
-            const dateInput = document.getElementById('delivery_date');
-            const timeSlotContainer = document.getElementById('time_slot_container');
-            const timeRequired = document.getElementById('time_required');
-            const timeSlotOptions = document.querySelectorAll('.time-slot-option');
+            const deliveryChoice = document.querySelector('input[name="delivery_choice"]:checked')?.value;
+            
+            let dateInput, timeContainer, timeOptions;
+            
+            if (deliveryChoice === 'pickup') {
+                dateInput = document.getElementById('pickup_date');
+                timeContainer = document.getElementById('pickup_time_container');
+                timeOptions = document.querySelectorAll('.pickup-time-option');
+            } else {
+                dateInput = document.getElementById('delivery_date_input');
+                timeContainer = document.getElementById('delivery_time_container');
+                timeOptions = document.querySelectorAll('.delivery-time-option');
+            }
+
+            if (!dateInput || !timeContainer) return;
 
             if (!dateInput.value) {
-                timeSlotContainer.style.display = 'none';
-                timeRequired.classList.add('hidden');
+                // Don't hide container, just reset
                 return;
             }
 
             const selectedDate = new Date(dateInput.value);
             const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
 
-            // Show time slot container
-            timeSlotContainer.style.display = 'block';
-            timeRequired.classList.remove('hidden');
-
             // Reset all time slots
-            timeSlotOptions.forEach(option => {
-                option.style.display = 'block';
+            timeOptions.forEach(option => {
+                option.style.display = 'flex'; // Restore display
                 option.classList.remove('opacity-50', 'cursor-not-allowed');
                 const radio = option.querySelector('input[type="radio"]');
-                radio.disabled = false;
+                if(radio) radio.disabled = false;
             });
 
-            // Sunday - hide all time slots
-            if (dayOfWeek === 0) {
-                timeSlotContainer.innerHTML = '<p class="text-red-600 text-sm">Las entregas no están disponibles los domingos. Por favor selecciona otro día.</p>';
-                return;
-            }
-
-            // Saturday - hide evening slot
-            if (dayOfWeek === 6) {
-                const eveningSlot = document.querySelector('.time-slot-option[data-slot="evening"]');
-                if (eveningSlot) {
-                    eveningSlot.style.display = 'none';
-                    const radio = eveningSlot.querySelector('input[type="radio"]');
-                    if (radio.checked) {
-                        radio.checked = false;
-                    }
+            // Sunday - disable all time slots and show message
+            if (dayOfWeek === 0) { // 0 is Sunday in JS getDay() (but check timezone issues, better to use ISO string)
+                // Actually, let's rely on the input value string "YYYY-MM-DD" to avoid timezone issues
+                const dateParts = dateInput.value.split('-');
+                const dateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+                if (dateObj.getDay() === 0) {
+                    alert('Las entregas no están disponibles los domingos. Por favor selecciona otro día.');
+                    dateInput.value = ''; // Clear invalid date
                 }
+                 // Saturday - hide evening slot
+            if (dayOfWeek === 6) {
+                // Use timeOptions which is already scoped to the correct container
+                timeOptions.forEach(option => {
+                    if (option.dataset.slot === 'evening') {
+                        option.style.display = 'none';
+                        const radio = option.querySelector('input[type="radio"]');
+                        if(radio) {
+                            radio.disabled = true;
+                            radio.checked = false;
+                        }
+                    }
+                });
+            }
             }
         }
 
@@ -632,8 +609,16 @@
             
             if (deliveryChoice === 'pickup') {
                 // Show pickup fields, hide delivery fields
-                if (pickupFields) pickupFields.style.display = 'block';
-                if (deliveryFields) deliveryFields.style.display = 'none';
+                if (pickupFields) {
+                    pickupFields.style.display = 'block';
+                    // Enable inputs
+                    pickupFields.querySelectorAll('input, textarea, select').forEach(el => el.disabled = false);
+                }
+                if (deliveryFields) {
+                    deliveryFields.style.display = 'none';
+                    // Disable inputs
+                    deliveryFields.querySelectorAll('input, textarea, select').forEach(el => el.disabled = true);
+                }
                 
                 // Update label styles
                 if (pickupLabel) {
@@ -645,16 +630,18 @@
                     deliveryLabel.classList.add('border-gray-200');
                 }
                 
-                // Disable delivery field validations
-                if (deliveryFields) {
-                    deliveryFields.querySelectorAll('input[required], textarea[required]').forEach(input => {
-                        input.removeAttribute('required');
-                    });
-                }
             } else if (deliveryChoice === 'delivery') {
                 // Show delivery fields, hide pickup fields
-                if (pickupFields) pickupFields.style.display = 'none';
-                if (deliveryFields) deliveryFields.style.display = 'block';
+                if (pickupFields) {
+                    pickupFields.style.display = 'none';
+                    // Disable inputs
+                    pickupFields.querySelectorAll('input, textarea, select').forEach(el => el.disabled = true);
+                }
+                if (deliveryFields) {
+                    deliveryFields.style.display = 'block';
+                    // Enable inputs
+                    deliveryFields.querySelectorAll('input, textarea, select').forEach(el => el.disabled = false);
+                }
                 
                 // Update label styles
                 if (pickupLabel) {
@@ -675,6 +662,9 @@
                     }
                 });
             }
+            
+            // Update time slots availability based on the active date input
+            updateAvailableTimeSlots();
         }
 
         // Initialize on page load
