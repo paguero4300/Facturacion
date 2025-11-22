@@ -1,49 +1,39 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $category->name }} - Detalles - Tienda de Regalos</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
-</head>
-<body class="bg-gray-50">
-    @include('partials.header')
-    
-    <!-- Category Header -->
-    <div class="bg-gradient-to-r from-pink-500 to-rose-500 text-white py-8">
-        <div class="max-w-7xl mx-auto px-4">
-            <nav class="text-sm mb-3 opacity-90">
-                <a href="{{ route('home') }}" class="hover:underline hover:opacity-100 transition">Inicio</a>
+@extends('layouts.app')
+
+@section('title', $category->name . ' - Detalles y Más')
+
+@section('content')
+    <!-- Page Header -->
+    <div class="relative bg-gradient-to-br from-[var(--fondo-principal)] via-white to-orange-50 py-16 overflow-hidden">
+        <div class="absolute inset-0 bg-[url('/api/placeholder/20/20')] opacity-5"></div>
+        <div class="relative max-w-7xl mx-auto px-4 text-center">
+            <!-- Breadcrumb -->
+            <nav class="flex justify-center text-sm font-medium mb-4" aria-label="Breadcrumb">
+                <a href="{{ route('home') }}" class="text-gray-500 hover:text-[var(--naranja)] transition-colors">Inicio</a>
+                <span class="mx-2 text-gray-300">/</span>
                 @if($category->parent)
-                    <span class="mx-2">›</span>
-                    <a href="{{ url('/' . $category->parent->slug) }}" class="hover:underline hover:opacity-100 transition">{{ $category->parent->name }}</a>
+                    <a href="{{ url('/' . $category->parent->slug) }}" class="text-gray-500 hover:text-[var(--naranja)] transition-colors">
+                        {{ $category->parent->name }}
+                    </a>
+                    <span class="mx-2 text-gray-300">/</span>
                 @endif
-                <span class="mx-2">›</span>
-                <span class="font-semibold">{{ $category->name }}</span>
-                
-                <!-- Indicador sutil de filtro de almacén activo -->
-                @if(request()->has('warehouse') && request()->warehouse)
-                    @php
-                        $selectedWarehouse = \App\Models\Warehouse::find(request()->warehouse);
-                    @endphp
-                    @if($selectedWarehouse)
-                        <span class="mx-2">•</span>
-                        <span class="text-blue-200 text-sm">
-                            <i class="fas fa-warehouse mr-1"></i>{{ $selectedWarehouse->name }}
-                        </span>
-                    @endif
-                @endif
+                <span class="text-gray-900 font-semibold">{{ $category->name }}</span>
             </nav>
-            <h1 class="text-3xl md:text-4xl font-bold mb-1">{{ $category->name }}</h1>
+            
+            <h1 class="text-4xl md:text-5xl font-black text-[var(--enlaces-titulos)] mb-4">
+                {{ $category->name }}
+            </h1>
+            
             @if($category->description)
-                <p class="text-base md:text-lg text-pink-100">{{ $category->description }}</p>
+                <p class="text-lg text-[var(--texto-principal)] max-w-2xl mx-auto">
+                    {{ $category->description }}
+                </p>
             @endif
         </div>
     </div>
 
-    <!-- Products Grid -->
-    <div class="py-8">
+    <!-- Products Section -->
+    <div class="py-12 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4">
             <!-- Filter Breadcrumbs -->
             @include('partials.filter-breadcrumbs', [
@@ -53,41 +43,59 @@
             ])
             
             @if($products->count() > 0)
-                <p class="text-gray-600 mb-6 text-base">
-                    {{ $products->count() }} {{ $products->count() === 1 ? 'producto encontrado' : 'productos encontrados' }}
-                </p>
+                <div class="mb-6 flex items-center justify-between bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                    <p class="text-gray-600 text-sm">
+                        <span class="font-bold text-gray-900">{{ $products->count() }}</span> 
+                        {{ $products->count() === 1 ? 'producto encontrado' : 'productos encontrados' }}
+                    </p>
+                </div>
                 
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach($products as $product)
-                        <div class="bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-                            <!-- Product Image -->
-                            <a href="{{ route('shop.product', $product->id) }}" class="block">
-                                <div class="aspect-square bg-gray-100 flex items-center justify-center overflow-hidden">
-                                    <img
-                                        src="{{ $product->image_path && file_exists(storage_path('app/public/' . $product->image_path)) ? asset('storage/' . $product->image_path) : asset('images/no-image.png') }}"
-                                        alt="{{ $product->name }}"
-                                        class="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                                        loading="lazy"
-                                        onerror="this.src='{{ asset('images/no-image.png') }}';"
-                                    >
-                                </div>
-                            </a>
+                        <div class="group relative flex flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-all duration-300 hover:shadow-xl border border-gray-100">
+                            <!-- Imagen y Overlay -->
+                            <div class="relative aspect-square overflow-hidden bg-gray-100">
+                                <!-- Etiqueta Oferta -->
+                                @if($product->sale_price && $product->sale_price < $product->unit_price)
+                                    <span class="absolute left-2 top-2 z-10 rounded bg-red-500 px-2 py-1 text-xs font-bold text-white shadow-sm">
+                                        -{{ round((($product->unit_price - $product->sale_price) / $product->unit_price) * 100) }}%
+                                    </span>
+                                @endif
 
-                            <!-- Product Info -->
-                            <div class="p-4">
-                                <a href="{{ route('shop.product', $product->id) }}">
-                                    <h3 class="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 min-h-[3.5rem] hover:text-pink-600 transition">
+                                <a href="{{ route('shop.product', $product->id) }}" class="block h-full w-full">
+                                    <img src="{{ $product->image_path && file_exists(storage_path('app/public/' . $product->image_path)) ? asset('storage/' . $product->image_path) : asset('images/no-image.png') }}"
+                                         alt="{{ $product->name }}"
+                                         class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                         loading="lazy"
+                                         onerror="this.src='{{ asset('images/no-image.png') }}';">
+                                </a>
+
+                                <!-- Botones Flotantes (Hover) -->
+                                <div class="absolute inset-0 flex items-center justify-center gap-2 bg-black/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto">
+                                    <a href="{{ route('shop.product', $product->id) }}" 
+                                       class="flex h-10 w-10 items-center justify-center rounded-full bg-white text-gray-900 hover:text-[var(--naranja)] transition-colors shadow-lg transform hover:scale-110">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Información del Producto -->
+                            <div class="flex flex-1 flex-col p-6">
+                                <!-- Categoría Badge -->
+                                @if($product->category)
+                                    <span class="inline-block w-fit px-2 py-1 text-xs font-semibold uppercase tracking-wider text-[var(--naranja)] bg-orange-50 rounded mb-3">
+                                        {{ $product->category->name }}
+                                    </span>
+                                @endif
+
+                                <!-- Nombre del Producto -->
+                                <a href="{{ route('shop.product', $product->id) }}" class="group/title">
+                                    <h3 class="text-lg font-bold text-gray-900 group-hover/title:text-[var(--naranja)] transition-colors line-clamp-2 min-h-[3.5rem] mb-3">
                                         {{ $product->name }}
                                     </h3>
                                 </a>
 
-                                @if($product->description)
-                                    <p class="text-sm text-gray-600 mb-3 line-clamp-2">
-                                        {{ $product->description }}
-                                    </p>
-                                @endif
-                                
-                                <!-- Indicador de Stock si hay filtro de almacén activo -->
+                                <!-- Stock Indicator -->
                                 @if(request()->has('warehouse') && request()->warehouse)
                                     @php
                                         $warehouseStock = $product->stocks->where('warehouse_id', request()->warehouse)->first();
@@ -95,34 +103,47 @@
                                     @endphp
                                     <div class="mb-3">
                                         @if($stockQty > 0)
-                                            <span class="inline-block px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
-                                                <i class="fas fa-check-circle mr-1"></i>Stock: {{ number_format($stockQty, 0) }}
+                                            <span class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-green-50 text-green-700 rounded-full">
+                                                <i class="fas fa-check-circle"></i>
+                                                Stock: {{ number_format($stockQty, 0) }}
                                             </span>
                                         @else
-                                            <span class="inline-block px-2 py-1 text-xs font-medium bg-red-100 text-red-700 rounded-full">
-                                                <i class="fas fa-times-circle mr-1"></i>Sin stock
+                                            <span class="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium bg-red-50 text-red-700 rounded-full">
+                                                <i class="fas fa-times-circle"></i>
+                                                Sin stock
                                             </span>
                                         @endif
                                     </div>
                                 @endif
 
-                                <!-- Price and Add to Cart -->
-                                <div class="flex items-center justify-between">
-                                    <span class="text-2xl font-bold text-pink-600">
-                                        S/ {{ number_format($product->sale_price ?? $product->unit_price, 2) }}
-                                    </span>
-                                    <form action="{{ route('cart.add') }}" method="POST" class="inline-block">
+                                <!-- Precio y Botón -->
+                                <div class="mt-auto">
+                                    <div class="mb-4">
+                                        @if($product->sale_price && $product->sale_price < $product->unit_price)
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-2xl font-black text-[var(--naranja)]">
+                                                    S/ {{ number_format($product->sale_price, 2) }}
+                                                </span>
+                                                <span class="text-sm text-gray-400 line-through">
+                                                    S/ {{ number_format($product->unit_price, 2) }}
+                                                </span>
+                                            </div>
+                                        @else
+                                            <span class="text-2xl font-black text-[var(--naranja)]">
+                                                S/ {{ number_format($product->unit_price, 2) }}
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <!-- Add to Cart Button -->
+                                    <form action="{{ route('cart.add') }}" method="POST" class="w-full">
                                         @csrf
                                         <input type="hidden" name="product_id" value="{{ $product->id }}">
                                         <input type="hidden" name="quantity" value="1">
-                                        <button
-                                            type="submit"
-                                            class="bg-pink-500 hover:bg-pink-600 text-white p-2 rounded-full transition"
-                                            title="Agregar al carrito"
-                                        >
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                            </svg>
+                                        <button type="submit"
+                                                class="w-full bg-gray-900 hover:bg-[var(--naranja)] text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                                            <i class="fas fa-shopping-cart"></i>
+                                            <span>Añadir al carrito</span>
                                         </button>
                                     </form>
                                 </div>
@@ -131,43 +152,35 @@
                     @endforeach
                 </div>
             @else
-                <!-- No Products -->
-                <div class="text-center py-16">
-                    <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                    </svg>
-                    <h3 class="text-2xl font-semibold text-gray-700 mb-2">No hay productos disponibles</h3>
-                    <p class="text-gray-500 mb-8">Aún no tenemos productos en esta categoría.</p>
-                    <a href="{{ route('home') }}" class="inline-block px-6 py-3 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-lg">
-                        Volver al inicio
-                    </a>
+                <!-- Estado Vacío -->
+                <div class="text-center py-16 bg-white rounded-2xl shadow-sm">
+                    <div class="max-w-md mx-auto">
+                        <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
+                            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 mb-2">No hay productos disponibles</h3>
+                        <p class="text-gray-600 mb-8">
+                            @if(request()->has('warehouse'))
+                                No tenemos productos de esta categoría en el almacén seleccionado.
+                            @else
+                                Aún no tenemos productos en esta categoría.
+                            @endif
+                        </p>
+                        <div class="flex gap-4 justify-center">
+                            <a href="{{ route('shop.index') }}" class="inline-flex items-center gap-2 bg-[var(--naranja)] hover:bg-gray-900 text-white font-semibold px-6 py-3 rounded-lg transition-all shadow-md hover:shadow-lg">
+                                <i class="fas fa-shopping-bag"></i>
+                                Ver toda la tienda
+                            </a>
+                            <a href="{{ route('home') }}" class="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-gray-700 font-semibold px-6 py-3 rounded-lg border-2 border-gray-200 transition-all">
+                                <i class="fas fa-home"></i>
+                                Volver al inicio
+                            </a>
+                        </div>
+                    </div>
                 </div>
             @endif
         </div>
     </div>
-    
-    @include('partials.footer')
-
-    @if(session('success'))
-        <div class="fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50" id="success-message">
-            {{ session('success') }}
-        </div>
-        <script>
-            setTimeout(() => {
-                document.getElementById('success-message')?.remove();
-            }, 3000);
-        </script>
-    @endif
-
-    @if(session('error'))
-        <div class="fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50" id="error-message">
-            {{ session('error') }}
-        </div>
-        <script>
-            setTimeout(() => {
-                document.getElementById('error-message')?.remove();
-            }, 3000);
-        </script>
-    @endif
-</body>
-</html>
+@endsection
