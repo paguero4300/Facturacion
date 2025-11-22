@@ -21,6 +21,16 @@ class CheckWarehouseSelection
             return $next($request);
         }
 
+        // Evitar redirigir peticiones POST (como logout o formularios)
+        if ($request->isMethod('post')) {
+            // Si tenemos cookie pero no parámetro, inyectamos el valor en el request
+            // para que los controladores lo reciban sin necesidad de redirección
+            if (!$request->has('warehouse') && $request->cookie('warehouse_id')) {
+                $request->merge(['warehouse' => $request->cookie('warehouse_id')]);
+            }
+            return $next($request);
+        }
+
         // 1. Si la URL ya tiene el parámetro warehouse, guardamos la cookie y seguimos
         if ($request->has('warehouse')) {
             $warehouseId = $request->input('warehouse');
