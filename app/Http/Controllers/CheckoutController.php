@@ -46,12 +46,14 @@ class CheckoutController extends Controller
      */
     public function process(Request $request)
     {
-        $validated = $request->validate([
+        // Determine if it's pickup or delivery based on client_address
+        $isPickup = empty($request->client_address);
+        
+        // Base validation rules
+        $rules = [
             'client_name' => 'required|string|max:500',
             'client_phone' => 'required|string|max:20',
             'client_email' => 'nullable|email|max:200',
-            'client_address' => 'required|string|max:1000',
-            'client_district' => 'nullable|string|max:100',
             'payment_method' => 'required|in:cash,yape,plin,card,transfer',
             'payment_reference' => 'nullable|string|max:100',
             'observations' => 'nullable|string|max:500',
@@ -65,7 +67,21 @@ class CheckoutController extends Controller
             'client_payment_phone' => 'nullable|string|max:15',
             // Terms acceptance
             'accept_terms' => 'required|accepted',
-        ]);
+        ];
+        
+        // Conditional validation for DELIVERY
+        if (!$isPickup) {
+            $rules['client_address'] = 'required|string|max:1000';
+            $rules['client_district'] = 'required|string|max:100';
+            $rules['recipient_name'] = 'nullable|string|max:500';
+            $rules['recipient_phone'] = 'nullable|string|max:20';
+        } else {
+            // PICKUP - address not required
+            $rules['client_address'] = 'nullable|string|max:1000';
+            $rules['client_district'] = 'nullable|string|max:100';
+        }
+        
+        $validated = $request->validate($rules);
 
         // Additional delivery validations
         if ($request->has('delivery_date') && $request->delivery_date) {

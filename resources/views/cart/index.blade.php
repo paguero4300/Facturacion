@@ -3,6 +3,12 @@
 @section('title', 'Carrito de Compras - Detalles y Más')
 
 @section('content')
+    {{-- Spacer for fixed header --}}
+    <div class="h-20"></div>
+    
+    {{-- Progress Indicator --}}
+    <x-checkout-progress :currentStep="1" />
+    
     <!-- Page Header (Matching Shop Style) -->
     <div class="relative bg-gray-900 py-16 md:py-24 overflow-hidden">
         <div class="absolute inset-0">
