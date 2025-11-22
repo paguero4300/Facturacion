@@ -145,15 +145,16 @@
 
                         <!-- Action Buttons -->
                         <div class="flex flex-col sm:flex-row gap-4">
-                            <button type="submit"
+                            <button type="submit" name="action" value="add_to_cart"
                                 class="flex-1 bg-gray-900 text-white font-bold py-4 px-8 rounded-xl hover:bg-[var(--naranja)] transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-3">
                                 <i class="fas fa-shopping-cart"></i>
                                 AÑADIR AL CARRITO
                             </button>
-                            <a href="{{ route('cart.index') }}"
-                                class="flex items-center justify-center px-8 py-4 border-2 border-gray-200 text-gray-700 font-bold rounded-xl hover:border-gray-900 hover:text-gray-900 transition-colors">
-                                VER CARRITO
-                            </a>
+                            <button type="submit" name="action" value="buy_now"
+                                class="flex-1 bg-[var(--naranja)] text-white font-bold py-4 px-8 rounded-xl hover:bg-gray-900 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 flex items-center justify-center gap-3">
+                                <i class="fas fa-bolt"></i>
+                                COMPRAR AHORA
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -164,7 +165,9 @@
                 <div class="mt-16">
                     <div class="flex items-center justify-between mb-8">
                         <h2 class="text-2xl font-bold text-gray-900">Productos relacionados</h2>
-                        <a href="{{ route('shop.index', ['category' => $product->category->slug]) }}" class="text-[var(--naranja)] font-medium hover:underline">Ver más</a>
+                        @if($product->category)
+                            <a href="{{ route('shop.index', ['category' => $product->category->slug]) }}" class="text-[var(--naranja)] font-medium hover:underline">Ver más</a>
+                        @endif
                     </div>
                     
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

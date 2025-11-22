@@ -27,6 +27,9 @@ class ShopController extends Controller
         $products = $query->orderBy('name')->paginate(12);
         $categories = $filterData['categories'];
         $warehouses = $filterData['warehouses'];
+        
+        // Obtener categorías para el header (mismo método que home)
+        $menuCategories = $this->getFilteredCategories($request)->get();
 
         return view('shop.index', compact(
             'products', 
@@ -34,7 +37,8 @@ class ShopController extends Controller
             'warehouses',
             'activeFilters',
             'filterBreadcrumbs',
-            'clearFiltersUrl'
+            'clearFiltersUrl',
+            'menuCategories'
         ));
     }
 
@@ -70,7 +74,10 @@ class ShopController extends Controller
         }
         
         $related = $relatedQuery->limit(4)->get();
+        
+        // Obtener categorías para el header (mismo método que home)
+        $menuCategories = $this->getFilteredCategories($request)->get();
 
-        return view('shop.product', compact('product', 'related'));
+        return view('shop.product', compact('product', 'related', 'menuCategories'));
     }
 }

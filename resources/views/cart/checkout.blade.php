@@ -41,38 +41,24 @@
                 </div>
             @endif
 
-            <!-- Guest/Login Options -->
+            <!-- Guest/Login Options (Discrete) -->
             @guest
-                <div class="mb-6 bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-[var(--azul-claro)] rounded-2xl p-6 shadow-md">
-                    <div class="flex items-start gap-4">
-                        <div class="flex-shrink-0">
-                            <svg class="w-10 h-10 text-[var(--azul-primario)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                        </div>
+                <div class="mb-6 bg-white rounded-xl border-2 border-gray-200 p-5 shadow-sm">
+                    <div class="flex items-start gap-3">
+                        <svg class="w-6 h-6 text-gray-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
                         <div class="flex-1">
-                            <h3 class="text-xl font-bold text-[var(--enlaces-titulos)] mb-2">¿Tienes una cuenta?</h3>
-                            <p class="text-[var(--texto-principal)] mb-4">
-                                Inicia sesión para ver tu historial de pedidos y gestionar tu información más fácilmente.
+                            <p class="text-sm text-[var(--texto-principal)] mb-3">
+                                ¿Tienes cuenta? 
+                                <a href="{{ route('login') }}" class="text-[var(--azul-primario)] hover:underline font-semibold">Inicia sesión</a>
+                                o
+                                <a href="{{ route('register') }}" class="text-[var(--azul-primario)] hover:underline font-semibold">Regístrate</a>
+                                para acceder a beneficios.
                             </p>
-                            <div class="flex flex-wrap gap-3">
-                                <a href="{{ route('login') }}"
-                                    class="inline-flex items-center gap-2 bg-[var(--azul-primario)] hover:bg-[var(--azul-claro)] text-white font-semibold px-6 py-3 rounded-lg transition-all shadow-md hover:shadow-lg">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                                    </svg>
-                                    Iniciar Sesión
-                                </a>
-                                <a href="{{ route('register') }}"
-                                    class="inline-flex items-center gap-2 bg-white hover:bg-gray-50 text-[var(--azul-primario)] font-semibold px-6 py-3 rounded-lg border-2 border-[var(--azul-primario)] transition-all shadow-md hover:shadow-lg">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
-                                    </svg>
-                                    Crear Cuenta
-                                </a>
-                            </div>
-                            <p class="text-sm text-[var(--texto-principal)] mt-3 font-medium">
-                                O continúa como <strong class="text-[var(--enlaces-titulos)]">invitado</strong> llenando el formulario a continuación 👇
+                            <p class="text-xs text-gray-500">
+                                <i class="fas fa-check-circle text-green-500 mr-1"></i>
+                                También puedes continuar sin cuenta completando el formulario.
                             </p>
                         </div>
                     </div>
@@ -123,13 +109,19 @@
                                         placeholder="Ej: 987654321">
                                 </div>
 
-                                <div>
+                                <div class="md:col-span-2">
                                     <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                         Email
                                     </label>
                                     <input type="email" name="client_email" value="{{ old('client_email') }}"
                                         class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all"
                                         placeholder="correo@ejemplo.com">
+                                    <p class="text-xs text-gray-500 mt-1.5 flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                        </svg>
+                                        Usaremos tu email solo para enviarte la confirmación y actualizaciones de tu pedido
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -229,6 +221,14 @@
                                 </svg>
                                 Método de Pago
                             </h2>
+
+                            <!-- Trust Badges -->
+                            <div class="mb-6 flex items-center justify-center gap-4 p-4 bg-gray-50 rounded-xl">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                                <span class="text-sm font-medium text-gray-700">Pago 100% Seguro y Protegido</span>
+                            </div>
 
                             <div class="space-y-3">
                                 <!-- Yape -->
@@ -416,9 +416,26 @@
                                 </div>
                             </div>
 
+                            <!-- Términos y Condiciones -->
+                            <div class="mt-6 p-4 bg-gray-50 rounded-xl">
+                                <label class="flex items-start gap-3 cursor-pointer">
+                                    <input type="checkbox" name="accept_terms" value="1" required
+                                        class="mt-1 w-5 h-5 text-[var(--naranja)] focus:ring-[var(--naranja)] rounded">
+                                    <span class="text-sm text-[var(--texto-principal)]">
+                                        Acepto los 
+                                        <a href="{{ route('legal.terms') }}" target="_blank" class="text-[var(--azul-primario)] hover:underline font-semibold">términos y condiciones</a>
+                                        y la 
+                                        <a href="{{ route('legal.privacy') }}" target="_blank" class="text-[var(--azul-primario)] hover:underline font-semibold">política de privacidad</a>
+                                    </span>
+                                </label>
+                            </div>
+
                             <button type="submit"
-                                class="w-full mt-6 bg-gradient-to-r from-[var(--naranja)] to-[var(--azul-claro)] text-white font-bold py-4 px-6 rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 shadow-lg">
-                                Confirmar Pedido
+                                class="w-full mt-6 bg-gradient-to-r from-[var(--naranja)] to-[var(--azul-claro)] text-white font-bold py-4 px-6 rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 shadow-lg flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                                Confirmar Pedido y Pagar
                             </button>
 
                             <a href="{{ route('cart.index') }}"

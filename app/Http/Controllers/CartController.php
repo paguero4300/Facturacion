@@ -25,6 +25,7 @@ class CartController extends Controller
     {
         $productId = $request->input('product_id');
         $quantity = max(1, (int) $request->input('quantity', 1));
+        $action = $request->input('action', 'add_to_cart');
 
         $product = Product::findOrFail($productId);
 
@@ -51,8 +52,14 @@ class CartController extends Controller
 
         session()->put('cart', $cart);
 
+        // Si es "comprar ahora", redirigir directamente a checkout
+        if ($action === 'buy_now') {
+            return redirect()->route('checkout.index');
+        }
+
         return back()->with('success', '¡Producto agregado al carrito!');
     }
+
 
     /**
      * Update cart item quantity

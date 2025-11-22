@@ -23,7 +23,7 @@
     <div class="py-12 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex flex-col lg:flex-row gap-8">
-                <!-- Sidebar - Categories Filter -->
+            <!-- Sidebar - Categories Filter -->
                 <aside class="lg:w-64 flex-shrink-0">
                     <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 sticky top-24">
                         <h3 class="text-lg font-bold mb-6 text-gray-900 border-b pb-2">Categorías</h3>
@@ -34,7 +34,7 @@
                                     Todos los productos
                                 </a>
                             </li>
-                            @foreach($categories as $category)
+                            @foreach($menuCategories as $category)
                                 <li>
                                     @php
                                         $categoryParams = ['category' => $category->slug];

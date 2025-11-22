@@ -63,6 +63,8 @@ class CheckoutController extends Controller
             'payment_evidence' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048', // 2MB max
             'payment_operation_number' => 'nullable|string|max:100',
             'client_payment_phone' => 'nullable|string|max:15',
+            // Terms acceptance
+            'accept_terms' => 'required|accepted',
         ]);
 
         // Additional delivery validations

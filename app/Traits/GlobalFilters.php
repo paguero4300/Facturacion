@@ -15,11 +15,23 @@ trait GlobalFilters
      */
     public function applyGlobalFilters(Builder $query, Request $request): Builder
     {
-        // Filtro por categoría
+        // Filtro por categoría (incluye subcategorías)
         if ($request->has('category') && $request->category) {
-            $query->whereHas('category', function ($q) use ($request) {
-                $q->where('slug', $request->category);
-            });
+            $category = Category::where('slug', $request->category)
+                ->where('status', true)
+                ->with('activeChildren')
+                ->first();
+            
+            if ($category) {
+                // Si es una categoría padre (tiene subcategorías), incluir productos de subcategorías
+                if ($category->activeChildren->count() > 0) {
+                    $categoryIds = $category->activeChildren->pluck('id')->push($category->id);
+                    $query->whereIn('category_id', $categoryIds);
+                } else {
+                    // Si es una subcategoría, solo productos de esta categoría
+                    $query->where('category_id', $category->id);
+                }
+            }
         }
 
         // Filtro por almacén

@@ -58,14 +58,27 @@ Route::middleware('auth')->get('/mis-pedidos', [CheckoutController::class, 'myOr
 // ====================================
 Route::get('/payment-evidence/{invoice}', [PaymentEvidenceController::class, 'show'])->name('payment-evidence.show');
 
+
 // ====================================
 // RUTAS DE AUTENTICACIÓN (BREEZE)
 // ====================================
 require __DIR__.'/auth.php';
 
+// ====================================
+// RUTAS DE PÁGINAS LEGALES
+// ====================================
+Route::get('/terminos-y-condiciones', function () {
+    return view('legal.terms');
+})->name('legal.terms');
+
+Route::get('/politica-de-privacidad', function () {
+    return view('legal.privacy');
+})->name('legal.privacy');
+
 // Ruta dinámica para categorías - maneja todas las URLs de categorías automáticamente
 // IMPORTANTE: Esta debe estar al final para no capturar las rutas específicas
 Route::get('/{categorySlug}', [DetallesController::class, 'showCategory'])->name('category.show');
+
 
 // Rutas AJAX para búsqueda de clientes en POS
 Route::post('/admin/pos/search-client', function (\Illuminate\Http\Request $request) {
