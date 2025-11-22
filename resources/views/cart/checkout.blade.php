@@ -627,6 +627,29 @@
                                 </div>
                             </div>
 
+                            {{-- Términos y Condiciones --}}
+                            <div class="mt-6 pt-6 border-t-2 border-gray-100">
+                                <label class="flex items-start gap-3 cursor-pointer group">
+                                    <input type="checkbox" name="accept_terms" value="1" 
+                                           {{ old('accept_terms') ? 'checked' : '' }}
+                                           class="mt-1 w-5 h-5 text-[var(--naranja)] focus:ring-[var(--naranja)] rounded border-gray-300">
+                                    <span class="text-sm text-gray-700">
+                                        Acepto los 
+                                        <a href="{{ route('legal.terms') }}" target="_blank" class="text-[var(--azul-primario)] hover:text-[var(--naranja)] font-semibold underline">
+                                            términos y condiciones
+                                        </a>
+                                        y la
+                                        <a href="{{ route('legal.privacy') }}" target="_blank" class="text-[var(--azul-primario)] hover:text-[var(--naranja)] font-semibold underline">
+                                            política de privacidad
+                                        </a>
+                                        <span class="text-red-500">*</span>
+                                    </span>
+                                </label>
+                                @error('accept_terms')
+                                    <p class="text-red-500 text-xs mt-2 ml-8">{{ $message }}</p>
+                                @enderror
+                            </div>
+
                             <button type="submit"
                                 class="w-full mt-6 bg-gradient-to-r from-[var(--naranja)] to-[var(--azul-claro)] text-white font-bold py-4 px-6 rounded-xl hover:shadow-xl hover:scale-105 transition-all duration-300 shadow-lg">
                                 Confirmar Pedido
