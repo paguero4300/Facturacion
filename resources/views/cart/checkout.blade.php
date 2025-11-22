@@ -349,118 +349,202 @@
                                 3️⃣ Método de Pago
                             </h2>
 
-                            <div class="space-y-3">
+                            <!-- Payment Options Grid -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                 <!-- Yape -->
-                                <div class="payment-method-container">
-                                    <label class="flex items-center p-5 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[var(--naranja)] hover:bg-orange-50 transition-all payment-method-option" data-method="yape">
-                                        <input type="radio" name="payment_method" value="yape" {{ old('payment_method') == 'yape' ? 'checked' : '' }} required
-                                            class="w-5 h-5 text-[var(--naranja)] focus:ring-[var(--naranja)]" onchange="togglePaymentFields()">
-                                        <span class="ml-3 font-semibold text-[var(--enlaces-titulos)]">Yape</span>
-                                    </label>
-
-                                    <!-- Campos específicos para Yape -->
-                                    <div id="yape-fields" class="payment-fields mt-4 p-6 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl shadow-sm" style="display: none;">
-                                        <div class="mb-4 p-4 bg-white/80 backdrop-blur rounded-xl shadow-sm">
-                                            <h4 class="font-bold text-purple-800 mb-3 flex items-center gap-2">
-                                                <span class="text-2xl">📱</span> Datos para Yape:
-                                            </h4>
-                                            <p class="text-sm text-purple-700 font-medium">Número: <strong class="text-purple-900">941 492 316</strong></p>
-                                            <p class="text-sm text-purple-700 font-medium">Nombre: <strong class="text-purple-900">DETALLESYMASFLORES SAC</strong></p>
-                                            <p class="text-xs text-purple-600 mt-2">Realiza el pago y sube tu comprobante</p>
+                                <label class="relative cursor-pointer group">
+                                    <input type="radio" name="payment_method" value="yape" class="peer sr-only" onchange="togglePaymentFields()" {{ old('payment_method') == 'yape' ? 'checked' : '' }}>
+                                    <div class="p-4 rounded-xl border-2 border-gray-200 hover:border-[var(--naranja)] peer-checked:border-[var(--naranja)] peer-checked:bg-orange-50 transition-all h-full flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                            </svg>
                                         </div>
-
-                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div>
-                                                <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
-                                                    Número de operación <span class="text-red-500">*</span>
-                                                </label>
-                                                <input type="text" name="payment_operation_number" value="{{ old('payment_operation_number') }}"
-                                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all"
-                                                    placeholder="Ej: OP-123456789">
-                                            </div>
-
-                                            <div>
-                                                <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
-                                                    Tu número de Yape
-                                                </label>
-                                                <input type="text" name="client_payment_phone" value="{{ old('client_payment_phone') }}"
-                                                    class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all"
-                                                    placeholder="Ej: 987654321">
-                                            </div>
+                                        <div>
+                                            <h3 class="font-bold text-gray-900 group-hover:text-[var(--naranja)] transition-colors">Yape</h3>
+                                            <p class="text-xs text-gray-500">Pago rápido con QR/Número</p>
                                         </div>
+                                        <div class="ml-auto opacity-0 peer-checked:opacity-100 transition-opacity">
+                                            <svg class="w-6 h-6 text-[var(--naranja)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </label>
 
-                                        <div class="mt-4">
-                                            <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
-                                                Comprobante de pago <span class="text-red-500">*</span>
-                                            </label>
-                                            <input type="file" name="payment_evidence" accept=".jpg,.jpeg,.png,.pdf"
-                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all">
-                                            <p class="text-xs text-gray-500 mt-1">Formatos: JPG, PNG, PDF. Máximo 2MB</p>
+                                <!-- Plin (Disabled) -->
+                                <div class="relative opacity-60 cursor-not-allowed">
+                                    <div class="p-4 rounded-xl border-2 border-gray-100 bg-gray-50 h-full flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center flex-shrink-0">
+                                            <svg class="w-6 h-6 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-gray-400">Plin</h3>
+                                            <span class="inline-block px-2 py-0.5 bg-gray-200 text-gray-500 text-[10px] font-bold rounded-full uppercase tracking-wider">Pronto</span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Plin -->
-                                <div class="payment-method-container">
-                                    <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg opacity-50 cursor-not-allowed">
-                                        <input type="radio" name="payment_method" value="plin" disabled
-                                            class="w-4 h-4 text-pink-600 focus:ring-pink-500">
-                                        <span class="ml-3 font-medium text-gray-900">Plin</span>
-                                        <span class="ml-auto text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">No disponible aún</span>
-                                    </label>
-                                </div>
-
-                                <!-- Transferencia Bancaria -->
-                                <div class="payment-method-container">
-                                    <label class="flex items-center p-5 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[var(--azul-claro)] hover:bg-blue-50 transition-all payment-method-option" data-method="transfer">
-                                        <input type="radio" name="payment_method" value="transfer" {{ old('payment_method') == 'transfer' ? 'checked' : '' }} required
-                                            class="w-5 h-5 text-[var(--azul-primario)] focus:ring-[var(--azul-primario)]" onchange="togglePaymentFields()">
-                                        <span class="ml-3 font-semibold text-[var(--enlaces-titulos)]">Transferencia Bancaria</span>
-                                    </label>
-
-                                    <!-- Campos específicos para Transferencia -->
-                                    <div id="transfer-fields" class="payment-fields mt-4 p-6 bg-gradient-to-br from-green-50 to-teal-50 border-2 border-green-200 rounded-xl shadow-sm" style="display: none;">
-                                        <div class="mb-4 p-4 bg-white/80 backdrop-blur rounded-xl shadow-sm">
-                                            <h4 class="font-bold text-green-800 mb-3 flex items-center gap-2">
-                                                <span class="text-2xl">🏦</span> Datos Bancarios BCP:
-                                            </h4>
-                                            <p class="text-sm text-green-700 font-medium">Titular: <strong class="text-green-900">DETALLESYMASFLORES SAC</strong></p>
-                                            <p class="text-sm text-green-700 font-medium">Cuenta BCP Soles: <strong class="text-green-900">3557129566074</strong></p>
-                                            <p class="text-sm text-green-700 font-medium">CCI: <strong class="text-green-900">00235500712956607461</strong></p>
-                                            <p class="text-xs text-green-600 mt-2">Realiza la transferencia y sube tu comprobante</p>
+                                <!-- Transferencia -->
+                                <label class="relative cursor-pointer group">
+                                    <input type="radio" name="payment_method" value="transfer" class="peer sr-only" onchange="togglePaymentFields()" {{ old('payment_method') == 'transfer' ? 'checked' : '' }}>
+                                    <div class="p-4 rounded-xl border-2 border-gray-200 hover:border-[var(--azul-primario)] peer-checked:border-[var(--azul-primario)] peer-checked:bg-blue-50 transition-all h-full flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                            <svg class="w-6 h-6 text-[var(--azul-primario)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path>
+                                            </svg>
                                         </div>
+                                        <div>
+                                            <h3 class="font-bold text-gray-900 group-hover:text-[var(--azul-primario)] transition-colors">Transferencia</h3>
+                                            <p class="text-xs text-gray-500">BCP, Interbank, BBVA</p>
+                                        </div>
+                                        <div class="ml-auto opacity-0 peer-checked:opacity-100 transition-opacity">
+                                            <svg class="w-6 h-6 text-[var(--azul-primario)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </label>
 
+                                <!-- Tarjeta -->
+                                <label class="relative cursor-pointer group">
+                                    <input type="radio" name="payment_method" value="card" class="peer sr-only" onchange="togglePaymentFields()" {{ old('payment_method') == 'card' ? 'checked' : '' }}>
+                                    <div class="p-4 rounded-xl border-2 border-gray-200 hover:border-[var(--naranja)] peer-checked:border-[var(--naranja)] peer-checked:bg-orange-50 transition-all h-full flex items-center gap-4">
+                                        <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+                                            <svg class="w-6 h-6 text-[var(--naranja)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-gray-900 group-hover:text-[var(--naranja)] transition-colors">Tarjeta</h3>
+                                            <p class="text-xs text-gray-500">Link de pago seguro</p>
+                                        </div>
+                                        <div class="ml-auto opacity-0 peer-checked:opacity-100 transition-opacity">
+                                            <svg class="w-6 h-6 text-[var(--naranja)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Payment Details Sections -->
+                            <div class="space-y-4">
+                                <!-- Yape Fields -->
+                                <div id="yape-fields" class="payment-fields p-6 bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-100 rounded-xl shadow-sm" style="display: none;">
+                                    <div class="flex flex-col md:flex-row gap-6 items-center mb-6">
+                                        <div class="bg-white p-4 rounded-xl shadow-sm text-center min-w-[160px]">
+                                            <div class="w-32 h-32 mx-auto bg-gray-200 rounded-lg flex items-center justify-center mb-2">
+                                                <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                                                </svg>
+                                            </div>
+                                            <p class="font-bold text-purple-900 text-lg">941 492 316</p>
+                                            <p class="text-xs text-purple-600">DETALLESYMASFLORES SAC</p>
+                                        </div>
+                                        <div class="flex-1 space-y-2">
+                                            <h4 class="font-bold text-purple-900 text-lg">¿Cómo pagar con Yape?</h4>
+                                            <ol class="list-decimal list-inside text-sm text-purple-800 space-y-1">
+                                                <li>Abre tu app <strong>Yape</strong></li>
+                                                <li>Escanea el QR o yapea al número mostrado</li>
+                                                <li>Ingresa el monto total de tu pedido</li>
+                                                <li>Confirma el pago y <strong>guarda la captura</strong></li>
+                                                <li>Sube la captura en el campo de abajo 👇</li>
+                                            </ol>
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
                                                 Número de operación <span class="text-red-500">*</span>
                                             </label>
                                             <input type="text" name="payment_operation_number" value="{{ old('payment_operation_number') }}"
                                                 class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all"
-                                                placeholder="Ej: OP-123456789">
+                                                placeholder="Ej: 123456">
                                         </div>
-
-                                        <div class="mt-4">
+                                        <div>
                                             <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
-                                                Comprobante de transferencia <span class="text-red-500">*</span>
+                                                Tu número de celular
+                                            </label>
+                                            <input type="text" name="client_payment_phone" value="{{ old('client_payment_phone') }}"
+                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all"
+                                                placeholder="Desde donde yapeaste">
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
+                                                Comprobante de pago (Captura) <span class="text-red-500">*</span>
                                             </label>
                                             <input type="file" name="payment_evidence" accept=".jpg,.jpeg,.png,.pdf"
-                                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500">
-                                            <p class="text-xs text-gray-500 mt-1">Formatos: JPG, PNG, PDF. Máximo 2MB</p>
+                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--naranja)] focus:border-[var(--naranja)] transition-all bg-white">
                                         </div>
                                     </div>
                                 </div>
 
-                                <!-- Tarjeta de Crédito/Débito -->
-                                <div class="payment-method-container">
-                                    <label class="flex items-center p-5 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-[var(--naranja)] hover:bg-orange-50 transition-all payment-method-option" data-method="card">
-                                        <input type="radio" name="payment_method" value="card" {{ old('payment_method') == 'card' ? 'checked' : '' }} required
-                                            class="w-5 h-5 text-[var(--naranja)] focus:ring-[var(--naranja)]" onchange="togglePaymentFields()">
-                                        <div class="ml-3 flex-1">
-                                            <span class="font-semibold text-[var(--enlaces-titulos)]">Tarjeta de Crédito/Débito</span>
-                                            <p class="text-xs text-[var(--texto-principal)] mt-1">Solicitar link de pago al WhatsApp: <a href="https://wa.me/51941492316" target="_blank" class="text-[var(--azul-primario)] hover:text-[var(--azul-claro)] font-semibold">941 492 316</a></p>
+                                <!-- Transfer Fields -->
+                                <div id="transfer-fields" class="payment-fields p-6 bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-100 rounded-xl shadow-sm" style="display: none;">
+                                    <div class="bg-white p-5 rounded-xl shadow-sm mb-6 border-l-4 border-[var(--azul-primario)]">
+                                        <h4 class="font-bold text-[var(--azul-primario)] mb-3 flex items-center gap-2">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                            Datos Bancarios (BCP)
+                                        </h4>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                            <div>
+                                                <p class="text-gray-500">Titular</p>
+                                                <p class="font-bold text-gray-900">DETALLESYMASFLORES SAC</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-gray-500">Cuenta Soles</p>
+                                                <p class="font-bold text-gray-900 font-mono">355-7129566-0-74</p>
+                                            </div>
+                                            <div class="md:col-span-2">
+                                                <p class="text-gray-500">CCI (Interbancario)</p>
+                                                <p class="font-bold text-gray-900 font-mono">002-355-007129566074-61</p>
+                                            </div>
                                         </div>
+                                    </div>
 
-                                    </label>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
+                                                Número de operación <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="text" name="payment_operation_number" value="{{ old('payment_operation_number') }}"
+                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--azul-primario)] focus:border-[var(--azul-primario)] transition-all"
+                                                placeholder="Ej: 1234567">
+                                        </div>
+                                        <div class="md:col-span-2">
+                                            <label class="block text-sm font-semibold text-[var(--enlaces-titulos)] mb-2">
+                                                Comprobante de transferencia <span class="text-red-500">*</span>
+                                            </label>
+                                            <input type="file" name="payment_evidence" accept=".jpg,.jpeg,.png,.pdf"
+                                                class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[var(--azul-primario)] focus:border-[var(--azul-primario)] transition-all bg-white">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Card Fields -->
+                                <div id="card-fields" class="payment-fields p-6 bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-100 rounded-xl shadow-sm" style="display: none;">
+                                    <div class="flex items-start gap-4">
+                                        <div class="bg-white p-3 rounded-full shadow-sm text-orange-500">
+                                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1">
+                                            <h4 class="font-bold text-orange-900 text-lg mb-2">Solicitar Link de Pago</h4>
+                                            <p class="text-sm text-orange-800 mb-4">
+                                                Para tu seguridad, generaremos un <strong>link de pago único</strong> para ti. Te lo enviaremos por WhatsApp para que puedas pagar con cualquier tarjeta (Visa, Mastercard, Amex) de forma segura.
+                                            </p>
+                                            <a href="https://wa.me/51941492316?text=Hola,%20quiero%20pagar%20mi%20pedido%20con%20tarjeta" target="_blank"
+                                               class="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md hover:shadow-lg">
+                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                                                Solicitar Link por WhatsApp
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
