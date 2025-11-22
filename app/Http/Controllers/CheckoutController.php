@@ -179,7 +179,7 @@ class CheckoutController extends Controller
                 'payment_condition' => 'immediate',
                 'status' => 'draft',
                 'observations' => $validated['observations'] ?? null,
-                'created_by' => Auth::id(),
+                'created_by' => Auth::id() ?? null, // NULL para pedidos de invitados
                 // Payment validation fields
                 'payment_evidence_path' => $paymentEvidencePath,
                 'payment_operation_number' => $validated['payment_operation_number'] ?? null,
