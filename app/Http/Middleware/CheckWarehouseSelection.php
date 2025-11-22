@@ -46,8 +46,11 @@ class CheckWarehouseSelection
 
         if ($cookieWarehouseId) {
             // Si existe cookie, redirigimos agregando el parámetro
-            // Mantenemos otros parámetros de la query string si existen
-            $params = $request->query();
+            // Mantenemos TODOS los parámetros: de ruta (ej: categorySlug) y de query string
+            $params = array_merge(
+                $request->route()->parameters(), // Parámetros de ruta como {categorySlug}
+                $request->query()                // Parámetros de query string como ?search=..
+            );
             $params['warehouse'] = $cookieWarehouseId;
             
             return redirect()->route($request->route()->getName(), $params);
