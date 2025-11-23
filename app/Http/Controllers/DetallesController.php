@@ -136,6 +136,6 @@ class DetallesController extends Controller
         // Aquí se procesaría el formulario (enviar email, guardar en BD, etc.)
         // Por ahora, solo redirigimos con un mensaje de éxito
         
-        return redirect()->route('contacto')->with('success', '¡Mensaje enviado con éxito! Nos pondremos en contacto contigo pronto.');
+        return back()->with('success', '¡Mensaje enviado con éxito! Nos pondremos en contacto contigo pronto.');
     }
 }
