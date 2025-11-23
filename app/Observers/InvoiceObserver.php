@@ -15,6 +15,47 @@ class InvoiceObserver
     public function updated(Invoice $invoice)
     {
         $this->calculateTotals($invoice);
+
+        // Manejo de Stock al cambiar estado
+        if ($invoice->isDirty('status')) {
+            $newStatus = $invoice->status;
+            $oldStatus = $invoice->getOriginal('status');
+
+            // Si se cancela el pedido, reponer stock
+            if ($newStatus === 'cancelled' && $oldStatus !== 'cancelled') {
+                foreach ($invoice->details as $detail) {
+                    if ($product = $detail->product) {
+                        $product->increaseStock($detail->quantity);
+                    }
+                }
+            }
+
+            // Si se reactiva un pedido cancelado (vuelve a draft o paid), descontar stock nuevamente
+            if ($oldStatus === 'cancelled' && $newStatus !== 'cancelled') {
+                foreach ($invoice->details as $detail) {
+                    if ($product = $detail->product) {
+                        $product->decreaseStock($detail->quantity);
+                    }
+                }
+            }
+        }
+
+        // Manejo de Stock al rechazar pago (si no estaba ya cancelado)
+        if ($invoice->isDirty('payment_validation_status')) {
+            $newValidation = $invoice->payment_validation_status;
+            
+            // Si se rechaza el pago, reponer stock (asumiendo que no se canceló el pedido aún)
+            // Nota: Si el flujo implica cancelar el pedido al rechazar pago, la lógica de arriba ya lo cubre.
+            // Pero si el pedido queda en 'draft' pero con pago rechazado, deberíamos liberar el stock?
+            // Por ahora, asumimos que rechazar pago LIBERA el stock para que otros compren.
+            if ($newValidation === \App\Enums\PaymentValidationStatus::PAYMENT_REJECTED) {
+                foreach ($invoice->details as $detail) {
+                    if ($product = $detail->product) {
+                        $product->increaseStock($detail->quantity);
+                    }
+                }
+            }
+        }
     }
 
     protected function calculateTotals(Invoice $invoice)

@@ -201,4 +201,27 @@ class Product extends Model
             return '<text>Error: ' . $e->getMessage() . '</text>';
         }
     }
+
+    // Stock Management Methods
+    public function increaseStock(float $quantity): void
+    {
+        if (!$this->track_inventory) {
+            return;
+        }
+
+        $this->current_stock += $quantity;
+        $this->save();
+    }
+
+    public function decreaseStock(float $quantity): void
+    {
+        if (!$this->track_inventory) {
+            return;
+        }
+
+        // Permitir stock negativo si es necesario, o lanzar excepción
+        // Por ahora permitimos negativo para no bloquear ventas, pero se podría restringir
+        $this->current_stock -= $quantity;
+        $this->save();
+    }
 }
