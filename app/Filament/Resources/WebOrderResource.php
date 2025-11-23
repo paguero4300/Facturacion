@@ -21,6 +21,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
+use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Filters\Filter;
@@ -333,21 +334,12 @@ class WebOrderResource extends Resource
                     ->date('d/m/Y')
                     ->sortable(),
 
-                BadgeColumn::make('delivery_status')
+                Tables\Columns\SelectColumn::make('delivery_status')
                     ->label('Estado Entrega')
-                    ->colors([
-                        'info' => DeliveryStatus::PROGRAMADO,
-                        'warning' => DeliveryStatus::EN_RUTA,
-                        'success' => DeliveryStatus::ENTREGADO,
-                        'danger' => DeliveryStatus::REPROGRAMADO,
-                    ])
-                    ->icons([
-                        'heroicon-o-calendar' => DeliveryStatus::PROGRAMADO,
-                        'heroicon-o-truck' => DeliveryStatus::EN_RUTA,
-                        'heroicon-o-check-badge' => DeliveryStatus::ENTREGADO,
-                        'heroicon-o-arrow-path' => DeliveryStatus::REPROGRAMADO,
-                    ])
-                    ->sortable(),
+                    ->options(DeliveryStatus::class)
+                    ->selectablePlaceholder(false)
+                    ->sortable()
+                    ->disabled(fn ($record) => $record->payment_validation_status !== PaymentValidationStatus::PAYMENT_APPROVED),
 
                 TextColumn::make('total_amount')
                     ->label('Total')
