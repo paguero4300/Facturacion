@@ -79,7 +79,7 @@ class WebOrderResource extends Resource
             ->columns(3) // Grid de 3 columnas
             ->schema([
                 // COLUMNA IZQUIERDA (Datos del Pedido) - Ocupa 2/3
-                \Filament\Forms\Components\Group::make()
+                Group::make()
                     ->columnSpan(2)
                     ->schema([
                         Section::make('Información del Pedido')
@@ -184,7 +184,7 @@ class WebOrderResource extends Resource
                     ]),
 
                 // COLUMNA DERECHA (Panel de Gestión) - Ocupa 1/3
-                \Filament\Forms\Components\Group::make()
+                Group::make()
                     ->columnSpan(1)
                     ->schema([
                         Section::make('Gestión de Pago')
