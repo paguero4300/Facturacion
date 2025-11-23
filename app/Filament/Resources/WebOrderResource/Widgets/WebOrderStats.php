@@ -17,6 +17,19 @@ class WebOrderStats extends BaseWidget
         $cancelledOrders = (clone $query)->where('status', 'cancelled')->count();
         $totalRevenue = (clone $query)->where('status', 'paid')->sum('total_amount');
 
+        // Payment validation stats
+        $pendingValidation = (clone $query)
+            ->where('payment_validation_status', \App\Enums\PaymentValidationStatus::PENDING_VALIDATION)
+            ->count();
+
+        $withoutEvidence = (clone $query)
+            ->whereIn('payment_validation_status', [
+                \App\Enums\PaymentValidationStatus::PENDING_VALIDATION,
+                \App\Enums\PaymentValidationStatus::PAYMENT_REJECTED
+            ])
+            ->whereNull('payment_evidence_path')
+            ->count();
+
         // Orders this month
         $thisMonth = (clone $query)
             ->whereMonth('created_at', now()->month)
@@ -39,6 +52,18 @@ class WebOrderStats extends BaseWidget
                 ->descriptionIcon('heroicon-m-clock')
                 ->color('warning')
                 ->chart([7, 3, 4, 5, 6, 3, 5, 3]),
+
+            Stat::make('Pagos Pendientes de Validación', $pendingValidation)
+                ->description('Requieren revisión urgente')
+                ->descriptionIcon('heroicon-m-exclamation-triangle')
+                ->color('warning')
+                ->chart([2, 3, 5, 4, 6, 5, 7, 6]),
+
+            Stat::make('Pedidos Sin Comprobante', $withoutEvidence)
+                ->description('Seguir por WhatsApp')
+                ->descriptionIcon('heroicon-m-chat-bubble-left-right')
+                ->color('danger')
+                ->chart([1, 2, 3, 2, 4, 3, 5, 4]),
 
             Stat::make('Pedidos Completados', $completedOrders)
                 ->description('Entregados exitosamente')
