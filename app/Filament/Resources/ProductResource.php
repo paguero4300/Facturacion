@@ -139,19 +139,22 @@ class ProductResource extends Resource
                         ->searchable()
                         ->preload()
                         ->createOptionForm([
-                            \Filament\Forms\Components\TextInput::make('name')
-                                ->required()
-                                ->maxLength(100)
-                                ->label(__('Nombre de la Categoría')),
-                            \Filament\Forms\Components\Hidden::make('company_id')
-                                ->default(fn (callable $get) => $get('../../company_id'))
-                                ->dehydrated(true),
-                            \Filament\Forms\Components\Hidden::make('status')
-                                ->default(true)
-                                ->dehydrated(true),
-                            \Filament\Forms\Components\Hidden::make('created_by')
-                                ->default(fn () => auth()->id())
-                                ->dehydrated(true),
+                            \Filament\Schemas\Components\Group::make()
+                                ->schema([
+                                    \Filament\Forms\Components\TextInput::make('name')
+                                        ->required()
+                                        ->maxLength(100)
+                                        ->label(__('Nombre de la Categoría')),
+                                    \Filament\Forms\Components\Hidden::make('company_id')
+                                        ->default(fn () => auth()->user()->company_id ?? \App\Models\Company::where('is_active', true)->first()?->id)
+                                        ->dehydrated(true),
+                                    \Filament\Forms\Components\Hidden::make('status')
+                                        ->default(true)
+                                        ->dehydrated(true),
+                                    \Filament\Forms\Components\Hidden::make('created_by')
+                                        ->default(fn () => auth()->id())
+                                        ->dehydrated(true),
+                                ])
                         ])
                         ->label(__('Categoría'))
                         ->placeholder(__('Seleccionar categoría'))
@@ -164,19 +167,22 @@ class ProductResource extends Resource
                         ->searchable()
                         ->preload()
                         ->createOptionForm([
-                            \Filament\Forms\Components\TextInput::make('name')
-                                ->required()
-                                ->maxLength(100)
-                                ->label(__('Nombre de la Marca')),
-                            \Filament\Forms\Components\Hidden::make('company_id')
-                                ->default(fn (callable $get) => $get('../../company_id'))
-                                ->dehydrated(true),
-                            \Filament\Forms\Components\Hidden::make('status')
-                                ->default(true)
-                                ->dehydrated(true),
-                            \Filament\Forms\Components\Hidden::make('created_by')
-                                ->default(fn () => auth()->id())
-                                ->dehydrated(true),
+                            \Filament\Schemas\Components\Group::make()
+                                ->schema([
+                                    \Filament\Forms\Components\TextInput::make('name')
+                                        ->required()
+                                        ->maxLength(100)
+                                        ->label(__('Nombre de la Marca')),
+                                    \Filament\Forms\Components\Hidden::make('company_id')
+                                        ->default(fn () => auth()->user()->company_id ?? \App\Models\Company::where('is_active', true)->first()?->id)
+                                        ->dehydrated(true),
+                                    \Filament\Forms\Components\Hidden::make('status')
+                                        ->default(true)
+                                        ->dehydrated(true),
+                                    \Filament\Forms\Components\Hidden::make('created_by')
+                                        ->default(fn () => auth()->id())
+                                        ->dehydrated(true),
+                                ])
                         ])
                         ->label(__('Marca'))
                         ->placeholder(__('Seleccionar marca'))
